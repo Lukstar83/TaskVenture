@@ -36,29 +36,6 @@ function initDice() {
             }
         }
 
-        // If still no container, check if we're on the dice page and create one
-        const dicePage = document.getElementById('dice-page');
-        if (dicePage && dicePage.classList.contains('active')) {
-            console.log('On dice page, creating dice container');
-            const questsSection = dicePage.querySelector('.quests-section');
-            if (questsSection) {
-                // Create a dice display container for the quests page
-                const diceContainer = document.createElement('div');
-                diceContainer.id = 'dice-display';
-                diceContainer.className = 'dice-display-container';
-                diceContainer.innerHTML = `
-                    <h3>3D Dice Roller</h3>
-                    <div id="dice-display-3d" class="dice-display"></div>
-                    <button id="roll-dice-btn">Roll D20</button>
-                    <div id="dice-result" class="dice-result"></div>
-                `;
-                questsSection.appendChild(diceContainer);
-
-                // Use the newly created container
-                diceContainer = document.getElementById('dice-display-3d');
-            }
-        }
-
         // If still no container, create a fallback
         if (!diceContainer) {
             console.log('No dice container available, skipping initialization');
