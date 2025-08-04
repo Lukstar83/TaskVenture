@@ -920,7 +920,7 @@ function renderCollection() {
     const collectionGrid = document.getElementById('collection-grid');
     collectionGrid.innerHTML = '';
     
-    user.cards.forEach(card => {
+    user.cards.forEach((card, index) => {
         const cardElement = document.createElement('div');
         cardElement.className = `card ${card.rarity.toLowerCase()}`;
         cardElement.innerHTML = `
@@ -928,10 +928,109 @@ function renderCollection() {
             <div class="card-name">${card.name}</div>
             <div class="card-rarity">${card.rarity}</div>
             <div class="card-effect">${card.effect}</div>
+            <div class="card-actions">
+                <button class="card-delete-btn" onclick="deleteCard(${index})" title="Delete Card">🗑️</button>
+            </div>
         `;
+        
+        // Add click listener for detailed view
+        cardElement.addEventListener('click', (e) => {
+            // Don't show modal if clicking delete button
+            if (!e.target.classList.contains('card-delete-btn')) {
+                showCardDetails(card);
+            }
+        });
+        
         collectionGrid.appendChild(cardElement);
     });
 }
+
+// Delete a card from collection
+function deleteCard(cardIndex) {
+    if (confirm('Are you sure you want to discard this card? This action cannot be undone.')) {
+        user.cards.splice(cardIndex, 1);
+        updateUI();
+        showSelfCareMessage("Card discarded successfully.", 0);
+    }
+}
+
+// Show detailed card view
+function showCardDetails(card) {
+    const modal = document.createElement('div');
+    modal.className = 'card-details-modal';
+    modal.innerHTML = `
+        <div class="card-details-content">
+            <div class="card-details-header">
+                <h2>${card.name}</h2>
+                <button class="close-btn" onclick="closeCardDetails()">&times;</button>
+            </div>
+            <div class="card-details-body">
+                <div class="card-details-image">
+                    ${card.image ? `<img src="${card.image}" alt="${card.name}">` : '<div class="no-image">No Image</div>'}
+                </div>
+                <div class="card-details-info">
+                    <div class="detail-item">
+                        <strong>Rarity:</strong> 
+                        <span class="rarity-badge ${card.rarity.toLowerCase()}">${card.rarity}</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Type:</strong> ${card.type || 'Unknown'}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Effect:</strong>
+                        <p class="card-effect-full">${card.effect}</p>
+                    </div>
+                    ${card.description ? `
+                        <div class="detail-item">
+                            <strong>Description:</strong>
+                            <p class="card-description">${card.description}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="card-details-footer">
+                <button class="discard-btn" onclick="deleteCardFromModal('${card.id || card.name}')">Discard Card</button>
+                <button class="close-modal-btn" onclick="closeCardDetails()">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCardDetails();
+        }
+    });
+}
+
+// Close card details modal
+function closeCardDetails() {
+    const modal = document.querySelector('.card-details-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Delete card from modal
+function deleteCardFromModal(cardId) {
+    const cardIndex = user.cards.findIndex(card => (card.id || card.name) === cardId);
+    if (cardIndex !== -1) {
+        if (confirm('Are you sure you want to discard this card? This action cannot be undone.')) {
+            user.cards.splice(cardIndex, 1);
+            updateUI();
+            closeCardDetails();
+            showSelfCareMessage("Card discarded successfully.", 0);
+        }
+    }
+}
+
+// Make functions globally available
+window.deleteCard = deleteCard;
+window.showCardDetails = showCardDetails;
+window.closeCardDetails = closeCardDetails;
+window.deleteCardFromModal = deleteCardFromModal;
 
 // Show level up message
 function showLevelUpMessage() {
