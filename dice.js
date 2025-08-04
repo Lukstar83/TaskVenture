@@ -1,5 +1,7 @@
-// 3D Dice rolling functionality using Three.js
+
+// 3D Dice rolling functionality using Three.js with improved physics
 let scene, camera, renderer, world, dice, isRolling = false;
+let diceBody, cannonWorld;
 
 function initDice() {
     // Create scene
@@ -11,13 +13,12 @@ function initDice() {
     camera.position.set(0, 5, 5);
     camera.lookAt(0, 0, 0);
 
-    // Find the dice container element (can be regular or combat)
+    // Find the dice container element
     let diceContainer = document.getElementById('dice-display') || document.getElementById('combat-dice-display');
 
     if (!diceContainer) {
         console.log('Dice container not found, checking for quest context');
 
-        // Check if we're in a quest with combat dice section
         const combatDiceSection = document.querySelector('.combat-dice-section');
         if (combatDiceSection) {
             diceContainer = combatDiceSection.querySelector('.combat-dice-display');
@@ -26,7 +27,6 @@ function initDice() {
             }
         }
 
-        // If still no container, create a fallback
         if (!diceContainer) {
             console.log('No dice container available, skipping initialization');
             return false;
@@ -38,93 +38,134 @@ function initDice() {
     renderer.setSize(300, 200);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x1a1a2e, 1);
 
     // Clear existing content and add renderer
-    diceContainer.innerHTML = ''; // Clear the container
+    diceContainer.innerHTML = '';
     diceContainer.appendChild(renderer.domElement);
 
-    // Initialize physics world (simplified physics simulation)
-    world = {
-        gravity: -20,
-        objects: []
-    };
+    // Initialize Cannon.js physics world
+    cannonWorld = new CANNON.World();
+    cannonWorld.gravity.set(0, -30, 0);
+    cannonWorld.broadphase = new CANNON.NaiveBroadphase();
 
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(10, 10, 5);
     directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
     scene.add(directionalLight);
+
+    // Create floor
+    const floorGeometry = new THREE.PlaneGeometry(10, 10);
+    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Create floor physics body
+    const floorShape = new CANNON.Plane();
+    const floorBody = new CANNON.Body({ mass: 0 });
+    floorBody.addShape(floorShape);
+    floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+    floorBody.position.set(0, -2, 0);
+    cannonWorld.add(floorBody);
+
+    // Create walls to contain the dice
+    createWalls();
 
     // Create dice
     createDice();
 
-    // Add floor
-    const floorGeometry = new THREE.PlaneGeometry(18, 18);
-    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -4;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
     // Start render loop
     animate();
+
+    console.log('✅ Enhanced 3D dice initialized');
+    return true;
 }
 
-    function createDice() {
- // 1️⃣ Build a non-indexed icosahedron (20 faces × 3 verts each)
-  const geo = new THREE.IcosahedronGeometry(1, 0).toNonIndexed();
+function createWalls() {
+    const wallMaterial = new CANNON.Material();
+    wallMaterial.restitution = 0.3;
+    wallMaterial.friction = 0.4;
 
-  // 2️⃣ Carve out one group per triangular face
-  const faceCount = geo.attributes.position.count / 3;
-  geo.clearGroups();
-  for (let f = 0; f < faceCount; f++) {
-    geo.addGroup(f * 3, 3, f);
-  }
+    // Create invisible walls
+    const wallPositions = [
+        { x: 0, y: 0, z: 5 },   // front
+        { x: 0, y: 0, z: -5 },  // back
+        { x: 5, y: 0, z: 0 },   // right
+        { x: -5, y: 0, z: 0 }   // left
+    ];
 
-  // 3️⃣ Bake a little canvas texture for each face, drawing its number
-  const materials = [];
-  for (let i = 1; i <= faceCount; i++) {
-    const size   = 128;
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
-    const ctx    = canvas.getContext('2d');
+    wallPositions.forEach(pos => {
+        const wallShape = new CANNON.Box(new CANNON.Vec3(0.1, 3, 5));
+        const wallBody = new CANNON.Body({ mass: 0 });
+        wallBody.addShape(wallShape);
+        wallBody.position.set(pos.x, pos.y, pos.z);
+        wallBody.material = wallMaterial;
+        cannonWorld.add(wallBody);
+    });
+}
 
-    // ✨ You can tweak these styles for a fancy look ✨
-    // background
-    ctx.fillStyle = '#f9d976';
-    ctx.fillRect(0, 0, size, size);
-      
-    // border
-    ctx.strokeStyle = '#b8860b';
-    ctx.lineWidth   = 4;
-    ctx.strokeRect(2, 2, size - 4, size - 4);
+function createDice() {
+    // Create D20 geometry
+    const geometry = new THREE.IcosahedronGeometry(1, 0);
+    
+    // Create materials for each face with numbers
+    const materials = [];
+    for (let i = 1; i <= 20; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 128;
+        const ctx = canvas.getContext('2d');
 
-    // number
-    ctx.fillStyle    = '#1a1a2e';
-    ctx.font         = `bold ${size * 0.5}px sans-serif`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(i.toString(), size/2, size/2);
+        // Background
+        ctx.fillStyle = '#f4f4f4';
+        ctx.fillRect(0, 0, 128, 128);
 
-    // build a Three.js texture + material
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    materials.push(new THREE.MeshNormalMaterial({
-      map: texture,
-      side: THREE.DoubleSide
-    }));
-  }
+        // Border
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(3, 3, 122, 122);
 
-  // 4️⃣ Finally create the mesh & add to scene
-  dice = new THREE.Mesh(geo, materials);
-  dice.castShadow = true;
-  scene.add(dice);
+        // Number
+        ctx.fillStyle = '#1a1a2e';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(i.toString(), 64, 64);
 
-  console.log('✅ D20 with numbers created');
+        const texture = new THREE.CanvasTexture(canvas);
+        materials.push(new THREE.MeshLambertMaterial({ map: texture }));
+    }
+
+    // Create dice mesh
+    dice = new THREE.Mesh(geometry, materials);
+    dice.castShadow = true;
+    dice.receiveShadow = true;
+    dice.position.set(0, 2, 0);
+    scene.add(dice);
+
+    // Create physics body for dice
+    const diceShape = new CANNON.Sphere(1);
+    diceBody = new CANNON.Body({ mass: 1 });
+    diceBody.addShape(diceShape);
+    diceBody.position.set(0, 2, 0);
+    
+    // Set physics material properties
+    const diceMaterial = new CANNON.Material();
+    diceMaterial.restitution = 0.3;
+    diceMaterial.friction = 0.4;
+    diceBody.material = diceMaterial;
+    
+    cannonWorld.add(diceBody);
+
+    console.log('✅ D20 with enhanced physics created');
 }
 
 function roll3DDice() {
@@ -140,54 +181,72 @@ function roll3DDice() {
     const rollButton = document.getElementById('roll-dice-btn');
     const resultDiv = document.getElementById('dice-result');
 
-    // Disable button during roll (with null check)
+    // Disable button during roll
     if (rollButton) {
         rollButton.disabled = true;
     }
     isRolling = true;
 
-    // Clear previous result (with null check)
+    // Clear previous result
     if (resultDiv) {
         resultDiv.innerHTML = '';
     }
 
-    // Set random initial velocity and rotation
-    dice.userData.velocity = {
-        x: (Math.random() - 0.5) * 10,
-        y: Math.random() * 5 + 5,
-        z: (Math.random() - 0.5) * 10
-    };
-
-    dice.userData.angularVelocity = {
-        x: (Math.random() - 0.5) * 20,
-        y: (Math.random() - 0.5) * 20,
-        z: (Math.random() - 0.5) * 20
-    };
-
-    // Position dice above the surface
-    dice.position.set(
+    // Reset dice position and rotation
+    diceBody.position.set(
         (Math.random() - 0.5) * 2,
-        3,
+        4 + Math.random() * 2,
         (Math.random() - 0.5) * 2
     );
+    
+    diceBody.quaternion.set(
+        Math.random(),
+        Math.random(),
+        Math.random(),
+        Math.random()
+    );
+    diceBody.quaternion.normalize();
 
-    // Stop the dice after a delay and show result
+    // Apply random force and torque
+    const force = new CANNON.Vec3(
+        (Math.random() - 0.5) * 15,
+        Math.random() * 10 + 5,
+        (Math.random() - 0.5) * 15
+    );
+    diceBody.applyForce(force, diceBody.position);
+
+    const torque = new CANNON.Vec3(
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20
+    );
+    diceBody.torque.copy(torque);
+
+    // Check for settling after delay
     setTimeout(() => {
-        stopDiceAndShowResult();
+        checkDiceSettled();
     }, 3000);
 }
 
-function stopDiceAndShowResult() {
-    // Stop the dice movement
-    if (dice && dice.userData) {
-        dice.userData.velocity = { x: 0, y: 0, z: 0 };
-        dice.userData.angularVelocity = { x: 0, y: 0, z: 0 };
-
-        // Position dice on the surface
-        dice.position.y = -1.5;
+function checkDiceSettled() {
+    // Check if dice has settled (low velocity)
+    const velocity = diceBody.velocity.length();
+    const angularVelocity = diceBody.angularVelocity.length();
+    
+    if (velocity < 0.1 && angularVelocity < 0.1) {
+        stopDiceAndShowResult();
+    } else {
+        // Check again in 100ms
+        setTimeout(() => checkDiceSettled(), 100);
     }
+}
 
-    // Calculate the final roll result based on dice rotation
+function stopDiceAndShowResult() {
+    // Stop the dice completely
+    diceBody.velocity.set(0, 0, 0);
+    diceBody.angularVelocity.set(0, 0, 0);
+
+    // Calculate the final roll result based on dice orientation
     const finalRoll = calculateDiceResult();
 
     // Show result in appropriate location
@@ -200,14 +259,13 @@ function stopDiceAndShowResult() {
         <div style="font-size: 0.9rem; margin-top: 0.5rem;">${resultText}</div>
     `;
 
-    // Check if this roll is for combat
+    // Handle different roll contexts
     if (window.questEngine && window.questEngine.pendingRoll) {
         if (combatResultDiv) {
             combatResultDiv.innerHTML = resultHTML;
         }
         window.questEngine.processDiceRoll(finalRoll);
     } else if (window.skillCheckContext) {
-        // Handle skill check rolls
         const context = window.skillCheckContext;
         if (context.callback) {
             context.callback(finalRoll);
@@ -218,14 +276,13 @@ function stopDiceAndShowResult() {
             regularResultDiv.innerHTML = resultHTML;
         }
     } else {
-        // Regular dice roll
         if (regularResultDiv) {
             regularResultDiv.innerHTML = resultHTML;
         }
         applyDiceEffect(finalRoll);
     }
 
-    // Re-enable buttons with null checks
+    // Re-enable buttons
     const rollButton = document.getElementById('roll-dice-btn');
     const combatRollButton = document.getElementById('combat-roll-btn');
 
@@ -236,51 +293,62 @@ function stopDiceAndShowResult() {
 }
 
 function calculateDiceResult() {
-    // Simple method: generate random result between 1-20
-    // In a more sophisticated version, you'd calculate based on which face is up
-    return Math.floor(Math.random() * 20) + 1;
+    // Get the dice's world rotation matrix
+    const matrix = new THREE.Matrix4();
+    matrix.makeRotationFromQuaternion(dice.quaternion);
+
+    // D20 face normals (icosahedron faces)
+    const faceNormals = [
+        new THREE.Vector3(0.356822, 0.934172, 0),
+        new THREE.Vector3(-0.356822, 0.934172, 0),
+        new THREE.Vector3(0.577350, 0.577350, 0.577350),
+        new THREE.Vector3(-0.577350, 0.577350, 0.577350),
+        new THREE.Vector3(0.577350, 0.577350, -0.577350),
+        new THREE.Vector3(-0.577350, 0.577350, -0.577350),
+        new THREE.Vector3(0, 0.356822, 0.934172),
+        new THREE.Vector3(0, -0.356822, 0.934172),
+        new THREE.Vector3(0.934172, 0, 0.356822),
+        new THREE.Vector3(-0.934172, 0, 0.356822),
+        new THREE.Vector3(0, 0.356822, -0.934172),
+        new THREE.Vector3(0, -0.356822, -0.934172),
+        new THREE.Vector3(0.934172, 0, -0.356822),
+        new THREE.Vector3(-0.934172, 0, -0.356822),
+        new THREE.Vector3(0.577350, -0.577350, 0.577350),
+        new THREE.Vector3(-0.577350, -0.577350, 0.577350),
+        new THREE.Vector3(0.577350, -0.577350, -0.577350),
+        new THREE.Vector3(-0.577350, -0.577350, -0.577350),
+        new THREE.Vector3(0.356822, -0.934172, 0),
+        new THREE.Vector3(-0.356822, -0.934172, 0)
+    ];
+
+    // Find which face is most "up" (closest to positive Y axis)
+    const upVector = new THREE.Vector3(0, 1, 0);
+    let maxDot = -1;
+    let topFaceIndex = 0;
+
+    faceNormals.forEach((normal, index) => {
+        const transformedNormal = normal.clone().applyMatrix4(matrix);
+        const dot = transformedNormal.dot(upVector);
+        if (dot > maxDot) {
+            maxDot = dot;
+            topFaceIndex = index;
+        }
+    });
+
+    // Return the face number (1-20)
+    return topFaceIndex + 1;
 }
 
 function animate() {
     requestAnimationFrame(animate);
 
-    if (dice && isRolling) {
-        // Update dice physics
-        const deltaTime = 0.016; // ~60fps
+    // Step the physics simulation
+    cannonWorld.step(1/60);
 
-        // Apply gravity
-        dice.userData.velocity.y += world.gravity * deltaTime;
-
-        // Update position
-        dice.position.x += dice.userData.velocity.x * deltaTime;
-        dice.position.y += dice.userData.velocity.y * deltaTime;
-        dice.position.z += dice.userData.velocity.z * deltaTime;
-
-        // Update rotation
-        dice.rotation.x += dice.userData.angularVelocity.x * deltaTime;
-        dice.rotation.y += dice.userData.angularVelocity.y * deltaTime;
-        dice.rotation.z += dice.userData.angularVelocity.z * deltaTime;
-
-        // Bounce off floor
-        if (dice.position.y < -1.5) {
-            dice.position.y = -1.5;
-            dice.userData.velocity.y *= -0.6; // Bounce with energy loss
-            dice.userData.velocity.x *= 0.8; // Friction
-            dice.userData.velocity.z *= 0.8; // Friction
-            dice.userData.angularVelocity.x *= 0.8;
-            dice.userData.angularVelocity.y *= 0.8;
-            dice.userData.angularVelocity.z *= 0.8;
-        }
-
-        // Boundaries
-        if (Math.abs(dice.position.x) > 4) {
-            dice.userData.velocity.x *= -0.6;
-            dice.position.x = Math.sign(dice.position.x) * 4;
-        }
-        if (Math.abs(dice.position.z) > 4) {
-            dice.userData.velocity.z *= -0.6;
-            dice.position.z = Math.sign(dice.position.z) * 4;
-        }
+    // Update dice mesh position and rotation from physics body
+    if (dice && diceBody) {
+        dice.position.copy(diceBody.position);
+        dice.quaternion.copy(diceBody.quaternion);
     }
 
     renderer.render(scene, camera);
@@ -303,16 +371,12 @@ function getDiceResultText(roll) {
 }
 
 function applyDiceEffect(roll) {
-    // Apply special effects based on dice roll
     if (roll === 20) {
-        // Critical success - set bonus XP flag
         user.bonusXP = true;
         showFloatingMessage("Bonus XP activated for next quest!", "success");
     } else if (roll === 1) {
-        // Critical failure - but make it fun, not punishing
         showFloatingMessage("The dice mock you, but you're undeterred!", "info");
     } else if (roll >= 15) {
-        // High roll - small XP bonus
         user.xp += 5;
         showFloatingMessage("+5 XP from lucky roll!", "success");
         updateUI();
@@ -336,19 +400,8 @@ function showFloatingMessage(message, type) {
         border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
     `;
 
-    // Add slide-in animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-
     document.body.appendChild(messageDiv);
 
-    // Remove message after 3 seconds
     setTimeout(() => {
         messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
         setTimeout(() => {
@@ -359,15 +412,13 @@ function showFloatingMessage(message, type) {
     }, 3000);
 }
 
-// Function to check and initialize dice when needed
 function ensureDiceInitialized() {
-    // Check for various dice container types
     const diceContainer = document.getElementById('dice-display') || 
                          document.getElementById('combat-dice-display') ||
                          document.querySelector('.combat-dice-display');
 
     if (diceContainer && !renderer) {
-        if (typeof THREE !== 'undefined') {
+        if (typeof THREE !== 'undefined' && typeof CANNON !== 'undefined') {
             try {
                 initDice();
                 return true;
@@ -376,13 +427,12 @@ function ensureDiceInitialized() {
                 return false;
             }
         } else {
-            console.log('THREE.js not loaded yet');
+            console.log('THREE.js or Cannon.js not loaded yet');
             return false;
         }
     }
 
-    // If we have a renderer but no container, we're still considered initialized
-    if (renderer) {
+    if (renderer && cannonWorld) {
         return true;
     }
 
@@ -391,63 +441,51 @@ function ensureDiceInitialized() {
 
 // Initialize dice when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for the game interface to be ready
     setTimeout(() => {
         ensureDiceInitialized();
     }, 1000);
 });
 
-// Initialize dice specifically for combat interface
 function initCombatDice() {
     const combatDiceContainer = document.getElementById('combat-dice-display');
     if (!combatDiceContainer || !renderer) return;
 
-    // Check if already initialized
     if (combatDiceContainer.querySelector('canvas')) return;
 
-    // Create a smaller renderer for combat
     const combatRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     combatRenderer.setSize(250, 180);
     combatRenderer.shadowMap.enabled = true;
     combatRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // Clear and add the combat renderer
     combatDiceContainer.innerHTML = '';
     combatDiceContainer.appendChild(combatRenderer.domElement);
 
-    // Use the existing scene and camera for combat
     combatRenderer.render(scene, camera);
 }
 
-// Make it globally available
+// Make functions globally available
 window.initCombatDice = initCombatDice;
 window.ensureDiceInitialized = ensureDiceInitialized;
 
-// Fallback function for older rollD20 calls
 function rollD20() {
     return Math.floor(Math.random() * 20) + 1;
 }
 
-// Function to roll dice for skill checks (non-combat)
 function rollSkillCheck(skillName, dc, callback) {
     if (isRolling) return;
 
-    // Set up skill check context
     window.skillCheckContext = {
         skill: skillName,
         dc: dc,
         callback: callback
     };
 
-    // Use 3D dice if available, otherwise fallback
     if (ensureDiceInitialized()) {
         roll3DDice();
     } else {
-        // Fallback to simple roll
         const result = rollD20();
         if (callback) callback(result);
     }
 }
 
-// Make it globally available
 window.rollSkillCheck = rollSkillCheck;

@@ -7,7 +7,10 @@
   <link href="styles.css" rel="stylesheet" />
   <link href="sheet.css"    rel="stylesheet" />
   <link href="quest-styles.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js for 3D dice -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Cannon.js for physics simulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.20.0/cannon.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -328,7 +331,7 @@
             <!-- Notification Settings -->
             <div class="wellness-notifications">
               <h4>📱 Self-Care Notifications</h4>
-              
+
               <div class="setting-item">
                 <label class="toggle-label">
                   <input type="checkbox" id="notifications-toggle" class="toggle-input">
