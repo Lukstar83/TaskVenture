@@ -2258,3 +2258,46 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Dice styles */
+.dice-section {
+    padding: 2rem;
+    text-align: center;
+}
+
+.dice-container {
+    width: 300px;
+    height: 200px;
+    margin: 2rem auto;
+    border: 2px solid var(--primary-gold);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+}
+
+.dice-result {
+    margin: 2rem 0;
+    font-size: 1.5rem;
+    color: var(--primary-gold);
+}
+
+#roll-dice-btn {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--primary-gold) 0%, #f4d03f 100%);
+    border: none;
+    border-radius: 8px;
+    color: #1a1a2e;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#roll-dice-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* Collection styles */
+.card-section {
+    padding: 2rem;
+}

@@ -1,6 +1,16 @@
 // 3D Dice rolling functionality using Three.js
 let scene, camera, renderer, world, dice, isRolling = false;
 
+// Simple dice roll function for the dice page
+window.rollDice = function() {
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const resultDiv = document.getElementById('dice-result');
+    if (resultDiv) {
+        resultDiv.innerHTML = `<h3>You rolled: ${roll}</h3>`;
+    }
+    return roll;
+};
+
 function initDice() {
     // Create scene
     scene = new THREE.Scene();
@@ -43,7 +53,7 @@ function initDice() {
                     <div id="dice-result" class="dice-result"></div>
                 `;
                 questsSection.appendChild(diceContainer);
-                
+
                 // Use the newly created container
                 diceContainer = document.getElementById('dice-display-3d');
             }
@@ -99,13 +109,13 @@ function initDice() {
 
     // Add table surface first - make it look like wood
     const tableGeometry = new THREE.PlaneGeometry(12, 8);
-    
+
     // Create wood texture
     const tableCanvas = document.createElement('canvas');
     tableCanvas.width = 512;
     tableCanvas.height = 512;
     const tableCtx = tableCanvas.getContext('2d');
-    
+
     // Wood grain background
     const woodGradient = tableCtx.createLinearGradient(0, 0, 512, 0);
     woodGradient.addColorStop(0, '#8B4513');
@@ -114,7 +124,7 @@ function initDice() {
     woodGradient.addColorStop(1, '#654321');
     tableCtx.fillStyle = woodGradient;
     tableCtx.fillRect(0, 0, 512, 512);
-    
+
     // Add wood grain lines
     tableCtx.strokeStyle = '#654321';
     tableCtx.lineWidth = 1;
@@ -125,18 +135,18 @@ function initDice() {
       tableCtx.lineTo(512, i + Math.sin(i * 0.1) * 10);
       tableCtx.stroke();
     }
-    
+
     const tableTexture = new THREE.CanvasTexture(tableCanvas);
     tableTexture.wrapS = THREE.RepeatWrapping;
     tableTexture.wrapT = THREE.RepeatWrapping;
     tableTexture.repeat.set(2, 2);
-    
+
     const tableMaterial = new THREE.MeshPhongMaterial({ 
       map: tableTexture,
       shininess: 20,
       specular: 0x111111
     });
-    
+
     const table = new THREE.Mesh(tableGeometry, tableMaterial);
     table.rotation.x = -Math.PI / 2;
     table.position.y = -2;
@@ -148,7 +158,7 @@ function initDice() {
 
     // Start render loop
     animate();
-    
+
     // Set up roll button if it exists
     const rollButton = document.getElementById('roll-dice-btn');
     if (rollButton) {
@@ -160,11 +170,11 @@ function initDice() {
     function createDice() {
   // Create proper icosahedron geometry for D20 (20 faces)
   const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
-  
+
   // Create materials for each face (1-20)
   const materials = [];
   const size = 256;
-  
+
   for (let i = 1; i <= 20; i++) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
@@ -225,16 +235,16 @@ function initDice() {
   dice = new THREE.Mesh(geo, materials);
   dice.castShadow = true;
   dice.receiveShadow = true;
-  
+
   // Position dice visibly above the table surface
   dice.position.set(0, 1, 0);
-  
+
   // Initialize physics properties
   dice.userData = {
     velocity: { x: 0, y: 0, z: 0 },
     angularVelocity: { x: 0, y: 0, z: 0 }
   };
-  
+
   scene.add(dice);
 
   console.log('✅ D20 with all 20 numbered faces created');
@@ -520,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         ensureDiceInitialized();
     }, 1000);
-    
+
     // Also try to initialize when the dice page becomes active
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -535,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     const dicePage = document.getElementById('dice-page');
     if (dicePage) {
         observer.observe(dicePage, { attributes: true });
