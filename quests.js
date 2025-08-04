@@ -11,8 +11,8 @@ class QuestEngine {
         this.enemyHP = 0;
         this.maxEnemyHP = 0;
         this.pendingRoll = null;
-        this.maxEnemyHP = 0;
-        this.pendingRoll = null;
+        this.enemyHasAdvantage = false;
+        this.playerHasAdvantage = false;
     }
 
     // Generate random quests based on character level
@@ -927,15 +927,24 @@ class QuestEngine {
         const { type } = this.pendingRoll;
         const logDiv = document.getElementById('combat-log');
 
+        // Handle player advantage for attack/spell rolls
+        let finalRoll = diceResult;
+        if ((type === 'attack' || type === 'spell') && this.playerHasAdvantage) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            finalRoll = Math.max(diceResult, secondRoll);
+            logDiv.innerHTML += `<p><strong>🎯 You have ADVANTAGE!</strong> Rolled ${diceResult} and ${secondRoll}, taking ${finalRoll}!</p>`;
+            this.playerHasAdvantage = false; // Reset advantage after use
+        }
+
         switch (type) {
             case 'attack':
-                this.resolveAttack(diceResult);
+                this.resolveAttack(finalRoll);
                 break;
             case 'spell':
-                this.resolveSpell(diceResult);
+                this.resolveSpell(finalRoll);
                 break;
             case 'defend':
-                this.resolveDefend(diceResult);
+                this.resolveDefend(finalRoll);
                 break;
         }
 
@@ -971,20 +980,54 @@ class QuestEngine {
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
-        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
-
-        if (total >= enemy.ac) {
-            const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage.</p>`;
+        // Check for critical hit (natural 20)
+        if (diceRoll === 20) {
+            logDiv.innerHTML += `<p><strong>🎯 CRITICAL HIT!</strong> Natural 20!</p>`;
+            const baseDamage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
+            const critDamage = Math.floor(Math.random() * 8) + 1; // Extra 1d8 for crit
+            const totalDamage = baseDamage + critDamage;
+            this.enemyHP = Math.max(0, this.enemyHP - totalDamage);
+            logDiv.innerHTML += `<p class="success">Critical damage! Dealt ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
 
             if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by a critical strike!</strong></p>`;
                 setTimeout(() => this.completeQuest(), 2000);
                 return;
             }
-        } else {
-            logDiv.innerHTML += `<p class="failure">Attack missed!</p>`;
+        }
+        // Check for critical failure (natural 1)
+        else if (diceRoll === 1) {
+            logDiv.innerHTML += `<p><strong>💥 CRITICAL FAILURE!</strong> Natural 1!</p>`;
+            logDiv.innerHTML += `<p class="failure">You stumble and leave yourself open to attack!</p>`;
+            // Mark that enemy gets advantage on next attack
+            this.enemyHasAdvantage = true;
+            // Player takes 1 damage from stumbling
+            this.playerHP = Math.max(0, this.playerHP - 1);
+            logDiv.innerHTML += `<p class="failure">You take 1 damage from your fumble.</p>`;
+            
+            if (this.playerHP <= 0) {
+                logDiv.innerHTML += `<p class="failure"><strong>Your critical failure was fatal!</strong></p>`;
+                setTimeout(() => this.handleCombatDefeat(), 2000);
+                return;
+            }
+        }
+        // Normal attack resolution
+        else {
+            logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
+
+            if (total >= enemy.ac) {
+                const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
+                this.enemyHP = Math.max(0, this.enemyHP - damage);
+                logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage.</p>`;
+
+                if (this.enemyHP <= 0) {
+                    logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
+                    setTimeout(() => this.completeQuest(), 2000);
+                    return;
+                }
+            } else {
+                logDiv.innerHTML += `<p class="failure">Attack missed!</p>`;
+            }
         }
 
         this.updateHealthBars();
@@ -1006,20 +1049,55 @@ class QuestEngine {
         const spellcastingAbility = spellcastingClasses[cls] || 'INT';
         const spellMod = this.getAbilityModifier(spellcastingAbility);
 
-        logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${spellAttackBonus} = ${total} vs AC ${enemy.ac}</p>`;
-
-        if (total >= enemy.ac) {
-            const damage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
+        // Check for critical hit (natural 20)
+        if (diceRoll === 20) {
+            logDiv.innerHTML += `<p><strong>🔮 CRITICAL SPELL!</strong> Natural 20!</p>`;
+            const baseDamage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
+            const critDamage = Math.floor(Math.random() * 10) + 1; // Extra 1d10 for crit
+            const totalDamage = baseDamage + critDamage;
+            this.enemyHP = Math.max(0, this.enemyHP - totalDamage);
+            logDiv.innerHTML += `<p class="success">Critical magical damage! Dealt ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
 
             if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} obliterated by critical magic!</strong></p>`;
                 setTimeout(() => this.completeQuest(), 2000);
                 return;
             }
-        } else {
-            logDiv.innerHTML += `<p class="failure">Spell missed!</p>`;
+        }
+        // Check for critical failure (natural 1)
+        else if (diceRoll === 1) {
+            logDiv.innerHTML += `<p><strong>💥 SPELL BACKFIRE!</strong> Natural 1!</p>`;
+            logDiv.innerHTML += `<p class="failure">Your spell backfires spectacularly!</p>`;
+            // Mark that enemy gets advantage on next attack
+            this.enemyHasAdvantage = true;
+            // Player takes magical backlash damage
+            const backlashDamage = Math.floor(Math.random() * 4) + 1; // 1d4
+            this.playerHP = Math.max(0, this.playerHP - backlashDamage);
+            logDiv.innerHTML += `<p class="failure">Magical backlash deals ${backlashDamage} damage to you!</p>`;
+            
+            if (this.playerHP <= 0) {
+                logDiv.innerHTML += `<p class="failure"><strong>Your spell backfire was fatal!</strong></p>`;
+                setTimeout(() => this.handleCombatDefeat(), 2000);
+                return;
+            }
+        }
+        // Normal spell resolution
+        else {
+            logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${spellAttackBonus} = ${total} vs AC ${enemy.ac}</p>`;
+
+            if (total >= enemy.ac) {
+                const damage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
+                this.enemyHP = Math.max(0, this.enemyHP - damage);
+                logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
+
+                if (this.enemyHP <= 0) {
+                    logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
+                    setTimeout(() => this.completeQuest(), 2000);
+                    return;
+                }
+            } else {
+                logDiv.innerHTML += `<p class="failure">Spell missed!</p>`;
+            }
         }
 
         this.updateHealthBars();
@@ -1038,30 +1116,63 @@ class QuestEngine {
     enemyAttack() {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
-        const attackRoll = Math.floor(Math.random() * 20) + 1;
         const enemyAttackBonus = 4; // Moderate attack bonus
+        
+        let attackRoll;
+        let rollDescription = '';
+
+        // Check if enemy has advantage from player's critical failure
+        if (this.enemyHasAdvantage) {
+            const roll1 = Math.floor(Math.random() * 20) + 1;
+            const roll2 = Math.floor(Math.random() * 20) + 1;
+            attackRoll = Math.max(roll1, roll2);
+            rollDescription = `${roll1}, ${roll2} (advantage - taking higher)`;
+            logDiv.innerHTML += `<p><strong>🎯 ${enemy.name} attacks with ADVANTAGE!</strong></p>`;
+            this.enemyHasAdvantage = false; // Reset advantage after use
+        } else {
+            attackRoll = Math.floor(Math.random() * 20) + 1;
+            rollDescription = attackRoll.toString();
+        }
+
         const total = attackRoll + enemyAttackBonus;
 
         // Get player AC from character sheet calculation
         const playerAC = this.getPlayerAC();
 
-        logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
+        logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${rollDescription} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 
-        if (total >= playerAC) {
+        // Check for enemy critical hit (natural 20)
+        if (attackRoll === 20) {
+            logDiv.innerHTML += `<p><strong>💀 ENEMY CRITICAL HIT!</strong></p>`;
+            const baseDamage = Math.floor(Math.random() * 6) + 3; // 1d6+3
+            const critDamage = Math.floor(Math.random() * 6) + 1; // Extra 1d6 for crit
+            const totalDamage = baseDamage + critDamage;
+            this.playerHP = Math.max(0, this.playerHP - totalDamage);
+            logDiv.innerHTML += `<p class="failure">${enemy.name} scores a critical hit for ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
+        }
+        // Check for enemy critical failure (natural 1)
+        else if (attackRoll === 1) {
+            logDiv.innerHTML += `<p><strong>😅 ${enemy.name} FUMBLES!</strong></p>`;
+            logDiv.innerHTML += `<p class="success">${enemy.name} stumbles and creates an opening!</p>`;
+            // Player gets advantage on next attack
+            this.playerHasAdvantage = true;
+        }
+        // Normal attack resolution
+        else if (total >= playerAC) {
             const damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
-
-            if (this.playerHP <= 0) {
-                logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
-                // Disable combat buttons when defeated
-                const buttons = document.querySelectorAll('.combat-options button');
-                buttons.forEach(btn => btn.disabled = true);
-                setTimeout(() => this.handleCombatDefeat(), 2000);
-                return;
-            }
         } else {
             logDiv.innerHTML += `<p class="success">${enemy.name} misses!</p>`;
+        }
+
+        if (this.playerHP <= 0) {
+            logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
+            // Disable combat buttons when defeated
+            const buttons = document.querySelectorAll('.combat-options button');
+            buttons.forEach(btn => btn.disabled = true);
+            setTimeout(() => this.handleCombatDefeat(), 2000);
+            return;
         }
 
         this.updateHealthBars();
