@@ -13,6 +13,32 @@ if (wizardEl) wizardEl.style.display = 'none';
 
 // auto-launch wizard on fresh load if no profile
 
+// Import Capacitor plugins for notifications
+let LocalNotifications;
+let notificationsEnabled = false;
+
+// Initialize notifications
+async function initializeNotifications() {
+    try {
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            const { LocalNotifications: LN } = await import('@capacitor/local-notifications');
+            LocalNotifications = LN;
+            
+            // Request permission
+            const permission = await LocalNotifications.requestPermissions();
+            notificationsEnabled = permission.display === 'granted';
+            
+            if (notificationsEnabled) {
+                console.log('✅ Notifications enabled');
+            } else {
+                console.log('❌ Notifications permission denied');
+            }
+        }
+    } catch (error) {
+        console.warn('Notifications not available:', error);
+    }
+}
+
 // Wellness system
 let wellnessStats = {
     stress: 0,
@@ -21,11 +47,121 @@ let wellnessStats = {
     mindfulness: 50
 };
 
+// Notification settings
+let notificationSettings = {
+    enabled: false,
+    frequency: 120, // minutes
+    quietHours: {
+        start: 22, // 10 PM
+        end: 7     // 7 AM
+    },
+    activities: {
+        hydrate: true,
+        breathe: true,
+        rest: true,
+        walk: true,
+        meditate: true,
+        journal: true
+    }
+};
+
 // Load wellness data
 function loadWellnessData() {
     const savedWellness = localStorage.getItem('taskventureWellness');
     if (savedWellness) {
         wellnessStats = JSON.parse(savedWellness);
+    }
+    
+    // Load notification settings
+    const savedNotifications = localStorage.getItem('taskventureNotifications');
+    if (savedNotifications) {
+        notificationSettings = JSON.parse(savedNotifications);
+    }
+}
+
+// Save notification settings
+function saveNotificationSettings() {
+    localStorage.setItem('taskventureNotifications', JSON.stringify(notificationSettings));
+}
+
+// Schedule self-care notifications
+async function scheduleSelfCareNotifications() {
+    if (!notificationsEnabled || !notificationSettings.enabled) return;
+    
+    try {
+        // Cancel existing notifications
+        await LocalNotifications.cancel({
+            notifications: [
+                { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }
+            ]
+        });
+        
+        const activities = [
+            { id: 1, activity: 'hydrate', title: '💧 Hydration Reminder', body: 'Time to drink some water! Your body will thank you.' },
+            { id: 2, activity: 'breathe', title: '🌬️ Breathing Break', body: 'Take a moment for some deep breathing exercises.' },
+            { id: 3, activity: 'rest', title: '😴 Rest Time', body: 'Consider taking a short break to recharge your energy.' },
+            { id: 4, activity: 'walk', title: '🚶‍♂️ Movement Break', body: 'Time for a refreshing walk to boost your mood and energy!' },
+            { id: 5, activity: 'meditate', title: '🧘‍♀️ Mindfulness Moment', body: 'A few minutes of meditation can clear your mind.' },
+            { id: 6, activity: 'journal', title: '📝 Reflection Time', body: 'Writing in your journal can help process your thoughts.' }
+        ];
+        
+        const notifications = [];
+        const now = new Date();
+        
+        activities.forEach(({ id, activity, title, body }) => {
+            if (!notificationSettings.activities[activity]) return;
+            
+            // Schedule notification
+            const notificationTime = new Date(now.getTime() + (notificationSettings.frequency * 60 * 1000));
+            
+            // Check if it's during quiet hours
+            const hour = notificationTime.getHours();
+            if (hour >= notificationSettings.quietHours.start || hour < notificationSettings.quietHours.end) {
+                // Adjust to after quiet hours
+                notificationTime.setHours(notificationSettings.quietHours.end, 0, 0, 0);
+                if (notificationTime <= now) {
+                    notificationTime.setDate(notificationTime.getDate() + 1);
+                }
+            }
+            
+            notifications.push({
+                id: id,
+                title: title,
+                body: body,
+                at: notificationTime,
+                sound: 'default',
+                smallIcon: 'ic_launcher',
+                iconColor: '#d4af37'
+            });
+        });
+        
+        if (notifications.length > 0) {
+            await LocalNotifications.schedule({ notifications });
+            console.log(`✅ Scheduled ${notifications.length} self-care notifications`);
+        }
+        
+    } catch (error) {
+        console.error('Failed to schedule notifications:', error);
+    }
+}
+
+// Toggle notifications
+async function toggleNotifications(enabled) {
+    notificationSettings.enabled = enabled;
+    saveNotificationSettings();
+    
+    if (enabled) {
+        await scheduleSelfCareNotifications();
+        showSelfCareMessage("🔔 Self-care notifications enabled! You'll receive gentle reminders.", 0);
+    } else {
+        if (LocalNotifications) {
+            await LocalNotifications.cancel({
+                notifications: [
+                    { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }
+                ]
+            });
+        }
+        showSelfCareMessage("🔕 Self-care notifications disabled.", 0);
     }
 }
 
@@ -125,6 +261,13 @@ function performSelfCare(activity) {
     
     updateWellness('self_care');
     updateUI();
+    
+    // Reschedule notifications after completing activity
+    if (notificationSettings.enabled) {
+        setTimeout(() => {
+            scheduleSelfCareNotifications();
+        }, 1000);
+    }
 }
 
 // Show self-care completion message
@@ -911,6 +1054,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Load full game state
       loadUserData();
       updateUI();
+      
+      // Initialize notifications
+      initializeNotifications();
       
       // Show streak modal first, then wellness check-in
       setTimeout(() => {

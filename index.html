@@ -324,6 +324,72 @@
               <button id="manual-streak-btn" class="btn-secondary">View Streak Status</button>
               <p class="setting-description">Check your current streak and available rest options.</p>
             </div>
+
+            <!-- Notification Settings -->
+            <div class="wellness-notifications">
+              <h4>📱 Self-Care Notifications</h4>
+              
+              <div class="setting-item">
+                <label class="toggle-label">
+                  <input type="checkbox" id="notifications-toggle" class="toggle-input">
+                  <span class="toggle-slider"></span>
+                  Enable Self-Care Reminders
+                </label>
+                <p class="setting-description">Get gentle reminders to take care of yourself throughout the day.</p>
+              </div>
+
+              <div class="notification-settings" id="notification-details" style="display: none;">
+                <div class="setting-item">
+                  <label for="notification-frequency">Reminder Frequency</label>
+                  <select id="notification-frequency" class="settings-select">
+                    <option value="60">Every hour</option>
+                    <option value="120" selected>Every 2 hours</option>
+                    <option value="180">Every 3 hours</option>
+                    <option value="240">Every 4 hours</option>
+                  </select>
+                </div>
+
+                <div class="setting-item">
+                  <label>Quiet Hours</label>
+                  <div class="quiet-hours">
+                    <input type="time" id="quiet-start" value="22:00" class="time-input">
+                    <span>to</span>
+                    <input type="time" id="quiet-end" value="07:00" class="time-input">
+                  </div>
+                  <p class="setting-description">No notifications during these hours.</p>
+                </div>
+
+                <div class="setting-item">
+                  <label>Activity Reminders</label>
+                  <div class="activity-toggles">
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-hydrate" checked>
+                      💧 Hydration
+                    </label>
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-breathe" checked>
+                      🌬️ Breathing
+                    </label>
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-rest" checked>
+                      😴 Rest
+                    </label>
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-walk" checked>
+                      🚶‍♂️ Walking
+                    </label>
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-meditate" checked>
+                      🧘‍♀️ Meditation
+                    </label>
+                    <label class="activity-toggle">
+                      <input type="checkbox" id="notify-journal" checked>
+                      📝 Journaling
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Game Data Settings -->

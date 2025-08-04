@@ -125,6 +125,9 @@ function initializeSettings() {
             showStreakModalFallback();
         }
     });
+
+    // Notification settings
+    initializeNotificationSettings();
 }
 
 function loadSettings() {
@@ -351,4 +354,105 @@ window.skipWellnessCheckInFallback = function(button) {
 window.closeStreakModalFallback = function(button) {
     const modal = button.closest('.streak-modal');
     modal.remove();
+}
+
+// Initialize notification settings
+function initializeNotificationSettings() {
+    const notificationsToggle = document.getElementById('notifications-toggle');
+    const notificationDetails = document.getElementById('notification-details');
+    const frequencySelect = document.getElementById('notification-frequency');
+    const quietStart = document.getElementById('quiet-start');
+    const quietEnd = document.getElementById('quiet-end');
+    
+    // Load saved settings
+    const savedNotifications = JSON.parse(localStorage.getItem('taskventureNotifications') || '{}');
+    
+    if (notificationsToggle) {
+        notificationsToggle.checked = savedNotifications.enabled || false;
+        
+        // Show/hide details based on toggle
+        if (notificationDetails) {
+            notificationDetails.style.display = notificationsToggle.checked ? 'block' : 'none';
+        }
+        
+        notificationsToggle.addEventListener('change', function() {
+            const enabled = this.checked;
+            if (notificationDetails) {
+                notificationDetails.style.display = enabled ? 'block' : 'none';
+            }
+            
+            // Call the toggle function from app.js
+            if (typeof window.toggleNotifications === 'function') {
+                window.toggleNotifications(enabled);
+            }
+        });
+    }
+    
+    // Frequency setting
+    if (frequencySelect) {
+        frequencySelect.value = savedNotifications.frequency || 120;
+        frequencySelect.addEventListener('change', function() {
+            updateNotificationSetting('frequency', parseInt(this.value));
+        });
+    }
+    
+    // Quiet hours
+    if (quietStart && quietEnd) {
+        const quietHours = savedNotifications.quietHours || { start: 22, end: 7 };
+        quietStart.value = String(quietHours.start).padStart(2, '0') + ':00';
+        quietEnd.value = String(quietHours.end).padStart(2, '0') + ':00';
+        
+        quietStart.addEventListener('change', function() {
+            const hour = parseInt(this.value.split(':')[0]);
+            updateNotificationSetting('quietHours.start', hour);
+        });
+        
+        quietEnd.addEventListener('change', function() {
+            const hour = parseInt(this.value.split(':')[0]);
+            updateNotificationSetting('quietHours.end', hour);
+        });
+    }
+    
+    // Activity toggles
+    const activities = ['hydrate', 'breathe', 'rest', 'walk', 'meditate', 'journal'];
+    activities.forEach(activity => {
+        const toggle = document.getElementById(`notify-${activity}`);
+        if (toggle) {
+            const savedActivities = savedNotifications.activities || {};
+            toggle.checked = savedActivities[activity] !== false;
+            
+            toggle.addEventListener('change', function() {
+                updateNotificationSetting(`activities.${activity}`, this.checked);
+            });
+        }
+    });
+}
+
+// Update notification setting
+function updateNotificationSetting(path, value) {
+    let settings = JSON.parse(localStorage.getItem('taskventureNotifications') || '{}');
+    
+    // Handle nested paths like 'quietHours.start' or 'activities.hydrate'
+    const keys = path.split('.');
+    let current = settings;
+    
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) {
+            current[keys[i]] = {};
+        }
+        current = current[keys[i]];
+    }
+    
+    current[keys[keys.length - 1]] = value;
+    
+    localStorage.setItem('taskventureNotifications', JSON.stringify(settings));
+    
+    // Reschedule notifications if they're enabled
+    if (typeof window.scheduleSelfCareNotifications === 'function' && settings.enabled) {
+        setTimeout(() => {
+            window.scheduleSelfCareNotifications();
+        }, 500);
+    }
+    
+    showFloatingMessage('Notification settings updated!', 'success');
 }

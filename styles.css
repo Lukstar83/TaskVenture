@@ -1894,6 +1894,112 @@ margin-top: 1.5rem;
   font-size: 1.3rem;
 }
 
+/* Notification Settings */
+.wellness-notifications {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  border: 2px solid #4c1d95;
+  border-radius: 10px;
+}
+
+.wellness-notifications h4 {
+  color: #d4af37;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-slider {
+  width: 50px;
+  height: 24px;
+  background: #4b5563;
+  border-radius: 12px;
+  margin-right: 10px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background: #d4af37;
+}
+
+.toggle-input:checked + .toggle-slider::before {
+  transform: translateX(26px);
+}
+
+.notification-settings {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #4c1d95;
+}
+
+.settings-select {
+  padding: 0.5rem;
+  background: #374151;
+  border: 1px solid #6b7280;
+  border-radius: 5px;
+  color: white;
+  width: 100%;
+}
+
+.quiet-hours {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.time-input {
+  padding: 0.5rem;
+  background: #374151;
+  border: 1px solid #6b7280;
+  border-radius: 5px;
+  color: white;
+}
+
+.activity-toggles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.activity-toggle {
+  display: flex;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+}
+
+.activity-toggle input {
+  margin-right: 0.5rem;
+  accent-color: #d4af37;
+}
+
 .self-care-card p {
   color: #d1d5db;
   margin-bottom: 1rem;
