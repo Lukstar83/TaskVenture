@@ -18,5 +18,9 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.2"
-  }
+  },
+  "author": "Lukstar83"
 }
+```
+
+Adding the "author" field to the package.json file with the updated name.
