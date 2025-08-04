@@ -1,0 +1,14 @@
+Assistant checkpoint: Update author from AbominablesCSO to Lukstar83
+
+Assistant generated file changes:
+- package.json: Update author from AbominablesCSO to Lukstar83
+- capacitor.config.json: Update author reference in capacitor config
+
+---
+
+User prompt:
+
+I need to change author AbominablesCSO to Lukstar83
+
+Replit-Commit-Author: Assistant
+Replit-Commit-Session-Id: 2dbf01bb-f2ed-4381-ad6d-c7b60c5c4373

@@ -1,0 +1,19 @@
+tree a283d87f305bbc38baf1d592b6f57ed18cb73b7a
+parent d9bfd6c21ce20e227b502e272872d8945178689a
+author Lukstar <98115033+AbominablesCSO@users.noreply.github.com> 1754319895 +0000
+committer Lukstar <98115033+AbominablesCSO@users.noreply.github.com> 1754319895 +0000
+
+Assistant checkpoint: Update author from AbominablesCSO to Lukstar83
+
+Assistant generated file changes:
+- package.json: Update author from AbominablesCSO to Lukstar83
+- capacitor.config.json: Update author reference in capacitor config
+
+---
+
+User prompt:
+
+I need to change author AbominablesCSO to Lukstar83
+
+Replit-Commit-Author: Assistant
+Replit-Commit-Session-Id: 2dbf01bb-f2ed-4381-ad6d-c7b60c5c4373
