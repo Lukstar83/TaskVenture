@@ -127,56 +127,71 @@ function initDice() {
 }
 
     function createDice() {
-  // Create a more detailed icosahedron for better D20 shape
-  const geo = new THREE.IcosahedronGeometry(1.2, 1);
+  // Create proper icosahedron geometry for D20 (20 faces)
+  const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
   
-  // Create a single high-quality material for the dice
+  // Create materials for each face (1-20)
+  const materials = [];
   const size = 256;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
+  
+  for (let i = 1; i <= 20; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
 
-  // Create an elegant dice texture
-  // Gradient background
-  const gradient = ctx.createLinearGradient(0, 0, size, size);
-  gradient.addColorStop(0, '#ffffff');
-  gradient.addColorStop(0.5, '#f0f0f0');
-  gradient.addColorStop(1, '#e0e0e0');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, size, size);
+    // Create an elegant dice face texture
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(0.5, '#f8f9fa');
+    gradient.addColorStop(1, '#e9ecef');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
 
-  // Add subtle border
-  ctx.strokeStyle = '#cccccc';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, size - 2, size - 2);
+    // Add subtle border
+    ctx.strokeStyle = '#6c757d';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(2, 2, size - 4, size - 4);
 
-  // Add center number (we'll use random for demonstration)
-  ctx.fillStyle = '#2c3e50';
-  ctx.font = `bold ${size * 0.3}px serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('20', size/2, size/2);
+    // Add the number for this face
+    ctx.fillStyle = '#212529';
+    ctx.font = `bold ${size * 0.4}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(i.toString(), size/2, size/2);
 
-  // Add small dots in corners for texture
-  ctx.fillStyle = '#bdc3c7';
-  const dotSize = 3;
-  ctx.fillRect(20, 20, dotSize, dotSize);
-  ctx.fillRect(size - 23, 20, dotSize, dotSize);
-  ctx.fillRect(20, size - 23, dotSize, dotSize);
-  ctx.fillRect(size - 23, size - 23, dotSize, dotSize);
+    // Add small corner decorations
+    ctx.fillStyle = '#adb5bd';
+    const dotSize = 4;
+    ctx.beginPath();
+    ctx.arc(25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
 
-  // Use MeshPhongMaterial for better lighting and reflections
-  const material = new THREE.MeshPhongMaterial({
-    map: texture,
-    shininess: 60,
-    specular: 0x222222,
-    transparent: false
-  });
+    // Create material for this face
+    const material = new THREE.MeshPhongMaterial({
+      map: texture,
+      shininess: 80,
+      specular: 0x444444,
+      transparent: false
+    });
 
-  dice = new THREE.Mesh(geo, material);
+    materials.push(material);
+  }
+
+  // Create the dice mesh with all face materials
+  dice = new THREE.Mesh(geo, materials);
   dice.castShadow = true;
   dice.receiveShadow = true;
   
@@ -185,7 +200,7 @@ function initDice() {
   
   scene.add(dice);
 
-  console.log('✅ D20 with improved materials created');
+  console.log('✅ D20 with all 20 numbered faces created');
 }
 
 function roll3DDice() {
