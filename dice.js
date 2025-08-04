@@ -49,158 +49,82 @@ function initDice() {
         objects: []
     };
 
-    // Add improved lighting setup
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    // Add lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
     scene.add(ambientLight);
 
-    // Main directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(10, 10, 5);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
     scene.add(directionalLight);
-
-    // Add a fill light for better illumination
-    const fillLight = new THREE.DirectionalLight(0x6666ff, 0.3);
-    fillLight.position.set(-5, 5, -5);
-    scene.add(fillLight);
-
-    // Add point light for dramatic effect
-    const pointLight = new THREE.PointLight(0xffffff, 0.5, 100);
-    pointLight.position.set(0, 8, 0);
-    scene.add(pointLight);
 
     // Create dice
     createDice();
 
-    // Add table surface - make it look like wood
-    const tableGeometry = new THREE.PlaneGeometry(12, 8);
-    
-    // Create wood texture
-    const tableCanvas = document.createElement('canvas');
-    tableCanvas.width = 512;
-    tableCanvas.height = 512;
-    const tableCtx = tableCanvas.getContext('2d');
-    
-    // Wood grain background
-    const woodGradient = tableCtx.createLinearGradient(0, 0, 512, 0);
-    woodGradient.addColorStop(0, '#8B4513');
-    woodGradient.addColorStop(0.3, '#A0522D');
-    woodGradient.addColorStop(0.7, '#8B4513');
-    woodGradient.addColorStop(1, '#654321');
-    tableCtx.fillStyle = woodGradient;
-    tableCtx.fillRect(0, 0, 512, 512);
-    
-    // Add wood grain lines
-    tableCtx.strokeStyle = '#654321';
-    tableCtx.lineWidth = 1;
-    for (let i = 0; i < 512; i += 20) {
-      tableCtx.globalAlpha = 0.3;
-      tableCtx.beginPath();
-      tableCtx.moveTo(0, i);
-      tableCtx.lineTo(512, i + Math.sin(i * 0.1) * 10);
-      tableCtx.stroke();
-    }
-    
-    const tableTexture = new THREE.CanvasTexture(tableCanvas);
-    tableTexture.wrapS = THREE.RepeatWrapping;
-    tableTexture.wrapT = THREE.RepeatWrapping;
-    tableTexture.repeat.set(2, 2);
-    
-    const tableMaterial = new THREE.MeshPhongMaterial({ 
-      map: tableTexture,
-      shininess: 20,
-      specular: 0x111111
-    });
-    
-    const table = new THREE.Mesh(tableGeometry, tableMaterial);
-    table.rotation.x = -Math.PI / 2;
-    table.position.y = -2;
-    table.receiveShadow = true;
-    scene.add(table);
+    // Add floor
+    const floorGeometry = new THREE.PlaneGeometry(18, 18);
+    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -4;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
     // Start render loop
     animate();
 }
 
     function createDice() {
-  // Create proper icosahedron geometry for D20 (20 faces)
-  const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
-  
-  // Create materials for each face (1-20)
+ // 1️⃣ Build a non-indexed icosahedron (20 faces × 3 verts each)
+  const geo = new THREE.IcosahedronGeometry(1, 0).toNonIndexed();
+
+  // 2️⃣ Carve out one group per triangular face
+  const faceCount = geo.attributes.position.count / 3;
+  geo.clearGroups();
+  for (let f = 0; f < faceCount; f++) {
+    geo.addGroup(f * 3, 3, f);
+  }
+
+  // 3️⃣ Bake a little canvas texture for each face, drawing its number
   const materials = [];
-  const size = 256;
-  
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 1; i <= faceCount; i++) {
+    const size   = 128;
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d');
+    const ctx    = canvas.getContext('2d');
 
-    // Create an elegant dice face texture
-    // Gradient background
-    const gradient = ctx.createLinearGradient(0, 0, size, size);
-    gradient.addColorStop(0, '#ffffff');
-    gradient.addColorStop(0.5, '#f8f9fa');
-    gradient.addColorStop(1, '#e9ecef');
-    ctx.fillStyle = gradient;
+    // ✨ You can tweak these styles for a fancy look ✨
+    // background
+    ctx.fillStyle = '#f9d976';
     ctx.fillRect(0, 0, size, size);
-
-    // Add subtle border
-    ctx.strokeStyle = '#6c757d';
-    ctx.lineWidth = 3;
+      
+    // border
+    ctx.strokeStyle = '#b8860b';
+    ctx.lineWidth   = 4;
     ctx.strokeRect(2, 2, size - 4, size - 4);
 
-    // Add the number for this face
-    ctx.fillStyle = '#212529';
-    ctx.font = `bold ${size * 0.4}px serif`;
-    ctx.textAlign = 'center';
+    // number
+    ctx.fillStyle    = '#1a1a2e';
+    ctx.font         = `bold ${size * 0.5}px sans-serif`;
+    ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(i.toString(), size/2, size/2);
 
-    // Add small corner decorations
-    ctx.fillStyle = '#adb5bd';
-    const dotSize = 4;
-    ctx.beginPath();
-    ctx.arc(25, 25, dotSize, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(size - 25, 25, dotSize, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(25, size - 25, dotSize, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(size - 25, size - 25, dotSize, 0, Math.PI * 2);
-    ctx.fill();
-
+    // build a Three.js texture + material
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
-
-    // Create material for this face
-    const material = new THREE.MeshPhongMaterial({
+    materials.push(new THREE.MeshNormalMaterial({
       map: texture,
-      shininess: 80,
-      specular: 0x444444,
-      transparent: false
-    });
-
-    materials.push(material);
+      side: THREE.DoubleSide
+    }));
   }
 
-  // Create the dice mesh with all face materials
+  // 4️⃣ Finally create the mesh & add to scene
   dice = new THREE.Mesh(geo, materials);
   dice.castShadow = true;
-  dice.receiveShadow = true;
-  
-  // Position dice slightly above the surface initially
-  dice.position.set(0, 0, 0);
-  
   scene.add(dice);
 
-  console.log('✅ D20 with all 20 numbered faces created');
+  console.log('✅ D20 with numbers created');
 }
 
 function roll3DDice() {
@@ -259,8 +183,8 @@ function stopDiceAndShowResult() {
         dice.userData.velocity = { x: 0, y: 0, z: 0 };
         dice.userData.angularVelocity = { x: 0, y: 0, z: 0 };
 
-        // Position dice on the table surface
-        dice.position.y = -0.8;
+        // Position dice on the surface
+        dice.position.y = -1.5;
     }
 
     // Calculate the final roll result based on dice rotation
@@ -337,9 +261,9 @@ function animate() {
         dice.rotation.y += dice.userData.angularVelocity.y * deltaTime;
         dice.rotation.z += dice.userData.angularVelocity.z * deltaTime;
 
-        // Bounce off table surface (adjusted for new table height)
-        if (dice.position.y < -0.8) {
-            dice.position.y = -0.8;
+        // Bounce off floor
+        if (dice.position.y < -1.5) {
+            dice.position.y = -1.5;
             dice.userData.velocity.y *= -0.6; // Bounce with energy loss
             dice.userData.velocity.x *= 0.8; // Friction
             dice.userData.velocity.z *= 0.8; // Friction
@@ -348,14 +272,14 @@ function animate() {
             dice.userData.angularVelocity.z *= 0.8;
         }
 
-        // Boundaries (adjusted for table size)
-        if (Math.abs(dice.position.x) > 3) {
+        // Boundaries
+        if (Math.abs(dice.position.x) > 4) {
             dice.userData.velocity.x *= -0.6;
-            dice.position.x = Math.sign(dice.position.x) * 3;
+            dice.position.x = Math.sign(dice.position.x) * 4;
         }
-        if (Math.abs(dice.position.z) > 2.5) {
+        if (Math.abs(dice.position.z) > 4) {
             dice.userData.velocity.z *= -0.6;
-            dice.position.z = Math.sign(dice.position.z) * 2.5;
+            dice.position.z = Math.sign(dice.position.z) * 4;
         }
     }
 
