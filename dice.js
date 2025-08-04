@@ -225,6 +225,12 @@ function initDice() {
   scene.add(dice);
 
   console.log('✅ D20 with all 20 numbered faces created');
+
+    // Force an initial render to make sure everything is visible
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        console.log('✅ Initial scene rendered');
+    }
 }
 
 function roll3DDice() {
