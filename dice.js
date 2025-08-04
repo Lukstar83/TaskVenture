@@ -1,118 +1,136 @@
-// 3D Dice rolling functionality using Three.js (simplified version)
+
+// Dice rolling functionality using Three.js
 let scene, camera, renderer, dice, isRolling = false;
 
 function initDice() {
-    console.log('🎲 Initializing dice...');
+    console.log('🎲 Initializing 3D dice...');
 
-    // Create scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e);
-
-    // Create camera
-    camera = new THREE.PerspectiveCamera(75, 300 / 200, 0.1, 1000);
-    camera.position.set(0, 5, 5);
-    camera.lookAt(0, 0, 0);
-
-    // Find the dice container element
-    let diceContainer = document.getElementById('dice-display') || 
-                       document.getElementById('combat-dice-display') ||
-                       document.querySelector('.combat-dice-display');
-
-    if (!diceContainer) {
-        console.log('❌ No dice container found');
+    // Check if Three.js is available
+    if (typeof THREE === 'undefined') {
+        console.log('THREE.js not loaded yet');
         return false;
     }
 
-    // Create the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(300, 200);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setClearColor(0x1a1a2e, 1);
+    try {
+        // Create scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
 
-    // Clear existing content and add renderer
-    diceContainer.innerHTML = '';
-    diceContainer.appendChild(renderer.domElement);
+        // Create camera
+        camera = new THREE.PerspectiveCamera(75, 300 / 200, 0.1, 1000);
+        camera.position.set(0, 3, 5);
+        camera.lookAt(0, 0, 0);
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-    scene.add(ambientLight);
+        // Find the dice container element
+        const diceContainer = document.getElementById('dice-display') || 
+                             document.getElementById('combat-dice-display') ||
+                             document.querySelector('.combat-dice-display');
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 5);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
+        if (!diceContainer) {
+            console.log('No dice container found');
+            return false;
+        }
 
-    // Create floor
-    const floorGeometry = new THREE.PlaneGeometry(10, 10);
-    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -2;
-    floor.receiveShadow = true;
-    scene.add(floor);
+        // Create the renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(300, 200);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setClearColor(0x1a1a2e, 1);
 
-    // Create dice
-    createDice();
+        // Clear existing content and add renderer
+        diceContainer.innerHTML = '';
+        diceContainer.appendChild(renderer.domElement);
 
-    // Start render loop
-    animate();
+        // Add lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
 
-    // Add click event listener to the roll button
-    const rollButton = document.getElementById('roll-dice-btn');
-    if (rollButton) {
-        rollButton.onclick = roll3DDice;
-        console.log('✅ Roll button event listener added');
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 10, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        // Create floor
+        const floorGeometry = new THREE.PlaneGeometry(10, 10);
+        const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Create dice
+        createDice();
+
+        // Start render loop
+        animate();
+
+        // Add click event listener to the roll button
+        const rollButton = document.getElementById('roll-dice-btn');
+        if (rollButton) {
+            rollButton.onclick = roll3DDice;
+            console.log('✅ Roll button event listener added');
+        }
+
+        console.log('✅ 3D dice initialized successfully');
+        return true;
+
+    } catch (error) {
+        console.error('Failed to initialize dice:', error);
+        return false;
     }
-
-    console.log('✅ 3D dice initialized successfully');
-    return true;
 }
 
 function createDice() {
     // Create D20 geometry (icosahedron)
-    const geometry = new THREE.IcosahedronGeometry(1, 0);
-
-    // Create materials for each face with numbers
+    const geo = new THREE.IcosahedronGeometry(1, 0);
+    const size = 128;
     const materials = [];
+
+    // Create materials for each face with numbers 1-20
     for (let i = 1; i <= 20; i++) {
         const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 128;
+        canvas.width = canvas.height = size;
         const ctx = canvas.getContext('2d');
 
         // Background
-        ctx.fillStyle = '#f4f4f4';
-        ctx.fillRect(0, 0, 128, 128);
-
+        ctx.fillStyle = '#f9d976';
+        ctx.fillRect(0, 0, size, size);
+        
         // Border
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(3, 3, 122, 122);
+        ctx.strokeStyle = '#b8860b';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, size - 4, size - 4);
 
         // Number
         ctx.fillStyle = '#1a1a2e';
-        ctx.font = 'bold 48px Arial';
+        ctx.font = `bold ${size * 0.5}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(i.toString(), 64, 64);
+        ctx.fillText(i.toString(), size/2, size/2);
 
+        // Build a Three.js texture + material
         const texture = new THREE.CanvasTexture(canvas);
-        materials.push(new THREE.MeshLambertMaterial({ map: texture }));
+        texture.needsUpdate = true;
+        materials.push(new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide
+        }));
     }
 
-    // Create dice mesh
-    dice = new THREE.Mesh(geometry, materials);
+    // Create the mesh & add to scene
+    dice = new THREE.Mesh(geo, materials);
     dice.castShadow = true;
-    dice.receiveShadow = true;
     dice.position.set(0, 0, 0);
-
-    // Initialize animation properties
+    
+    // Initialize physics properties
     dice.userData = {
         velocity: { x: 0, y: 0, z: 0 },
         angularVelocity: { x: 0, y: 0, z: 0 },
         isRolling: false
     };
-
+    
     scene.add(dice);
     console.log('✅ D20 with numbers created');
 }
@@ -122,7 +140,7 @@ function roll3DDice() {
 
     // Ensure dice is initialized
     if (!scene || !dice || !renderer) {
-        console.log('❌ Dice not ready, initializing...');
+        console.log('Dice not ready, trying to initialize...');
         if (initDice()) {
             setTimeout(() => roll3DDice(), 100);
         }
@@ -149,14 +167,14 @@ function roll3DDice() {
     // Set random initial velocity and rotation
     dice.userData.velocity = {
         x: (Math.random() - 0.5) * 0.2,
-        y: 0.1,
+        y: 0.15,
         z: (Math.random() - 0.5) * 0.2
     };
 
     dice.userData.angularVelocity = {
-        x: (Math.random() - 0.5) * 0.3,
-        y: (Math.random() - 0.5) * 0.3,
-        z: (Math.random() - 0.5) * 0.3
+        x: (Math.random() - 0.5) * 0.4,
+        y: (Math.random() - 0.5) * 0.4,
+        z: (Math.random() - 0.5) * 0.4
     };
 
     dice.userData.isRolling = true;
@@ -164,14 +182,14 @@ function roll3DDice() {
     // Reset dice position
     dice.position.set(
         (Math.random() - 0.5) * 2,
-        1,
+        2,
         (Math.random() - 0.5) * 2
     );
 
     // Stop the dice after delay and show result
     setTimeout(() => {
         stopDiceAndShowResult();
-    }, 2000);
+    }, 2500);
 }
 
 function stopDiceAndShowResult() {
@@ -183,7 +201,7 @@ function stopDiceAndShowResult() {
     // Calculate final result
     const finalRoll = Math.floor(Math.random() * 20) + 1;
 
-    // Position dice to show a reasonable face
+    // Position dice to show result
     dice.rotation.set(
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
@@ -264,14 +282,14 @@ function animate() {
         dice.userData.velocity.x *= 0.98;
         dice.userData.velocity.y *= 0.98;
         dice.userData.velocity.z *= 0.98;
-        dice.userData.angularVelocity.x *= 0.98;
-        dice.userData.angularVelocity.y *= 0.98;
-        dice.userData.angularVelocity.z *= 0.98;
+        dice.userData.angularVelocity.x *= 0.95;
+        dice.userData.angularVelocity.y *= 0.95;
+        dice.userData.angularVelocity.z *= 0.95;
 
         // Bounce off floor
-        if (dice.position.y < 0) {
-            dice.position.y = 0;
-            dice.userData.velocity.y = Math.abs(dice.userData.velocity.y) * 0.7;
+        if (dice.position.y < 0.5) {
+            dice.position.y = 0.5;
+            dice.userData.velocity.y = Math.abs(dice.userData.velocity.y) * 0.6;
         }
     }
 
@@ -348,11 +366,11 @@ function ensureDiceInitialized() {
             try {
                 return initDice();
             } catch (error) {
-                console.error('❌ Failed to initialize dice:', error);
+                console.error('Failed to initialize dice:', error);
                 return false;
             }
         } else {
-            console.log('❌ THREE.js not loaded yet');
+            console.log('THREE.js not loaded yet');
             return false;
         }
     }
@@ -377,6 +395,7 @@ function initCombatDice() {
         return initDice();
     }
 
+    // Create a smaller renderer for combat
     const combatRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     combatRenderer.setSize(250, 180);
     combatRenderer.shadowMap.enabled = true;
@@ -388,7 +407,6 @@ function initCombatDice() {
     combatRenderer.render(scene, camera);
 
     console.log('✅ Combat dice initialized successfully');
-    console.log('✅ Combat dice ready for rolling');
     return true;
 }
 
