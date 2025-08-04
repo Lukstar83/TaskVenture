@@ -34,10 +34,11 @@ function initDice() {
     }
 
     // Create the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(300, 200);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x1a1a2e, 1.0);
 
     // Clear existing content and add renderer
     diceContainer.innerHTML = ''; // Clear the container
@@ -73,10 +74,7 @@ function initDice() {
     pointLight.position.set(0, 8, 0);
     scene.add(pointLight);
 
-    // Create dice
-    createDice();
-
-    // Add table surface - make it look like wood
+    // Add table surface first - make it look like wood
     const tableGeometry = new THREE.PlaneGeometry(12, 8);
     
     // Create wood texture
@@ -121,6 +119,9 @@ function initDice() {
     table.position.y = -2;
     table.receiveShadow = true;
     scene.add(table);
+
+    // Create dice after table
+    createDice();
 
     // Start render loop
     animate();
@@ -195,8 +196,14 @@ function initDice() {
   dice.castShadow = true;
   dice.receiveShadow = true;
   
-  // Position dice slightly above the surface initially
-  dice.position.set(0, 0, 0);
+  // Position dice visibly above the table surface
+  dice.position.set(0, 1, 0);
+  
+  // Initialize physics properties
+  dice.userData = {
+    velocity: { x: 0, y: 0, z: 0 },
+    angularVelocity: { x: 0, y: 0, z: 0 }
+  };
   
   scene.add(dice);
 
@@ -225,6 +232,14 @@ function roll3DDice() {
     // Clear previous result (with null check)
     if (resultDiv) {
         resultDiv.innerHTML = '';
+    }
+
+    // Make sure dice userData exists
+    if (!dice.userData) {
+        dice.userData = {
+            velocity: { x: 0, y: 0, z: 0 },
+            angularVelocity: { x: 0, y: 0, z: 0 }
+        };
     }
 
     // Set random initial velocity and rotation
@@ -320,6 +335,7 @@ function calculateDiceResult() {
 function animate() {
     requestAnimationFrame(animate);
 
+    // Always render the scene, even when not rolling
     if (dice && isRolling) {
         // Update dice physics
         const deltaTime = 0.016; // ~60fps
@@ -359,7 +375,10 @@ function animate() {
         }
     }
 
-    renderer.render(scene, camera);
+    // Always render the scene
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
 function getDiceResultText(roll) {
