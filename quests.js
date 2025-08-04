@@ -422,10 +422,10 @@ class QuestEngine {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
         const scores = profile.scores || {};
         const cls = profile.class || '';
-
+        
         const dexMod = Math.floor((scores.DEX - 10) / 2);
         let baseAC = 10 + dexMod;
-
+        
         // Class-based AC adjustments
         if (cls === 'Barbarian' && !window.user?.avatar?.armor) {
             const conMod = Math.floor((scores.CON - 10) / 2);
@@ -434,7 +434,7 @@ class QuestEngine {
             const wisMod = Math.floor((scores.WIS - 10) / 2);
             baseAC = 10 + dexMod + wisMod;
         }
-
+        
         // Add armor bonus
         let armorBonus = 0;
         if (window.user?.avatar?.armor) {
@@ -442,7 +442,7 @@ class QuestEngine {
             else if (window.user.avatar.armor.includes('chain')) armorBonus = 3;
             else if (window.user.avatar.armor.includes('plate')) armorBonus = 6;
         }
-
+        
         return baseAC + armorBonus;
     }
 
@@ -458,10 +458,10 @@ class QuestEngine {
             'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
             'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
         };
-
+        
         const spellcastingAbility = spellcastingClasses[cls];
         if (!spellcastingAbility) return 0;
-
+        
         const spellMod = this.getAbilityModifier(spellcastingAbility);
         return this.getProficiencyBonus() + spellMod;
     }
@@ -570,7 +570,7 @@ class QuestEngine {
 
         window.user.xp = oldXP + rewards.xp;
         window.user.coins = oldCoins + rewards.coins;
-
+        
         console.log(`💰 Coin update: ${oldCoins} + ${rewards.coins} = ${window.user.coins}`);
 
         // Initialize arrays if they don't exist
@@ -607,7 +607,7 @@ class QuestEngine {
 
         // Save to main app storage system (taskventureData is the primary one)
         localStorage.setItem('taskventureData', JSON.stringify(window.user));
-
+        
         // Force sync with main app user object if it exists
         if (typeof window.loadUserData === 'function') {
             window.loadUserData();
@@ -1011,7 +1011,7 @@ class QuestEngine {
             // Player takes 1 damage from stumbling
             this.playerHP = Math.max(0, this.playerHP - 1);
             logDiv.innerHTML += `<p class="failure">You take 1 damage from your fumble.</p>`;
-
+            
             if (this.playerHP <= 0) {
                 logDiv.innerHTML += `<p class="failure"><strong>Your critical failure was fatal!</strong></p>`;
                 setTimeout(() => this.handleCombatDefeat(), 2000);
@@ -1081,7 +1081,7 @@ class QuestEngine {
             const backlashDamage = Math.floor(Math.random() * 4) + 1; // 1d4
             this.playerHP = Math.max(0, this.playerHP - backlashDamage);
             logDiv.innerHTML += `<p class="failure">Magical backlash deals ${backlashDamage} damage to you!</p>`;
-
+            
             if (this.playerHP <= 0) {
                 logDiv.innerHTML += `<p class="failure"><strong>Your spell backfire was fatal!</strong></p>`;
                 setTimeout(() => this.handleCombatDefeat(), 2000);
@@ -1124,7 +1124,7 @@ class QuestEngine {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
         const enemyAttackBonus = 4; // Moderate attack bonus
-
+        
         let attackRoll;
         let rollDescription = '';
 
@@ -1293,19 +1293,13 @@ if (!window.questEngine) {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the quest engine
-    if (typeof QuestEngine !== 'undefined') {
-        window.questEngine = new QuestEngine();
-        console.log('✅ Quest engine initialized');
-    }
-
-    // Try to initialize dice for quest page
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for the quest container to be available
     setTimeout(() => {
-        if (typeof ensureDiceInitialized === 'function') {
-            ensureDiceInitialized();
+        if (window.questEngine && document.getElementById('quest-container')) {
+            window.questEngine.renderQuestList();
         }
-    }, 1500);
+    }, 500);
 });
 
 // Also initialize when showing the quests page

@@ -46,17 +46,9 @@ window.showPage = function(pageId, linkEl) {
   }
 
   // 5) Initialize quests if we're on the quests page
-  if (pageId === 'quests-page') {
-    if (typeof initializeQuestsPage === 'function') {
-      setTimeout(() => {
-        initializeQuestsPage();
-      }, 100);
-    }
-    // Also ensure quest engine is ready
-    if (typeof window.questEngine !== 'undefined' && window.questEngine.renderQuestList) {
-      setTimeout(() => {
-        window.questEngine.renderQuestList();
-      }, 200);
-    }
+  if (pageId === 'quests-page' && typeof initializeQuestsPage === 'function') {
+    setTimeout(() => {
+      initializeQuestsPage();
+    }, 100);
   }
 };
