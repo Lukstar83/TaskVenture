@@ -26,6 +26,29 @@ function initDice() {
             }
         }
 
+        // If still no container, check if we're on the dice page and create one
+        const dicePage = document.getElementById('dice-page');
+        if (dicePage && dicePage.classList.contains('active')) {
+            console.log('On dice page, creating dice container');
+            const questsSection = dicePage.querySelector('.quests-section');
+            if (questsSection) {
+                // Create a dice display container for the quests page
+                const diceContainer = document.createElement('div');
+                diceContainer.id = 'dice-display';
+                diceContainer.className = 'dice-display-container';
+                diceContainer.innerHTML = `
+                    <h3>3D Dice Roller</h3>
+                    <div id="dice-display-3d" class="dice-display"></div>
+                    <button id="roll-dice-btn">Roll D20</button>
+                    <div id="dice-result" class="dice-result"></div>
+                `;
+                questsSection.appendChild(diceContainer);
+                
+                // Use the newly created container
+                diceContainer = document.getElementById('dice-display-3d');
+            }
+        }
+
         // If still no container, create a fallback
         if (!diceContainer) {
             console.log('No dice container available, skipping initialization');
@@ -125,6 +148,13 @@ function initDice() {
 
     // Start render loop
     animate();
+    
+    // Set up roll button if it exists
+    const rollButton = document.getElementById('roll-dice-btn');
+    if (rollButton) {
+        rollButton.addEventListener('click', roll3DDice);
+        console.log('✅ Roll button event listener added');
+    }
 }
 
     function createDice() {
@@ -490,6 +520,26 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         ensureDiceInitialized();
     }, 1000);
+    
+    // Also try to initialize when the dice page becomes active
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const dicePage = document.getElementById('dice-page');
+                if (dicePage && dicePage.classList.contains('active')) {
+                    setTimeout(() => {
+                        console.log('Dice page is now active, initializing dice');
+                        ensureDiceInitialized();
+                    }, 500);
+                }
+            }
+        });
+    });
+    
+    const dicePage = document.getElementById('dice-page');
+    if (dicePage) {
+        observer.observe(dicePage, { attributes: true });
+    }
 });
 
 // Initialize dice specifically for combat interface
