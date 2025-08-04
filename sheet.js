@@ -34,6 +34,70 @@
       return;
     }
 
+    // Calculate derived stats
+    const level = window.user?.level || 1;
+    const proficiencyBonus = Math.ceil(level / 4) + 1;
+    
+    // Calculate AC (10 + DEX modifier + armor bonuses)
+    const dexMod = Math.floor((abilityScores.DEX - 10) / 2);
+    let baseAC = 10 + dexMod;
+    
+    // Class-based AC adjustments
+    if (cls === 'Barbarian' && !window.user?.avatar?.armor) {
+      // Unarmored Defense: 10 + DEX + CON
+      const conMod = Math.floor((abilityScores.CON - 10) / 2);
+      baseAC = 10 + dexMod + conMod;
+    } else if (cls === 'Monk' && !window.user?.avatar?.armor) {
+      // Unarmored Defense: 10 + DEX + WIS
+      const wisMod = Math.floor((abilityScores.WIS - 10) / 2);
+      baseAC = 10 + dexMod + wisMod;
+    }
+    
+    // Add armor bonus if equipped
+    let armorBonus = 0;
+    if (window.user?.avatar?.armor) {
+      if (window.user.avatar.armor.includes('leather')) armorBonus = 1;
+      else if (window.user.avatar.armor.includes('chain')) armorBonus = 3;
+      else if (window.user.avatar.armor.includes('plate')) armorBonus = 6;
+    }
+    
+    const totalAC = baseAC + armorBonus;
+    
+    // Calculate Max HP (class hit die + CON modifier per level)
+    const hitDice = {
+      'Barbarian': 12, 'Fighter': 10, 'Paladin': 10, 'Ranger': 10,
+      'Bard': 8, 'Cleric': 8, 'Druid': 8, 'Monk': 8, 'Rogue': 8, 'Warlock': 8,
+      'Sorcerer': 6, 'Wizard': 6
+    };
+    
+    const hitDie = hitDice[cls] || 8;
+    const conMod = Math.floor((abilityScores.CON - 10) / 2);
+    const maxHP = hitDie + (level - 1) * (Math.floor(hitDie / 2) + 1) + (conMod * level);
+    
+    // Determine spellcasting ability and calculate spell stats
+    const spellcastingClasses = {
+      'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
+      'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
+    };
+    
+    const spellcastingAbility = spellcastingClasses[cls];
+    let spellStats = '';
+    
+    if (spellcastingAbility) {
+      const spellMod = Math.floor((abilityScores[spellcastingAbility] - 10) / 2);
+      const spellAttackBonus = proficiencyBonus + spellMod;
+      const spellSaveDC = 8 + proficiencyBonus + spellMod;
+      
+      spellStats = `
+        <div class="spell-stats">
+          <h4>Spellcasting</h4>
+          <p><strong>Casting Ability:</strong> ${spellcastingAbility} (${spellMod >= 0 ? '+' : ''}${spellMod})</p>
+          <p><strong>Spell Attack Bonus:</strong> +${spellAttackBonus}</p>
+          <p><strong>Spell Save DC:</strong> ${spellSaveDC}</p>
+        </div>
+      `;
+    }
+
     // Build stat list with modifier calculation
     const statList = Object.entries(abilityScores).map(([stat, val]) => {
       const mod = Math.floor((val - 10) / 2);
@@ -51,6 +115,27 @@
         <p><strong>Race:</strong> ${race}</p>
         <p><strong>Gender:</strong> ${gender}</p>
         <p><strong>Class:</strong> ${cls}</p>
+        
+        <div class="combat-stats">
+          <h3>Combat Stats</h3>
+          <div class="combat-grid">
+            <div class="combat-stat">
+              <strong>Armor Class:</strong> ${totalAC}
+            </div>
+            <div class="combat-stat">
+              <strong>Max Hit Points:</strong> ${maxHP}
+            </div>
+            <div class="combat-stat">
+              <strong>Proficiency Bonus:</strong> +${proficiencyBonus}
+            </div>
+            <div class="combat-stat">
+              <strong>Level:</strong> ${level}
+            </div>
+          </div>
+        </div>
+        
+        ${spellStats}
+        
         <h3>Ability Scores</h3>
           <table class="stats-table">
             <thead>

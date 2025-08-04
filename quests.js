@@ -418,6 +418,54 @@ class QuestEngine {
         return Math.floor((score - 10) / 2);
     }
 
+    getPlayerAC() {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const scores = profile.scores || {};
+        const cls = profile.class || '';
+        
+        const dexMod = Math.floor((scores.DEX - 10) / 2);
+        let baseAC = 10 + dexMod;
+        
+        // Class-based AC adjustments
+        if (cls === 'Barbarian' && !window.user?.avatar?.armor) {
+            const conMod = Math.floor((scores.CON - 10) / 2);
+            baseAC = 10 + dexMod + conMod;
+        } else if (cls === 'Monk' && !window.user?.avatar?.armor) {
+            const wisMod = Math.floor((scores.WIS - 10) / 2);
+            baseAC = 10 + dexMod + wisMod;
+        }
+        
+        // Add armor bonus
+        let armorBonus = 0;
+        if (window.user?.avatar?.armor) {
+            if (window.user.avatar.armor.includes('leather')) armorBonus = 1;
+            else if (window.user.avatar.armor.includes('chain')) armorBonus = 3;
+            else if (window.user.avatar.armor.includes('plate')) armorBonus = 6;
+        }
+        
+        return baseAC + armorBonus;
+    }
+
+    getProficiencyBonus() {
+        const level = window.user?.level || 1;
+        return Math.ceil(level / 4) + 1;
+    }
+
+    getSpellAttackBonus() {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const cls = profile.class || '';
+        const spellcastingClasses = {
+            'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
+            'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
+        };
+        
+        const spellcastingAbility = spellcastingClasses[cls];
+        if (!spellcastingAbility) return 0;
+        
+        const spellMod = this.getAbilityModifier(spellcastingAbility);
+        return this.getProficiencyBonus() + spellMod;
+    }
+
     displayRollResult(choice, roll, modifier, total, success) {
         const resultDiv = document.getElementById('quest-results');
         const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
@@ -918,11 +966,12 @@ class QuestEngine {
 
     resolveAttack(diceRoll) {
         const strModifier = this.getAbilityModifier('STR');
-        const total = diceRoll + strModifier;
+        const proficiencyBonus = this.getProficiencyBonus();
+        const total = diceRoll + strModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
-        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} = ${total} vs AC ${enemy.ac}</p>`;
+        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
             const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
@@ -942,15 +991,25 @@ class QuestEngine {
     }
 
     resolveSpell(diceRoll) {
-        const intModifier = this.getAbilityModifier('INT');
-        const total = diceRoll + intModifier;
+        const spellAttackBonus = this.getSpellAttackBonus();
+        const total = diceRoll + spellAttackBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
-        logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${intModifier} = ${total} vs AC ${enemy.ac}</p>`;
+        // Determine spellcasting ability for damage
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const cls = profile.class || '';
+        const spellcastingClasses = {
+            'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
+            'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
+        };
+        const spellcastingAbility = spellcastingClasses[cls] || 'INT';
+        const spellMod = this.getAbilityModifier(spellcastingAbility);
+
+        logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${spellAttackBonus} = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
-            const damage = Math.floor(Math.random() * 10) + 1 + intModifier; // 1d10 + INT
+            const damage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
             this.enemyHP = Math.max(0, this.enemyHP - damage);
             logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
 
@@ -983,8 +1042,8 @@ class QuestEngine {
         const enemyAttackBonus = 4; // Moderate attack bonus
         const total = attackRoll + enemyAttackBonus;
 
-        // Player AC is based on DEX modifier + 10
-        const playerAC = 10 + this.getAbilityModifier('DEX');
+        // Get player AC from character sheet calculation
+        const playerAC = this.getPlayerAC();
 
         logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 

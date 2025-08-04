@@ -1,60 +1,82 @@
-// sheet.js
+/* sheet.css */
 
-  // 1) Helper to load the character profile you saved in localStorage
-  function loadProfile() {
-    const raw = localStorage.getItem('tv_profile');
-    if (!raw) return null;
-    return JSON.parse(raw);
-  }
+.char-sheet {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
 
-  // 2) Render the sheet using that profile
-  function renderSheet() {
-    const p = loadProfile();
-    if (!p) {
-      // no profile yet – nothing to show
-      document.getElementById('sheet-container').innerHTML = '';
-      return;
-    }
+.combat-stats {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--surface-glass);
+  border-radius: 12px;
+  border: 1px solid var(--accent-gold);
+}
 
-    const { race, class: cls, scores, modifiers } = p;
-    // Build a simple table of ability scores + mods
-    const rows = Object.keys(scores).map(stat => {
-      const score = scores[stat];
-      const mod   = modifiers[stat];
-      const sign  = mod >= 0 ? '+' : '';
-      return `
-        <tr>
-          <td>${stat}</td>
-          <td>${score}</td>
-          <td>${sign}${mod}</td>
-        </tr>`;
-    }).join('');
+.combat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
 
-    // Inject into the page
-    document.getElementById('sheet-container').innerHTML = `
-      <div id="profile-summary">
-        <h2>Your Hero</h2>
-        <p>
-          <strong>Race:</strong> ${race} | 
-          <strong>Class:</strong> ${cls}
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Stat</th>
-              <th>Score</th>
-              <th>Mod</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-      </div>`;
-  }
+.combat-stat {
+  padding: 0.75rem;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
 
-  // 3) Run on page load (in case they revisit the sheet directly)
-  document.addEventListener('DOMContentLoaded', renderSheet);
+.spell-stats {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--surface-glass);
+  border-radius: 12px;
+  border: 1px solid var(--primary-blue);
+}
 
-  // 4) Expose renderSheet for your enterApp() call in app.js
-  window.renderSheet = renderSheet;
+.spell-stats h4 {
+  margin-top: 0;
+  color: var(--text-gold);
+  text-align: center;
+}
+
+.spell-stats p {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: rgba(30, 58, 138, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-blue);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.stats-table th {
+  background: var(--gradient-gold);
+  color: var(--background-dark);
+  font-weight: bold;
+}
+
+.stat-input,
+.mod-input {
+  width: 60px;
+  padding: 0.25rem;
+  border: 1px solid var(--accent-gold);
+  border-radius: 4px;
+  background: var(--surface-glass);
+  color: var(--text-light);
+  text-align: center;
+}
