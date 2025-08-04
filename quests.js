@@ -570,6 +570,8 @@ class QuestEngine {
 
         window.user.xp = oldXP + rewards.xp;
         window.user.coins = oldCoins + rewards.coins;
+        
+        console.log(`💰 Coin update: ${oldCoins} + ${rewards.coins} = ${window.user.coins}`);
 
         // Initialize arrays if they don't exist
         if (!window.user.questItems) window.user.questItems = [];
@@ -605,6 +607,11 @@ class QuestEngine {
 
         // Save to main app storage system (taskventureData is the primary one)
         localStorage.setItem('taskventureData', JSON.stringify(window.user));
+        
+        // Force sync with main app user object if it exists
+        if (typeof window.loadUserData === 'function') {
+            window.loadUserData();
+        }
 
         console.log('Quest completed! Rewards added:', {
             xp: rewards.xp,

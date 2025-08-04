@@ -776,6 +776,7 @@ function updateUI() {
     
     // Update currency display - convert total coins to different denominations
     const totalCoins = user.coins || 0;
+    console.log(`💰 Main app coin display update: ${totalCoins} total coins`);
     const platinum = Math.floor(totalCoins / 1000);
     const gold = Math.floor((totalCoins % 1000) / 100);
     const silver = Math.floor((totalCoins % 100) / 10);
