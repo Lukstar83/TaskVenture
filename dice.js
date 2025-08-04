@@ -214,7 +214,7 @@ function initDice() {
   dice.receiveShadow = true;
 
   // Position dice visibly above the table surface
-  dice.position.set(0, 1, 0);
+    dice.position.set(0, 0.5, 0);
 
   // Initialize physics properties
   dice.userData = {
