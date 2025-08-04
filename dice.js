@@ -1,234 +1,327 @@
+// 3D Dice rolling functionality using Three.js
+let scene, camera, renderer, world, dice, isRolling = false;
 
-// Dice rolling functionality using Three.js
-let scene, camera, renderer, dice, isRolling = false;
+// Simple dice roll function for the dice page
+window.rollDice = function() {
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const resultDiv = document.getElementById('dice-result');
+    if (resultDiv) {
+        resultDiv.innerHTML = `<h3>You rolled: ${roll}</h3>`;
+    }
+    return roll;
+};
 
 function initDice() {
-    console.log('🎲 Initializing 3D dice...');
+    // Create scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a2e);
 
-    // Check if Three.js is available
-    if (typeof THREE === 'undefined') {
-        console.log('THREE.js not loaded yet');
-        return false;
-    }
+    // Create camera
+    camera = new THREE.PerspectiveCamera(75, 300 / 200, 0.1, 1000);
+    camera.position.set(0, 5, 5);
+    camera.lookAt(0, 0, 0);
 
-    try {
-        // Create scene
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
+    // Find the dice container element (can be regular or combat)
+    let diceContainer = document.getElementById('dice-display') || document.getElementById('combat-dice-display');
 
-        // Create camera
-        camera = new THREE.PerspectiveCamera(75, 300 / 200, 0.1, 1000);
-        camera.position.set(0, 3, 5);
-        camera.lookAt(0, 0, 0);
+    if (!diceContainer) {
+        console.log('Dice container not found, checking for quest context');
 
-        // Find the dice container element
-        const diceContainer = document.getElementById('dice-display') || 
-                             document.getElementById('combat-dice-display') ||
-                             document.querySelector('.combat-dice-display');
+        // Check if we're in a quest with combat dice section
+        const combatDiceSection = document.querySelector('.combat-dice-section');
+        if (combatDiceSection) {
+            diceContainer = combatDiceSection.querySelector('.combat-dice-display');
+            if (diceContainer) {
+                console.log('Found combat dice container');
+            }
+        }
 
+        // If still no container, create a fallback
         if (!diceContainer) {
-            console.log('No dice container found');
+            console.log('No dice container available, skipping initialization');
             return false;
         }
+    }
 
-        // Create the renderer
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(300, 200);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.setClearColor(0x1a1a2e, 1);
+    // Create the renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(300, 200);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x1a1a2e, 1.0);
 
-        // Clear existing content and add renderer
-        diceContainer.innerHTML = '';
-        diceContainer.appendChild(renderer.domElement);
+    // Clear existing content and add renderer
+    diceContainer.innerHTML = ''; // Clear the container
+    diceContainer.appendChild(renderer.domElement);
 
-        // Add lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-        scene.add(ambientLight);
+    // Initialize physics world (simplified physics simulation)
+    world = {
+        gravity: -20,
+        objects: []
+    };
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 10, 5);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
+    // Add improved lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    scene.add(ambientLight);
 
-        // Create floor
-        const floorGeometry = new THREE.PlaneGeometry(10, 10);
-        const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x2a2a4e });
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -2;
-        floor.receiveShadow = true;
-        scene.add(floor);
+    // Main directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    directionalLight.position.set(10, 10, 5);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
+    scene.add(directionalLight);
 
-        // Create dice
-        createDice();
+    // Add a fill light for better illumination
+    const fillLight = new THREE.DirectionalLight(0x6666ff, 0.3);
+    fillLight.position.set(-5, 5, -5);
+    scene.add(fillLight);
 
-        // Start render loop
-        animate();
+    // Add point light for dramatic effect
+    const pointLight = new THREE.PointLight(0xffffff, 0.5, 100);
+    pointLight.position.set(0, 8, 0);
+    scene.add(pointLight);
 
-        // Add click event listener to the roll button
-        const rollButton = document.getElementById('roll-dice-btn');
-        if (rollButton) {
-            rollButton.onclick = roll3DDice;
-            console.log('✅ Roll button event listener added');
-        }
+    // Add table surface first - make it look like wood
+    const tableGeometry = new THREE.PlaneGeometry(12, 8);
 
-        console.log('✅ 3D dice initialized successfully');
-        return true;
+    // Create wood texture
+    const tableCanvas = document.createElement('canvas');
+    tableCanvas.width = 512;
+    tableCanvas.height = 512;
+    const tableCtx = tableCanvas.getContext('2d');
 
-    } catch (error) {
-        console.error('Failed to initialize dice:', error);
-        return false;
+    // Wood grain background
+    const woodGradient = tableCtx.createLinearGradient(0, 0, 512, 0);
+    woodGradient.addColorStop(0, '#8B4513');
+    woodGradient.addColorStop(0.3, '#A0522D');
+    woodGradient.addColorStop(0.7, '#8B4513');
+    woodGradient.addColorStop(1, '#654321');
+    tableCtx.fillStyle = woodGradient;
+    tableCtx.fillRect(0, 0, 512, 512);
+
+    // Add wood grain lines
+    tableCtx.strokeStyle = '#654321';
+    tableCtx.lineWidth = 1;
+    for (let i = 0; i < 512; i += 20) {
+      tableCtx.globalAlpha = 0.3;
+      tableCtx.beginPath();
+      tableCtx.moveTo(0, i);
+      tableCtx.lineTo(512, i + Math.sin(i * 0.1) * 10);
+      tableCtx.stroke();
+    }
+
+    const tableTexture = new THREE.CanvasTexture(tableCanvas);
+    tableTexture.wrapS = THREE.RepeatWrapping;
+    tableTexture.wrapT = THREE.RepeatWrapping;
+    tableTexture.repeat.set(2, 2);
+
+    const tableMaterial = new THREE.MeshPhongMaterial({ 
+      map: tableTexture,
+      shininess: 20,
+      specular: 0x111111
+    });
+
+    const table = new THREE.Mesh(tableGeometry, tableMaterial);
+    table.rotation.x = -Math.PI / 2;
+    table.position.y = -2;
+    table.receiveShadow = true;
+    scene.add(table);
+
+    // Create dice after table
+    createDice();
+
+    // Start render loop
+    animate();
+
+    // Set up roll button if it exists
+    const rollButton = document.getElementById('roll-dice-btn');
+    if (rollButton) {
+        rollButton.addEventListener('click', roll3DDice);
+        console.log('✅ Roll button event listener added');
     }
 }
 
-function createDice() {
-    // Create D20 geometry (icosahedron)
-    const geo = new THREE.IcosahedronGeometry(1, 0);
-    const size = 128;
-    const materials = [];
+    function createDice() {
+  // Create proper icosahedron geometry for D20 (20 faces)
+  const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
 
-    // Create materials for each face with numbers 1-20
-    for (let i = 1; i <= 20; i++) {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
-        const ctx = canvas.getContext('2d');
+  // Create materials for each face (1-20)
+  const materials = [];
+  const size = 256;
 
-        // Background
-        ctx.fillStyle = '#f9d976';
-        ctx.fillRect(0, 0, size, size);
-        
-        // Border
-        ctx.strokeStyle = '#b8860b';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(2, 2, size - 4, size - 4);
+  for (let i = 1; i <= 20; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
 
-        // Number
-        ctx.fillStyle = '#1a1a2e';
-        ctx.font = `bold ${size * 0.5}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(i.toString(), size/2, size/2);
+    // Create an elegant dice face texture
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(0.5, '#f8f9fa');
+    gradient.addColorStop(1, '#e9ecef');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
 
-        // Build a Three.js texture + material
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        materials.push(new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.DoubleSide
-        }));
+    // Add subtle border
+    ctx.strokeStyle = '#6c757d';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(2, 2, size - 4, size - 4);
+
+    // Add the number for this face
+    ctx.fillStyle = '#212529';
+    ctx.font = `bold ${size * 0.4}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(i.toString(), size/2, size/2);
+
+    // Add small corner decorations
+    ctx.fillStyle = '#adb5bd';
+    const dotSize = 4;
+    ctx.beginPath();
+    ctx.arc(25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Create material for this face
+    const material = new THREE.MeshPhongMaterial({
+      map: texture,
+      shininess: 80,
+      specular: 0x444444,
+      transparent: false
+    });
+
+    materials.push(material);
+  }
+
+  // Create the dice mesh with all face materials
+  dice = new THREE.Mesh(geo, materials);
+  dice.castShadow = true;
+  dice.receiveShadow = true;
+
+  // Position dice visibly above the table surface
+    dice.position.set(0, 0.5, 0);
+
+  // Initialize physics properties
+  dice.userData = {
+    velocity: { x: 0, y: 0, z: 0 },
+    angularVelocity: { x: 0, y: 0, z: 0 }
+  };
+
+  scene.add(dice);
+
+  console.log('✅ D20 with all 20 numbered faces created');
+
+    // Force an initial render to make sure everything is visible
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        console.log('✅ Initial scene rendered');
     }
-
-    // Create the mesh & add to scene
-    dice = new THREE.Mesh(geo, materials);
-    dice.castShadow = true;
-    dice.position.set(0, 0, 0);
-    
-    // Initialize physics properties
-    dice.userData = {
-        velocity: { x: 0, y: 0, z: 0 },
-        angularVelocity: { x: 0, y: 0, z: 0 },
-        isRolling: false
-    };
-    
-    scene.add(dice);
-    console.log('✅ D20 with numbers created');
 }
 
 function roll3DDice() {
     if (isRolling) return;
 
     // Ensure dice is initialized
-    if (!scene || !dice || !renderer) {
+    if (!ensureDiceInitialized()) {
         console.log('Dice not ready, trying to initialize...');
-        if (initDice()) {
-            setTimeout(() => roll3DDice(), 100);
-        }
+        setTimeout(() => roll3DDice(), 500);
         return;
     }
-
-    console.log('🎲 Rolling dice...');
 
     const rollButton = document.getElementById('roll-dice-btn');
     const resultDiv = document.getElementById('dice-result');
 
-    // Disable button during roll
+    // Disable button during roll (with null check)
     if (rollButton) {
         rollButton.disabled = true;
-        rollButton.textContent = 'Rolling...';
     }
     isRolling = true;
 
-    // Clear previous result
+    // Clear previous result (with null check)
     if (resultDiv) {
-        resultDiv.innerHTML = '<div>Rolling...</div>';
+        resultDiv.innerHTML = '';
+    }
+
+    // Make sure dice userData exists
+    if (!dice.userData) {
+        dice.userData = {
+            velocity: { x: 0, y: 0, z: 0 },
+            angularVelocity: { x: 0, y: 0, z: 0 }
+        };
     }
 
     // Set random initial velocity and rotation
     dice.userData.velocity = {
-        x: (Math.random() - 0.5) * 0.2,
-        y: 0.15,
-        z: (Math.random() - 0.5) * 0.2
+        x: (Math.random() - 0.5) * 10,
+        y: Math.random() * 5 + 5,
+        z: (Math.random() - 0.5) * 10
     };
 
     dice.userData.angularVelocity = {
-        x: (Math.random() - 0.5) * 0.4,
-        y: (Math.random() - 0.5) * 0.4,
-        z: (Math.random() - 0.5) * 0.4
+        x: (Math.random() - 0.5) * 20,
+        y: (Math.random() - 0.5) * 20,
+        z: (Math.random() - 0.5) * 20
     };
 
-    dice.userData.isRolling = true;
-
-    // Reset dice position
+    // Position dice above the surface
     dice.position.set(
         (Math.random() - 0.5) * 2,
-        2,
+        3,
         (Math.random() - 0.5) * 2
     );
 
-    // Stop the dice after delay and show result
+    // Stop the dice after a delay and show result
     setTimeout(() => {
         stopDiceAndShowResult();
-    }, 2500);
+    }, 3000);
 }
 
 function stopDiceAndShowResult() {
-    // Stop the dice
-    dice.userData.isRolling = false;
-    dice.userData.velocity = { x: 0, y: 0, z: 0 };
-    dice.userData.angularVelocity = { x: 0, y: 0, z: 0 };
+    // Stop the dice movement
+    if (dice && dice.userData) {
+        dice.userData.velocity = { x: 0, y: 0, z: 0 };
+        dice.userData.angularVelocity = { x: 0, y: 0, z: 0 };
 
-    // Calculate final result
-    const finalRoll = Math.floor(Math.random() * 20) + 1;
+        // Position dice on the table surface
+        dice.position.y = -0.8;
+    }
 
-    // Position dice to show result
-    dice.rotation.set(
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2
-    );
+    // Calculate the final roll result based on dice rotation
+    const finalRoll = calculateDiceResult();
 
-    // Show result
+    // Show result in appropriate location
     const combatResultDiv = document.getElementById('combat-dice-result');
     const regularResultDiv = document.getElementById('dice-result');
 
     const resultText = getDiceResultText(finalRoll);
     const resultHTML = `
-        <div style="font-size: 1.2rem; font-weight: bold; color: #d4af37;">
-            You rolled: ${finalRoll}
-        </div>
-        <div style="font-size: 0.9rem; margin-top: 0.5rem; color: #ffffff;">
-            ${resultText}
-        </div>
+        <div>You rolled: <strong>${finalRoll}</strong></div>
+        <div style="font-size: 0.9rem; margin-top: 0.5rem;">${resultText}</div>
     `;
 
-    // Handle different roll contexts
+    // Check if this roll is for combat
     if (window.questEngine && window.questEngine.pendingRoll) {
         if (combatResultDiv) {
             combatResultDiv.innerHTML = resultHTML;
         }
         window.questEngine.processDiceRoll(finalRoll);
     } else if (window.skillCheckContext) {
+        // Handle skill check rolls
         const context = window.skillCheckContext;
         if (context.callback) {
             context.callback(finalRoll);
@@ -239,61 +332,76 @@ function stopDiceAndShowResult() {
             regularResultDiv.innerHTML = resultHTML;
         }
     } else {
+        // Regular dice roll
         if (regularResultDiv) {
             regularResultDiv.innerHTML = resultHTML;
         }
         applyDiceEffect(finalRoll);
     }
 
-    // Re-enable buttons
+    // Re-enable buttons with null checks
     const rollButton = document.getElementById('roll-dice-btn');
     const combatRollButton = document.getElementById('combat-roll-btn');
 
-    if (rollButton) {
-        rollButton.disabled = false;
-        rollButton.textContent = 'Roll D20';
-    }
-    if (combatRollButton) {
-        combatRollButton.disabled = false;
-    }
+    if (rollButton) rollButton.disabled = false;
+    if (combatRollButton) combatRollButton.disabled = false;
 
     isRolling = false;
-    console.log(`🎲 Rolled: ${finalRoll}`);
+}
+
+function calculateDiceResult() {
+    // Simple method: generate random result between 1-20
+    // In a more sophisticated version, you'd calculate based on which face is up
+    return Math.floor(Math.random() * 20) + 1;
 }
 
 function animate() {
-    if (!renderer || !scene || !camera) return;
-
     requestAnimationFrame(animate);
 
-    // Update dice physics if rolling
-    if (dice && dice.userData.isRolling) {
-        // Apply velocity
-        dice.position.x += dice.userData.velocity.x;
-        dice.position.y += dice.userData.velocity.y;
-        dice.position.z += dice.userData.velocity.z;
+    // Always render the scene, even when not rolling
+    if (dice && isRolling) {
+        // Update dice physics
+        const deltaTime = 0.016; // ~60fps
 
-        // Apply angular velocity
-        dice.rotation.x += dice.userData.angularVelocity.x;
-        dice.rotation.y += dice.userData.angularVelocity.y;
-        dice.rotation.z += dice.userData.angularVelocity.z;
+        // Apply gravity
+        dice.userData.velocity.y += world.gravity * deltaTime;
 
-        // Apply damping
-        dice.userData.velocity.x *= 0.98;
-        dice.userData.velocity.y *= 0.98;
-        dice.userData.velocity.z *= 0.98;
-        dice.userData.angularVelocity.x *= 0.95;
-        dice.userData.angularVelocity.y *= 0.95;
-        dice.userData.angularVelocity.z *= 0.95;
+        // Update position
+        dice.position.x += dice.userData.velocity.x * deltaTime;
+        dice.position.y += dice.userData.velocity.y * deltaTime;
+        dice.position.z += dice.userData.velocity.z * deltaTime;
 
-        // Bounce off floor
-        if (dice.position.y < 0.5) {
-            dice.position.y = 0.5;
-            dice.userData.velocity.y = Math.abs(dice.userData.velocity.y) * 0.6;
+        // Update rotation
+        dice.rotation.x += dice.userData.angularVelocity.x * deltaTime;
+        dice.rotation.y += dice.userData.angularVelocity.y * deltaTime;
+        dice.rotation.z += dice.userData.angularVelocity.z * deltaTime;
+
+        // Bounce off table surface (adjusted for new table height)
+        if (dice.position.y < -0.8) {
+            dice.position.y = -0.8;
+            dice.userData.velocity.y *= -0.6; // Bounce with energy loss
+            dice.userData.velocity.x *= 0.8; // Friction
+            dice.userData.velocity.z *= 0.8; // Friction
+            dice.userData.angularVelocity.x *= 0.8;
+            dice.userData.angularVelocity.y *= 0.8;
+            dice.userData.angularVelocity.z *= 0.8;
+        }
+
+        // Boundaries (adjusted for table size)
+        if (Math.abs(dice.position.x) > 3) {
+            dice.userData.velocity.x *= -0.6;
+            dice.position.x = Math.sign(dice.position.x) * 3;
+        }
+        if (Math.abs(dice.position.z) > 2.5) {
+            dice.userData.velocity.z *= -0.6;
+            dice.position.z = Math.sign(dice.position.z) * 2.5;
         }
     }
 
-    renderer.render(scene, camera);
+    // Always render the scene
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
 function getDiceResultText(roll) {
@@ -313,17 +421,19 @@ function getDiceResultText(roll) {
 }
 
 function applyDiceEffect(roll) {
-    if (typeof user === 'undefined') return;
-
+    // Apply special effects based on dice roll
     if (roll === 20) {
+        // Critical success - set bonus XP flag
         user.bonusXP = true;
         showFloatingMessage("Bonus XP activated for next quest!", "success");
     } else if (roll === 1) {
+        // Critical failure - but make it fun, not punishing
         showFloatingMessage("The dice mock you, but you're undeterred!", "info");
     } else if (roll >= 15) {
+        // High roll - small XP bonus
         user.xp += 5;
         showFloatingMessage("+5 XP from lucky roll!", "success");
-        if (typeof updateUI === 'function') updateUI();
+        updateUI();
     }
 }
 
@@ -344,8 +454,19 @@ function showFloatingMessage(message, type) {
         border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
     `;
 
+    // Add slide-in animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+
     document.body.appendChild(messageDiv);
 
+    // Remove message after 3 seconds
     setTimeout(() => {
         messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
         setTimeout(() => {
@@ -356,7 +477,9 @@ function showFloatingMessage(message, type) {
     }, 3000);
 }
 
+// Function to check and initialize dice when needed
 function ensureDiceInitialized() {
+    // Check for various dice container types
     const diceContainer = document.getElementById('dice-display') || 
                          document.getElementById('combat-dice-display') ||
                          document.querySelector('.combat-dice-display');
@@ -364,7 +487,8 @@ function ensureDiceInitialized() {
     if (diceContainer && !renderer) {
         if (typeof THREE !== 'undefined') {
             try {
-                return initDice();
+                initDice();
+                return true;
             } catch (error) {
                 console.error('Failed to initialize dice:', error);
                 return false;
@@ -375,25 +499,49 @@ function ensureDiceInitialized() {
         }
     }
 
-    return renderer && scene && dice;
+    // If we have a renderer but no container, we're still considered initialized
+    if (renderer) {
+        return true;
+    }
+
+    return false;
 }
 
 // Initialize dice when the page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for the game interface to be ready
     setTimeout(() => {
         ensureDiceInitialized();
     }, 1000);
+
+    // Also try to initialize when the dice page becomes active
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const dicePage = document.getElementById('dice-page');
+                if (dicePage && dicePage.classList.contains('active')) {
+                    setTimeout(() => {
+                        console.log('Dice page is now active, initializing dice');
+                        ensureDiceInitialized();
+                    }, 500);
+                }
+            }
+        });
+    });
+
+    const dicePage = document.getElementById('dice-page');
+    if (dicePage) {
+        observer.observe(dicePage, { attributes: true });
+    }
 });
 
+// Initialize dice specifically for combat interface
 function initCombatDice() {
     const combatDiceContainer = document.getElementById('combat-dice-display');
-    if (!combatDiceContainer) return false;
+    if (!combatDiceContainer || !renderer) return;
 
-    if (combatDiceContainer.querySelector('canvas')) return true;
-
-    if (!renderer || !scene) {
-        return initDice();
-    }
+    // Check if already initialized
+    if (combatDiceContainer.querySelector('canvas')) return;
 
     // Create a smaller renderer for combat
     const combatRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -401,39 +549,43 @@ function initCombatDice() {
     combatRenderer.shadowMap.enabled = true;
     combatRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+    // Clear and add the combat renderer
     combatDiceContainer.innerHTML = '';
     combatDiceContainer.appendChild(combatRenderer.domElement);
 
+    // Use the existing scene and camera for combat
     combatRenderer.render(scene, camera);
-
-    console.log('✅ Combat dice initialized successfully');
-    return true;
 }
 
-// Utility functions for compatibility
+// Make it globally available
+window.initCombatDice = initCombatDice;
+window.ensureDiceInitialized = ensureDiceInitialized;
+
+// Fallback function for older rollD20 calls
 function rollD20() {
     return Math.floor(Math.random() * 20) + 1;
 }
 
+// Function to roll dice for skill checks (non-combat)
 function rollSkillCheck(skillName, dc, callback) {
     if (isRolling) return;
 
+    // Set up skill check context
     window.skillCheckContext = {
         skill: skillName,
         dc: dc,
         callback: callback
     };
 
+    // Use 3D dice if available, otherwise fallback
     if (ensureDiceInitialized()) {
         roll3DDice();
     } else {
+        // Fallback to simple roll
         const result = rollD20();
         if (callback) callback(result);
     }
 }
 
-// Make functions globally available
-window.initCombatDice = initCombatDice;
-window.ensureDiceInitialized = ensureDiceInitialized;
+// Make it globally available
 window.rollSkillCheck = rollSkillCheck;
-window.roll3DDice = roll3DDice;
