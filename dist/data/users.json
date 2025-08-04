@@ -1,0 +1,40 @@
+
+{
+  "users": [
+    {
+      "id": "demo_user",
+      "username": "TaskWarrior",
+      "xp": 150,
+      "level": 2,
+      "streak": 3,
+      "cards": [
+        {
+          "id": "cloak_clarity_common",
+          "name": "Cloak of Clarity",
+          "rarity": "Common",
+          "type": "Armor",
+          "effect": "+2 Focus, -1 Distraction"
+        },
+        {
+          "id": "sword_productivity_rare",
+          "name": "Sword of Productivity",
+          "rarity": "Rare",
+          "type": "Weapon",
+          "effect": "+3 Task completion, Cuts through distractions"
+        }
+      ],
+      "tasks": [
+        {
+          "id": 1234567890,
+          "text": "Complete TaskVenture tutorial",
+          "completed": false,
+          "createdAt": "2024-01-20T10:00:00.000Z"
+        }
+      ],
+      "achievements": [],
+      "lastActiveDate": "2024-01-20",
+      "totalTasksCompleted": 15,
+      "joinDate": "2024-01-15T10:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,626 @@
+/* Quest System Styles */
+
+.quests-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.quest-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    flex: 1;
+}
+
+.quest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.available-quests, .completed-quests {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.completed-quests {
+    margin-bottom: 4rem;
+}
+
+.quest-card {
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.quest-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+    border-color: #f4d03f;
+}
+
+.quest-card.easy {
+    border-color: #28a745;
+}
+
+.quest-card.medium {
+    border-color: #ffc107;
+}
+
+.quest-card.hard {
+    border-color: #dc3545;
+}
+
+.quest-card h3 {
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.quest-description {
+    color: #e0e0e0;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.quest-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.difficulty {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.quest-card.easy .difficulty {
+    background: #28a745;
+    color: white;
+}
+
+.quest-card.medium .difficulty {
+    background: #ffc107;
+    color: #212529;
+}
+
+.quest-card.hard .difficulty {
+    background: #dc3545;
+    color: white;
+}
+
+.rewards {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+.quest-card button {
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.quest-card button:hover {
+    background: linear-gradient(135deg, #f4d03f 0%, #f8e79a 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+/* Active Quest Interface */
+.active-quest {
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.active-quest h2 {
+    color: #d4af37;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.scene-content {
+    margin-bottom: 2rem;
+}
+
+.scene-text {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #d4af37;
+}
+
+.quest-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quest-option {
+    background: linear-gradient(135deg, #4a4a7e 0%, #3a3a5e 100%);
+    color: #e0e0e0;
+    border: 2px solid #6b6ba0;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.quest-option:hover {
+    background: linear-gradient(135deg, #5a5a8e 0%, #4a4a7e 100%);
+    border-color: #d4af37;
+    transform: translateX(5px);
+}
+
+.retry-options {
+    display: flex;
+    padding-top: .75rem;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.retry-options button{
+    width: 90px;
+    padding: .25rem;
+}    
+
+.skill-info {
+    display: block;
+    font-size: 0.9rem;
+    color: #d4af37;
+    margin-top: 0.5rem;
+}
+
+.abandon-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+/* Roll Results */
+.roll-result {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    border-left: 4px solid;
+}
+
+.roll-result.success {
+    border-left-color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.roll-result.failure {
+    border-left-color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.roll-result h4 {
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+}
+
+/* Combat Interface */
+.combat-interface {
+    background: linear-gradient(135deg, #4a1a1a 0%, #2a1a1a 100%);
+    border: 2px solid #dc3545;
+    border-radius: 12px;
+    width: 90vw;
+    padding: 1.5rem;
+    margin: 0 auto;
+}
+
+.combat-interface h2 {
+    color: #dc3545;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+/* Health Bars Container */
+.health-bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.health-bar-container {
+    text-align: center;
+}
+
+.health-bar-container h4 {
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.health-bar {
+    width: 100%;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #666;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 13px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.health-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    z-index: 2;
+}
+
+.enemy-info {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+    border: 1px solid #dc3545;
+}
+
+.enemy-info h3 {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.enemy-info p {
+    color: #e0e0e0;
+    margin: 0;
+}
+
+.combat-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.combat-options button {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 1rem;
+    min-height: 60px;
+}
+
+.combat-options button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e74c3c 0%, #dc3545 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.combat-options button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#combat-log {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #dc3545;
+    margin-bottom: 1rem;
+}
+
+#combat-log p {
+    margin: 0.75rem 0;
+    color: #e0e0e0;
+    line-height: 1.4;
+}
+
+#combat-log p.success {
+    color: #22c55e;
+}
+
+#combat-log p.failure {
+    color: #ef4444;
+}
+
+#combat-log p strong {
+    color: #d4af37;
+}
+
+/* Completed Quests */
+.completed-quest {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #28a745;
+}
+
+/* Quest Completion */
+.quest-completion {
+    background: linear-gradient(135deg, #1a4a1a 0%, #0a2a0a 100%);
+    border: 2px solid #28a745;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.quest-completion h2 {
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.quest-completion h3 {
+    color: #d4af37;
+    margin-bottom: 1.5rem;
+}
+
+/* Integrated Combat Dice Section */
+.combat-dice-section {
+    background: rgba(212, 175, 55, 0.1);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.combat-dice-section h4 {
+    color: #d4af37;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.integrated-dice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.combat-dice-display {
+    width: 70vw;
+    height: 250px;
+    background: #1a1a2e;
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.combat-dice-display img {
+    width: auto;
+    height: 50%;
+}
+
+.combat-roll-button {
+    background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.combat-roll-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+    transform: translateY(-2px);
+}
+
+.combat-roll-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.combat-dice-result {
+    color: #e0e0e0;
+    font-size: 1rem;
+    text-align: center;
+    min-height: 1.5rem;
+}
+
+.rewards {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.rewards h4 {
+    color: #d4af37;
+    margin-bottom: 0.75rem;
+}
+
+.rewards ul {
+    list-style: none;
+    padding: 0;
+}
+
+.rewards li {
+    color: #e0e0e0;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.rewards li:last-child {
+    border-bottom: none;
+}
+
+.quest-completion .rewards {
+    margin-bottom: 1.5rem;
+}
+
+.reward-xp {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.reward-coins {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+.reward-item {
+    color: #8b5cf6;
+    font-weight: bold;
+}
+
+.current-stats {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #22c55e;
+}
+
+.current-stats h4 {
+    color: #d4af37;
+    margin-bottom: 0.75rem;
+}
+
+.current-stats p {
+    color: #e0e0e0;
+    margin: 0.25rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .quest-container {
+        padding: 0.5rem;
+    }
+
+    .combat-options {
+        flex-direction: column;
+    }
+
+    .quest-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+}
+
+/* Dice Rolling Section */
+.dice-section {
+    display: none; /* Hidden by default */
+    max-width: 300px;
+    margin: 1rem auto;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a2e 100%);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.dice-section.active {
+    display: block;
+}
+
+.dice-section h3 {
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.dice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dice-display {
+    width: 200px;
+    height: 150px;
+    background: #1a1a2e;
+    border: 1px solid #d4af37;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+#roll-dice-btn {
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#roll-dice-btn:hover {
+    background: linear-gradient(135deg, #f4d03f 0%, #f8e79a 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+#roll-dice-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dice-result {
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    text-align: center;
+}

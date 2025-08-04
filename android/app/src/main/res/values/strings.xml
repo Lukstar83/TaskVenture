@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TaskVenture</string>
+    <string name="title_activity_main">TaskVenture</string>
+    <string name="package_name">com.taskventure.app</string>
+    <string name="custom_url_scheme">com.taskventure.app</string>
+</resources>
