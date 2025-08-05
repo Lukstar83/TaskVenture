@@ -140,28 +140,7 @@ function initDice() {
     table.rotation.x = -Math.PI / 2;
     table.position.y = -3.5;
     table.receiveShadow = true;
-    scene.add(table);
-
-    // Add wooden edge around the table
-    const edgeGeometry = new THREE.RingGeometry(6.2, 6.5, 32);
-    const edgeCanvas = document.createElement('canvas');
-    edgeCanvas.width = 256;
-    edgeCanvas.height = 256;
-    const edgeCtx = edgeCanvas.getContext('2d');
-    
-    // Wood texture for edge
-    const woodGradient = edgeCtx.createLinearGradient(0, 0, 256, 0);
-    woodGradient.addColorStop(0, '#8B4513');
-    woodGradient.addColorStop(0.5, '#A0522D');
-    woodGradient.addColorStop(1, '#654321');
-    edgeCtx.fillStyle = woodGradient;
-    edgeCtx.fillRect(0, 0, 256, 256);
-    
-    const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
-    const edgeMaterial = new THREE.MeshPhongMaterial({
-      map: edgeTexture,
-      shininess: 30,
-      specular: 0x222222
+    scene.add(table)
     });
     
     const tableEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
