@@ -33,13 +33,20 @@ function initDice() {
         }
     }
 
-    // Create the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    // Create the renderer with enhanced settings
+    renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: false,
+      logarithmicDepthBuffer: true 
+    });
     renderer.setSize(300, 200);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x1a1a2e, 1.0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // Clear existing content and add renderer
     diceContainer.innerHTML = ''; // Clear the container
@@ -51,68 +58,82 @@ function initDice() {
         objects: []
     };
 
-    // Add improved lighting setup
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    // Enhanced lighting setup for better visuals
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
     scene.add(ambientLight);
 
-    // Main directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight.position.set(10, 10, 5);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
+    // Main spotlight for dramatic effect
+    const spotLight = new THREE.SpotLight(0xffffff, 2.0);
+    spotLight.position.set(-3, 6, 3);
+    spotLight.target.position.set(0, 0, 0);
+    spotLight.distance = 15;
+    spotLight.angle = Math.PI / 4;
+    spotLight.penumbra = 0.1;
+    spotLight.decay = 2;
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 2048;
+    spotLight.shadow.mapSize.height = 2048;
+    spotLight.shadow.camera.near = 0.5;
+    spotLight.shadow.camera.far = 15;
+    spotLight.shadow.bias = -0.0001;
+    scene.add(spotLight);
+
+    // Secondary directional light for fill
+    const directionalLight = new THREE.DirectionalLight(0x9bb5ff, 0.4);
+    directionalLight.position.set(5, 3, -2);
     scene.add(directionalLight);
 
-    // Add a fill light for better illumination
-    const fillLight = new THREE.DirectionalLight(0x6666ff, 0.3);
-    fillLight.position.set(-5, 5, -5);
-    scene.add(fillLight);
+    // Rim light for edge definition
+    const rimLight = new THREE.DirectionalLight(0xffc994, 0.3);
+    rimLight.position.set(-2, 1, -3);
+    scene.add(rimLight);
 
-    // Add point light for dramatic effect
-    const pointLight = new THREE.PointLight(0xffffff, 0.5, 100);
-    pointLight.position.set(0, 8, 0);
-    scene.add(pointLight);
-
-    // Add table surface first - make it look like wood
+    // Create enhanced gaming table with felt surface
     const tableGeometry = new THREE.PlaneGeometry(12, 8);
 
-    // Create wood texture
+    // Create felt texture for gaming table
     const tableCanvas = document.createElement('canvas');
-    tableCanvas.width = 512;
-    tableCanvas.height = 512;
+    tableCanvas.width = 1024;
+    tableCanvas.height = 1024;
     const tableCtx = tableCanvas.getContext('2d');
 
-    // Wood grain background
-    const woodGradient = tableCtx.createLinearGradient(0, 0, 512, 0);
-    woodGradient.addColorStop(0, '#8B4513');
-    woodGradient.addColorStop(0.3, '#A0522D');
-    woodGradient.addColorStop(0.7, '#8B4513');
-    woodGradient.addColorStop(1, '#654321');
-    tableCtx.fillStyle = woodGradient;
-    tableCtx.fillRect(0, 0, 512, 512);
+    // Base felt color
+    const feltGradient = tableCtx.createRadialGradient(512, 512, 0, 512, 512, 512);
+    feltGradient.addColorStop(0, '#0f4d0f');
+    feltGradient.addColorStop(0.7, '#0a3d0a');
+    feltGradient.addColorStop(1, '#083008');
+    tableCtx.fillStyle = feltGradient;
+    tableCtx.fillRect(0, 0, 1024, 1024);
 
-    // Add wood grain lines
-    tableCtx.strokeStyle = '#654321';
-    tableCtx.lineWidth = 1;
-    for (let i = 0; i < 512; i += 20) {
-      tableCtx.globalAlpha = 0.3;
-      tableCtx.beginPath();
-      tableCtx.moveTo(0, i);
-      tableCtx.lineTo(512, i + Math.sin(i * 0.1) * 10);
-      tableCtx.stroke();
+    // Add subtle felt texture
+    for (let i = 0; i < 8000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const brightness = Math.random() * 0.1;
+      tableCtx.fillStyle = `rgba(${Math.floor(255 * brightness)}, ${Math.floor(255 * brightness)}, ${Math.floor(255 * brightness)}, 0.15)`;
+      tableCtx.fillRect(x, y, 1, 1);
     }
+
+    // Add decorative border pattern
+    tableCtx.strokeStyle = '#d4af37';
+    tableCtx.lineWidth = 8;
+    tableCtx.strokeRect(32, 32, 960, 960);
+    
+    // Inner decorative line
+    tableCtx.strokeStyle = '#b8860b';
+    tableCtx.lineWidth = 3;
+    tableCtx.strokeRect(48, 48, 928, 928);
 
     const tableTexture = new THREE.CanvasTexture(tableCanvas);
     tableTexture.wrapS = THREE.RepeatWrapping;
     tableTexture.wrapT = THREE.RepeatWrapping;
-    tableTexture.repeat.set(2, 2);
 
     const tableMaterial = new THREE.MeshPhongMaterial({ 
       map: tableTexture,
-      shininess: 20,
-      specular: 0x111111
+      shininess: 5,
+      specular: 0x004400,
+      bumpMap: tableTexture,
+      bumpScale: 0.02
     });
 
     const table = new THREE.Mesh(tableGeometry, tableMaterial);
@@ -120,6 +141,34 @@ function initDice() {
     table.position.y = -3.5;
     table.receiveShadow = true;
     scene.add(table);
+
+    // Add wooden edge around the table
+    const edgeGeometry = new THREE.RingGeometry(6.2, 6.5, 32);
+    const edgeCanvas = document.createElement('canvas');
+    edgeCanvas.width = 256;
+    edgeCanvas.height = 256;
+    const edgeCtx = edgeCanvas.getContext('2d');
+    
+    // Wood texture for edge
+    const woodGradient = edgeCtx.createLinearGradient(0, 0, 256, 0);
+    woodGradient.addColorStop(0, '#8B4513');
+    woodGradient.addColorStop(0.5, '#A0522D');
+    woodGradient.addColorStop(1, '#654321');
+    edgeCtx.fillStyle = woodGradient;
+    edgeCtx.fillRect(0, 0, 256, 256);
+    
+    const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
+    const edgeMaterial = new THREE.MeshPhongMaterial({
+      map: edgeTexture,
+      shininess: 30,
+      specular: 0x222222
+    });
+    
+    const tableEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+    tableEdge.rotation.x = -Math.PI / 2;
+    tableEdge.position.y = -3.45;
+    tableEdge.receiveShadow = true;
+    scene.add(tableEdge);
 
     // Create dice after table
     createDice();
@@ -137,15 +186,90 @@ function initDice() {
 
     function createDice() {
   // Create proper icosahedron geometry for D20 (20 faces)
-  const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
+  const geo = new THREE.IcosahedronGeometry(1.2, 0).toNonIndexed();
 
-  // Use a single MeshNormalMaterial for testing visibility
-  const material = new THREE.MeshNormalMaterial({
-    side: THREE.DoubleSide
-  });
+  // Create face groups for individual face materials
+  const faceCount = geo.attributes.position.count / 3;
+  geo.clearGroups();
+  for (let f = 0; f < faceCount; f++) {
+    geo.addGroup(f * 3, 3, f);
+  }
 
-  // Create the dice mesh with single material
-  dice = new THREE.Mesh(geo, material);
+  // Create materials for each face (1-20)
+  const materials = [];
+  const size = 256;
+
+  for (let i = 1; i <= faceCount; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Create metallic dice face texture
+    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    gradient.addColorStop(0, '#f5f5f5');
+    gradient.addColorStop(0.3, '#e8e8e8');
+    gradient.addColorStop(0.7, '#d0d0d0');
+    gradient.addColorStop(1, '#b8b8b8');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    // Add subtle edge highlight
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, size - 8, size - 8);
+
+    // Add inner border
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8, 8, size - 16, size - 16);
+
+    // Add the number for this face
+    ctx.fillStyle = '#2c2c2c';
+    ctx.font = `bold ${size * 0.4}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 2;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillText(i.toString(), size/2, size/2);
+
+    // Add corner decoration dots
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#666666';
+    const dotSize = 3;
+    ctx.beginPath();
+    ctx.arc(25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Create material for this face with enhanced properties
+    const material = new THREE.MeshPhongMaterial({
+      map: texture,
+      shininess: 100,
+      specular: 0x888888,
+      transparent: false,
+      side: THREE.DoubleSide,
+      bumpMap: texture,
+      bumpScale: 0.01
+    });
+
+    materials.push(material);
+  }
+
+  // Create the dice mesh with all face materials
+  dice = new THREE.Mesh(geo, materials);
   dice.castShadow = true;
   dice.receiveShadow = true;
 
