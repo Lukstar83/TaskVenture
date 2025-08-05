@@ -117,7 +117,7 @@ function initDice() {
 
     const table = new THREE.Mesh(tableGeometry, tableMaterial);
     table.rotation.x = -Math.PI / 2;
-    table.position.y = -2;
+    table.position.y = -3.5;
     table.receiveShadow = true;
     scene.add(table);
 
@@ -159,7 +159,7 @@ function initDice() {
   };
 
   // Ensure dice is properly scaled
-  dice.scale.set(1, 1, 1);
+  dice.scale.set(.7, .7, .7);
   
   scene.add(dice);
 
