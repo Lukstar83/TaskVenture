@@ -34,10 +34,11 @@ function initDice() {
     }
 
     // Create the renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(300, 200);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x1a1a2e, 1.0);
 
     // Clear existing content and add renderer
     diceContainer.innerHTML = ''; // Clear the container
@@ -73,18 +74,15 @@ function initDice() {
     pointLight.position.set(0, 8, 0);
     scene.add(pointLight);
 
-    // Create dice
-    createDice();
-
-    // Add table surface - make it look like wood
+    // Add table surface first - make it look like wood
     const tableGeometry = new THREE.PlaneGeometry(12, 8);
-    
+
     // Create wood texture
     const tableCanvas = document.createElement('canvas');
     tableCanvas.width = 512;
     tableCanvas.height = 512;
     const tableCtx = tableCanvas.getContext('2d');
-    
+
     // Wood grain background
     const woodGradient = tableCtx.createLinearGradient(0, 0, 512, 0);
     woodGradient.addColorStop(0, '#8B4513');
@@ -93,7 +91,7 @@ function initDice() {
     woodGradient.addColorStop(1, '#654321');
     tableCtx.fillStyle = woodGradient;
     tableCtx.fillRect(0, 0, 512, 512);
-    
+
     // Add wood grain lines
     tableCtx.strokeStyle = '#654321';
     tableCtx.lineWidth = 1;
@@ -104,36 +102,46 @@ function initDice() {
       tableCtx.lineTo(512, i + Math.sin(i * 0.1) * 10);
       tableCtx.stroke();
     }
-    
+
     const tableTexture = new THREE.CanvasTexture(tableCanvas);
     tableTexture.wrapS = THREE.RepeatWrapping;
     tableTexture.wrapT = THREE.RepeatWrapping;
     tableTexture.repeat.set(2, 2);
-    
+
     const tableMaterial = new THREE.MeshPhongMaterial({ 
       map: tableTexture,
       shininess: 20,
       specular: 0x111111
     });
-    
+
     const table = new THREE.Mesh(tableGeometry, tableMaterial);
     table.rotation.x = -Math.PI / 2;
     table.position.y = -2;
     table.receiveShadow = true;
     scene.add(table);
 
+    // Create dice after table
+    createDice();
+
     // Start render loop
     animate();
+
+    // Set up roll button if it exists
+    const rollButton = document.getElementById('roll-dice-btn');
+    if (rollButton) {
+        rollButton.addEventListener('click', roll3DDice);
+        console.log('✅ Roll button event listener added');
+    }
 }
 
     function createDice() {
   // Create proper icosahedron geometry for D20 (20 faces)
   const geo = new THREE.IcosahedronGeometry(1.2, 0); // Use 0 subdivisions for clean faces
-  
+
   // Create materials for each face (1-20)
   const materials = [];
   const size = 256;
-  
+
   for (let i = 1; i <= 20; i++) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
@@ -194,13 +202,25 @@ function initDice() {
   dice = new THREE.Mesh(geo, materials);
   dice.castShadow = true;
   dice.receiveShadow = true;
-  
-  // Position dice slightly above the surface initially
-  dice.position.set(0, 0, 0);
-  
+
+  // Position dice visibly above the table surface
+    dice.position.set(0, 0.5, 0);
+
+  // Initialize physics properties
+  dice.userData = {
+    velocity: { x: 0, y: 0, z: 0 },
+    angularVelocity: { x: 0, y: 0, z: 0 }
+  };
+
   scene.add(dice);
 
   console.log('✅ D20 with all 20 numbered faces created');
+
+    // Force an initial render to make sure everything is visible
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        console.log('✅ Initial scene rendered');
+    }
 }
 
 function roll3DDice() {
@@ -225,6 +245,14 @@ function roll3DDice() {
     // Clear previous result (with null check)
     if (resultDiv) {
         resultDiv.innerHTML = '';
+    }
+
+    // Make sure dice userData exists
+    if (!dice.userData) {
+        dice.userData = {
+            velocity: { x: 0, y: 0, z: 0 },
+            angularVelocity: { x: 0, y: 0, z: 0 }
+        };
     }
 
     // Set random initial velocity and rotation
@@ -320,6 +348,7 @@ function calculateDiceResult() {
 function animate() {
     requestAnimationFrame(animate);
 
+    // Always render the scene, even when not rolling
     if (dice && isRolling) {
         // Update dice physics
         const deltaTime = 0.016; // ~60fps
@@ -359,7 +388,10 @@ function animate() {
         }
     }
 
-    renderer.render(scene, camera);
+    // Always render the scene
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
 function getDiceResultText(roll) {
@@ -471,6 +503,26 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         ensureDiceInitialized();
     }, 1000);
+
+    // Also try to initialize when the dice page becomes active
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const dicePage = document.getElementById('dice-page');
+                if (dicePage && dicePage.classList.contains('active')) {
+                    setTimeout(() => {
+                        console.log('Dice page is now active, initializing dice');
+                        ensureDiceInitialized();
+                    }, 500);
+                }
+            }
+        });
+    });
+
+    const dicePage = document.getElementById('dice-page');
+    if (dicePage) {
+        observer.observe(dicePage, { attributes: true });
+    }
 });
 
 // Initialize dice specifically for combat interface
