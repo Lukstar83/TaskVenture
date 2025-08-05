@@ -188,12 +188,8 @@ function initDice() {
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
 
-    // Create material for this face
-    const material = new THREE.MeshPhongMaterial({
-      map: texture,
-      shininess: 30,
-      specular: 0x222222,
-      transparent: false,
+    // Create material for this face - using MeshNormalMaterial for visibility
+    const material = new THREE.MeshNormalMaterial({
       side: THREE.DoubleSide
     });
 
