@@ -140,7 +140,28 @@ function initDice() {
     table.rotation.x = -Math.PI / 2;
     table.position.y = -3.5;
     table.receiveShadow = true;
-    scene.add(table)
+    scene.add(table);
+
+    // Add wooden edge around the table
+    const edgeGeometry = new THREE.RingGeometry(6.2, 6.5, 32);
+    const edgeCanvas = document.createElement('canvas');
+    edgeCanvas.width = 256;
+    edgeCanvas.height = 256;
+    const edgeCtx = edgeCanvas.getContext('2d');
+    
+    // Wood texture for edge
+    const woodGradient = edgeCtx.createLinearGradient(0, 0, 256, 0);
+    woodGradient.addColorStop(0, '#8B4513');
+    woodGradient.addColorStop(0.5, '#A0522D');
+    woodGradient.addColorStop(1, '#654321');
+    edgeCtx.fillStyle = woodGradient;
+    edgeCtx.fillRect(0, 0, 256, 256);
+    
+    const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
+    const edgeMaterial = new THREE.MeshPhongMaterial({
+      map: edgeTexture,
+      shininess: 30,
+      specular: 0x222222
     });
     
     const tableEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
@@ -163,224 +184,119 @@ function initDice() {
     }
 }
 
-    // Helper functions for better dice geometry
-    function calc_texture_size(approx) {
-        return Math.pow(2, Math.floor(Math.log(approx) / Math.log(2)));
-    }
-
-    function create_text_texture(text, color, back_color, size, margin) {
-        if (text == undefined) return null;
-        var canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var ts = calc_texture_size(size + size * 2 * margin) * 2;
-        canvas.width = canvas.height = ts;
-        context.font = ts / (1 + 2 * margin) + "pt Arial";
-        context.fillStyle = back_color;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillStyle = color;
-        context.fillText(text, canvas.width / 2, canvas.height / 2);
-        if (text == '6' || text == '9') {
-            context.fillText('  .', canvas.width / 2, canvas.height / 2);
-        }
-        var texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        return texture;
-    }
-
-    function create_dice_materials(face_labels, size, margin) {
-        var materials = [];
-        var material_options = {
-            shininess: 40,
-            specular: 0x172022,
-            transparent: false,
-            side: THREE.DoubleSide
-        };
-        var label_color = '#aaaaaa';
-        var dice_color = '#202020';
-        
-        for (var i = 0; i < face_labels.length; ++i) {
-            var material = new THREE.MeshPhongMaterial({
-                ...material_options,
-                map: create_text_texture(face_labels[i], label_color, dice_color, size, margin)
-            });
-            materials.push(material);
-        }
-        return materials;
-    }
-
-    function create_geom(vertices, faces, radius, tab, af, chamfer) {
-        var vectors = new Array(vertices.length);
-        for (var i = 0; i < vertices.length; ++i) {
-            vectors[i] = (new THREE.Vector3).fromArray(vertices[i]).normalize();
-        }
-        var cg = chamfer_geom(vectors, faces, chamfer);
-        var geom = make_geom(cg.vectors, cg.faces, radius, tab, af);
-        return geom;
-    }
-
-    function chamfer_geom(vectors, faces, chamfer) {
-        var chamfer_vectors = [], chamfer_faces = [], corner_faces = new Array(vectors.length);
-        for (var i = 0; i < vectors.length; ++i) corner_faces[i] = [];
-        for (var i = 0; i < faces.length; ++i) {
-            var ii = faces[i], fl = ii.length - 1;
-            var center_point = new THREE.Vector3();
-            var face = new Array(fl);
-            for (var j = 0; j < fl; ++j) {
-                var vv = vectors[ii[j]].clone();
-                center_point.add(vv);
-                corner_faces[ii[j]].push(face[j] = chamfer_vectors.push(vv) - 1);
-            }
-            center_point.divideScalar(fl);
-            for (var j = 0; j < fl; ++j) {
-                var vv = chamfer_vectors[face[j]];
-                vv.subVectors(vv, center_point).multiplyScalar(chamfer).addVectors(vv, center_point);
-            }
-            face.push(ii[fl]);
-            chamfer_faces.push(face);
-        }
-        for (var i = 0; i < faces.length - 1; ++i) {
-            for (var j = i + 1; j < faces.length; ++j) {
-                var pairs = [], lastm = -1;
-                for (var m = 0; m < faces[i].length - 1; ++m) {
-                    var n = faces[j].indexOf(faces[i][m]);
-                    if (n >= 0 && n < faces[j].length - 1) {
-                        if (lastm >= 0 && m != lastm + 1) pairs.unshift([i, m], [j, n]);
-                        else pairs.push([i, m], [j, n]);
-                        lastm = m;
-                    }
-                }
-                if (pairs.length != 4) continue;
-                chamfer_faces.push([chamfer_faces[pairs[0][0]][pairs[0][1]],
-                        chamfer_faces[pairs[1][0]][pairs[1][1]],
-                        chamfer_faces[pairs[3][0]][pairs[3][1]],
-                        chamfer_faces[pairs[2][0]][pairs[2][1]], -1]);
-            }
-        }
-        for (var i = 0; i < corner_faces.length; ++i) {
-            var cf = corner_faces[i], face = [cf[0]], count = cf.length - 1;
-            while (count) {
-                for (var m = faces.length; m < chamfer_faces.length; ++m) {
-                    var index = chamfer_faces[m].indexOf(face[face.length - 1]);
-                    if (index >= 0 && index < 4) {
-                        if (--index == -1) index = 3;
-                        var next_vertex = chamfer_faces[m][index];
-                        if (cf.indexOf(next_vertex) >= 0) {
-                            face.push(next_vertex);
-                            break;
-                        }
-                    }
-                }
-                --count;
-            }
-            face.push(-1);
-            chamfer_faces.push(face);
-        }
-        return { vectors: chamfer_vectors, faces: chamfer_faces };
-    }
-
-    function make_geom(vectors, faces, radius, tab, af) {
-        var geom = new THREE.BufferGeometry();
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
-        var indices = [];
-        
-        for (var i = 0; i < faces.length; ++i) {
-            var ii = faces[i], fl = ii.length - 1;
-            var aa = Math.PI * 2 / fl;
-            for (var j = 0; j < fl - 2; ++j) {
-                var v1 = vectors[ii[0]].clone().multiplyScalar(radius);
-                var v2 = vectors[ii[j + 1]].clone().multiplyScalar(radius);
-                var v3 = vectors[ii[j + 2]].clone().multiplyScalar(radius);
-                
-                vertices.push(v1.x, v1.y, v1.z);
-                vertices.push(v2.x, v2.y, v2.z);
-                vertices.push(v3.x, v3.y, v3.z);
-                
-                var normal = new THREE.Vector3();
-                normal.crossVectors(
-                    new THREE.Vector3().subVectors(v2, v1),
-                    new THREE.Vector3().subVectors(v3, v1)
-                ).normalize();
-                
-                normals.push(normal.x, normal.y, normal.z);
-                normals.push(normal.x, normal.y, normal.z);
-                normals.push(normal.x, normal.y, normal.z);
-                
-                uvs.push(
-                    (Math.cos(af) + 1 + tab) / 2 / (1 + tab),
-                    (Math.sin(af) + 1 + tab) / 2 / (1 + tab),
-                    (Math.cos(aa * (j + 1) + af) + 1 + tab) / 2 / (1 + tab),
-                    (Math.sin(aa * (j + 1) + af) + 1 + tab) / 2 / (1 + tab),
-                    (Math.cos(aa * (j + 2) + af) + 1 + tab) / 2 / (1 + tab),
-                    (Math.sin(aa * (j + 2) + af) + 1 + tab) / 2 / (1 + tab)
-                );
-            }
-        }
-        
-        geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        geom.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-        geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-        
-        geom.computeBoundingSphere();
-        return geom;
-    }
-
-    function create_d20_geometry(radius) {
-        var t = (1 + Math.sqrt(5)) / 2;
-        var vertices = [[-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
-                [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-                [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]];
-        var faces = [[0, 11, 5, 1], [0, 5, 1, 2], [0, 1, 7, 3], [0, 7, 10, 4], [0, 10, 11, 5],
-                [1, 5, 9, 6], [5, 11, 4, 7], [11, 10, 2, 8], [10, 7, 6, 9], [7, 1, 8, 10],
-                [3, 9, 4, 11], [3, 4, 2, 12], [3, 2, 6, 13], [3, 6, 8, 14], [3, 8, 9, 15],
-                [4, 9, 5, 16], [2, 4, 11, 17], [6, 2, 10, 18], [8, 6, 7, 19], [9, 8, 1, 20]];
-        return create_geom(vertices, faces, radius, -0.2, -Math.PI / 4 / 2, 0.955);
-    }
-
     function createDice() {
-        // Create proper D20 geometry with numbered faces
-        const radius = 1.2;
-        const geo = create_d20_geometry(radius);
-        
-        // Create face labels for D20 (1-20)
-        const face_labels = [];
-        for (let i = 1; i <= 20; i++) {
-            face_labels.push(i.toString());
-        }
-        
-        // Create materials with proper textures
-        const materials = create_dice_materials(face_labels, 48, 0.2);
-        
-        // Create the dice mesh
-        dice = new THREE.Mesh(geo, materials);
-        dice.castShadow = true;
-        dice.receiveShadow = true;
-        
-        // Position dice visibly above the table surface
-        dice.position.set(0, 1, 0);
-        dice.scale.set(0.7, 0.7, 0.7);
-        
-        // Initialize physics properties
-        dice.userData = {
-            velocity: { x: 0, y: 0, z: 0 },
-            angularVelocity: { x: 0, y: 0, z: 0 }
-        };
-        
-        scene.add(dice);
-        
-        console.log('✅ D20 with proper geometry and numbered faces created');
-        console.log('📍 Dice position:', dice.position);
-        console.log('📏 Dice scale:', dice.scale);
+  // Create proper icosahedron geometry for D20 (20 faces)
+  const geo = new THREE.IcosahedronGeometry(1.2, 0).toNonIndexed();
 
-        // Force an initial render to make sure everything is visible
-        if (renderer && scene && camera) {
-            renderer.render(scene, camera);
-            console.log('✅ Initial scene rendered');
-        }
+  // Create face groups for individual face materials
+  const faceCount = geo.attributes.position.count / 3;
+  geo.clearGroups();
+  for (let f = 0; f < faceCount; f++) {
+    geo.addGroup(f * 3, 3, f);
+  }
+
+  // Create materials for each face (1-20)
+  const materials = [];
+  const size = 256;
+
+  for (let i = 1; i <= faceCount; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Create metallic dice face texture
+    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    gradient.addColorStop(0, '#f5f5f5');
+    gradient.addColorStop(0.3, '#e8e8e8');
+    gradient.addColorStop(0.7, '#d0d0d0');
+    gradient.addColorStop(1, '#b8b8b8');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    // Add subtle edge highlight
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, size - 8, size - 8);
+
+    // Add inner border
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8, 8, size - 16, size - 16);
+
+    // Add the number for this face
+    ctx.fillStyle = '#2c2c2c';
+    ctx.font = `bold ${size * 0.4}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 2;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillText(i.toString(), size/2, size/2);
+
+    // Add corner decoration dots
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#666666';
+    const dotSize = 3;
+    ctx.beginPath();
+    ctx.arc(25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size - 25, size - 25, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Create material for this face with enhanced properties
+    const material = new THREE.MeshPhongMaterial({
+      map: texture,
+      shininess: 100,
+      specular: 0x888888,
+      transparent: false,
+      side: THREE.DoubleSide,
+      bumpMap: texture,
+      bumpScale: 0.01
+    });
+
+    materials.push(material);
+  }
+
+  // Create the dice mesh with all face materials
+  dice = new THREE.Mesh(geo, materials);
+  dice.castShadow = true;
+  dice.receiveShadow = true;
+
+  // Position dice visibly above the table surface
+  dice.position.set(0, 1, 0);
+
+  // Initialize physics properties
+  dice.userData = {
+    velocity: { x: 0, y: 0, z: 0 },
+    angularVelocity: { x: 0, y: 0, z: 0 }
+  };
+
+  // Ensure dice is properly scaled
+  dice.scale.set(.7, .7, .7);
+  
+  scene.add(dice);
+
+  console.log('✅ D20 with all 20 numbered faces created');
+  console.log('📍 Dice position:', dice.position);
+  console.log('📏 Dice scale:', dice.scale);
+
+    // Force an initial render to make sure everything is visible
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        console.log('✅ Initial scene rendered');
     }
+}
 
 function roll3DDice() {
     if (isRolling) return;
