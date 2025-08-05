@@ -8,7 +8,7 @@ function initDice() {
 
     // Create camera
     camera = new THREE.PerspectiveCamera(75, 300 / 200, 0.1, 1000);
-    camera.position.set(0, 5, 5);
+    camera.position.set(0, 3, 3);
     camera.lookAt(0, 0, 0);
 
     // Find the dice container element (can be regular or combat)
@@ -39,6 +39,7 @@ function initDice() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x1a1a2e, 1.0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // Clear existing content and add renderer
     diceContainer.innerHTML = ''; // Clear the container
@@ -190,9 +191,10 @@ function initDice() {
     // Create material for this face
     const material = new THREE.MeshPhongMaterial({
       map: texture,
-      shininess: 80,
-      specular: 0x444444,
-      transparent: false
+      shininess: 30,
+      specular: 0x222222,
+      transparent: false,
+      side: THREE.DoubleSide
     });
 
     materials.push(material);
@@ -204,7 +206,7 @@ function initDice() {
   dice.receiveShadow = true;
 
   // Position dice visibly above the table surface
-    dice.position.set(0, 0.5, 0);
+  dice.position.set(0, 1, 0);
 
   // Initialize physics properties
   dice.userData = {
@@ -212,9 +214,14 @@ function initDice() {
     angularVelocity: { x: 0, y: 0, z: 0 }
   };
 
+  // Ensure dice is properly scaled
+  dice.scale.set(1, 1, 1);
+  
   scene.add(dice);
 
   console.log('✅ D20 with all 20 numbered faces created');
+  console.log('📍 Dice position:', dice.position);
+  console.log('📏 Dice scale:', dice.scale);
 
     // Force an initial render to make sure everything is visible
     if (renderer && scene && camera) {
