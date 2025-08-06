@@ -625,19 +625,15 @@ body {
       box-shadow: var(--shadow-premium);
     }
 
-    .task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.task-section h2 {
-  color: #d4af37;
-  margin: 0;
-  font-size: 2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+    .task-section h2, .card-section h2, .dice-section h2, .avatar-section h2 {
+      font-family: "Cinzel Decorative", serif;
+      color: var(--text-gold);
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+    }
 
     /* Task Management - Premium Design */
     .task-input-container {
@@ -2264,12 +2260,15 @@ body {
 }
 /* Hamburger Menu Styles */
 .hamburger-menu {
-  position: relative;
-  z-index: 1000;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
 }
 
 .hamburger-btn {
-    background: var(--gradient-gold);
+    background: rgba(212, 175, 55, 0.9);
+    border: 2px solid var(--primary-gold);
     border-radius: 8px;
     padding: 0.5rem;
     cursor: pointer;
@@ -2280,6 +2279,7 @@ body {
 }
 
 .hamburger-btn:hover {
+    background: var(--primary-gold);
     transform: scale(1.05);
 }
 
@@ -2293,7 +2293,7 @@ body {
 .hamburger-dropdown {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border: 2px solid var(--primary-gold);
     border-radius: 12px;
