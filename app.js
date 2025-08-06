@@ -806,6 +806,11 @@ function updateUI() {
 // Add a new task
 function addTask() {
     const taskInput = document.getElementById('task-input');
+    if (!taskInput) {
+        console.error('Task input element not found');
+        return;
+    }
+    
     const taskText = taskInput.value.trim();
 
     if (taskText === '') {
@@ -824,6 +829,9 @@ function addTask() {
     taskInput.value = '';
     updateUI();
 }
+
+// Make addTask globally available
+window.addTask = addTask;
 
 // Complete a task
 function completeTask(taskId) {
@@ -1108,16 +1116,27 @@ function updateAvatarDisplay() {
     }
 }
 
-// Allow Enter key to add tasks
+// Allow Enter key to add tasks and set up button handler
 document.addEventListener('DOMContentLoaded', function() {
-    const taskInput = document.getElementById('task-input');
-    if (taskInput) {
-        taskInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+    // Wait for the game interface to be visible before setting up handlers
+    setTimeout(function() {
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        
+        if (taskInput) {
+            taskInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+        }
+        
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', function() {
                 addTask();
-            }
-        });
-    }
+            });
+        }
+    }, 1000);
 
     // Initialize avatar customization when DOM is loaded
     setTimeout(initializeAvatarCustomization, 100);
