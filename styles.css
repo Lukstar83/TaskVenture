@@ -2261,14 +2261,13 @@ body {
 /* Hamburger Menu Styles */
 .hamburger-menu {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 2rem;
+    left: 1.5rem;
     z-index: 100;
 }
 
 .hamburger-btn {
-    background: rgba(212, 175, 55, 0.9);
-    border: 2px solid var(--primary-gold);
+    background: var(--gradient-gold);
     border-radius: 8px;
     padding: 0.5rem;
     cursor: pointer;
@@ -2279,7 +2278,6 @@ body {
 }
 
 .hamburger-btn:hover {
-    background: var(--primary-gold);
     transform: scale(1.05);
 }
 
@@ -2293,7 +2291,7 @@ body {
 .hamburger-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
+    left: 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border: 2px solid var(--primary-gold);
     border-radius: 12px;
