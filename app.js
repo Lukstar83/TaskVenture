@@ -23,11 +23,11 @@ async function initializeNotifications() {
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
             const { LocalNotifications: LN } = await import('@capacitor/local-notifications');
             LocalNotifications = LN;
-            
+
             // Request permission
             const permission = await LocalNotifications.requestPermissions();
             notificationsEnabled = permission.display === 'granted';
-            
+
             if (notificationsEnabled) {
                 console.log('✅ Notifications enabled');
             } else {
@@ -71,7 +71,7 @@ function loadWellnessData() {
     if (savedWellness) {
         wellnessStats = JSON.parse(savedWellness);
     }
-    
+
     // Load notification settings
     const savedNotifications = localStorage.getItem('taskventureNotifications');
     if (savedNotifications) {
@@ -87,7 +87,7 @@ function saveNotificationSettings() {
 // Schedule self-care notifications
 async function scheduleSelfCareNotifications() {
     if (!notificationsEnabled || !notificationSettings.enabled) return;
-    
+
     try {
         // Cancel existing notifications
         await LocalNotifications.cancel({
@@ -95,7 +95,7 @@ async function scheduleSelfCareNotifications() {
                 { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }
             ]
         });
-        
+
         const activities = [
             { id: 1, activity: 'hydrate', title: '💧 Hydration Reminder', body: 'Time to drink some water! Your body will thank you.' },
             { id: 2, activity: 'breathe', title: '🌬️ Breathing Break', body: 'Take a moment for some deep breathing exercises.' },
@@ -104,16 +104,16 @@ async function scheduleSelfCareNotifications() {
             { id: 5, activity: 'meditate', title: '🧘‍♀️ Mindfulness Moment', body: 'A few minutes of meditation can clear your mind.' },
             { id: 6, activity: 'journal', title: '📝 Reflection Time', body: 'Writing in your journal can help process your thoughts.' }
         ];
-        
+
         const notifications = [];
         const now = new Date();
-        
+
         activities.forEach(({ id, activity, title, body }) => {
             if (!notificationSettings.activities[activity]) return;
-            
+
             // Schedule notification
             const notificationTime = new Date(now.getTime() + (notificationSettings.frequency * 60 * 1000));
-            
+
             // Check if it's during quiet hours
             const hour = notificationTime.getHours();
             if (hour >= notificationSettings.quietHours.start || hour < notificationSettings.quietHours.end) {
@@ -123,7 +123,7 @@ async function scheduleSelfCareNotifications() {
                     notificationTime.setDate(notificationTime.getDate() + 1);
                 }
             }
-            
+
             notifications.push({
                 id: id,
                 title: title,
@@ -134,12 +134,12 @@ async function scheduleSelfCareNotifications() {
                 iconColor: '#d4af37'
             });
         });
-        
+
         if (notifications.length > 0) {
             await LocalNotifications.schedule({ notifications });
             console.log(`✅ Scheduled ${notifications.length} self-care notifications`);
         }
-        
+
     } catch (error) {
         console.error('Failed to schedule notifications:', error);
     }
@@ -149,7 +149,7 @@ async function scheduleSelfCareNotifications() {
 async function toggleNotifications(enabled) {
     notificationSettings.enabled = enabled;
     saveNotificationSettings();
-    
+
     if (enabled) {
         await scheduleSelfCareNotifications();
         showSelfCareMessage("🔔 Self-care notifications enabled! You'll receive gentle reminders.", 0);
@@ -198,17 +198,17 @@ function updateWellnessUI() {
     const energyBar = document.getElementById('energy-bar');
     const moodBar = document.getElementById('mood-bar');
     const mindfulnessBar = document.getElementById('mindfulness-bar');
-    
+
     const stressValue = document.getElementById('stress-value');
     const energyValue = document.getElementById('energy-value');
     const moodValue = document.getElementById('mood-value');
     const mindfulnessValue = document.getElementById('mindfulness-value');
-    
+
     if (stressBar) stressBar.style.width = `${wellnessStats.stress}%`;
     if (energyBar) energyBar.style.width = `${wellnessStats.energy}%`;
     if (moodBar) moodBar.style.width = `${wellnessStats.mood}%`;
     if (mindfulnessBar) mindfulnessBar.style.width = `${wellnessStats.mindfulness}%`;
-    
+
     if (stressValue) stressValue.textContent = `${wellnessStats.stress}%`;
     if (energyValue) energyValue.textContent = `${wellnessStats.energy}%`;
     if (moodValue) moodValue.textContent = `${wellnessStats.mood}%`;
@@ -219,7 +219,7 @@ function updateWellnessUI() {
 function performSelfCare(activity) {
     let message = "";
     let xpGain = 5;
-    
+
     switch(activity) {
         case 'meditate':
             message = "🧘‍♀️ You spend 10 minutes in peaceful meditation. Your mind feels clearer.";
@@ -252,16 +252,16 @@ function performSelfCare(activity) {
             wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + 10);
             break;
     }
-    
+
     // Award XP for self-care
     user.xp += xpGain;
-    
+
     // Show self-care completion message
     showSelfCareMessage(message, xpGain);
-    
+
     updateWellness('self_care');
     updateUI();
-    
+
     // Reschedule notifications after completing activity
     if (notificationSettings.enabled) {
         setTimeout(() => {
@@ -313,18 +313,18 @@ window.showStreakModal = function showStreakModal() {
     // Check if user has seen streak today
     const today = new Date().toDateString();
     const lastStreakView = localStorage.getItem('lastStreakView');
-    
+
     if (lastStreakView === today) {
         return; // Already seen today
     }
-    
+
     // Calculate days since last activity
     const lastActive = localStorage.getItem('lastActiveDate');
     const daysSinceLastActive = getDaysSince(lastActive);
-    
+
     // Check rest availability
     const restData = getRestData();
-    
+
     const modal = document.createElement('div');
     modal.className = 'streak-modal';
     modal.innerHTML = `
@@ -334,7 +334,7 @@ window.showStreakModal = function showStreakModal() {
                 <div class="streak-number">${user.streak}</div>
                 <div class="streak-label">Day Streak</div>
             </div>
-            
+
             ${daysSinceLastActive > 0 ? `
                 <div class="streak-warning">
                     <p>⚠️ You've been away for ${daysSinceLastActive} day${daysSinceLastActive > 1 ? 's' : ''}!</p>
@@ -345,7 +345,7 @@ window.showStreakModal = function showStreakModal() {
                     <p>🔥 Keep up the momentum, adventurer!</p>
                 </div>
             `}
-            
+
             <div class="rest-status">
                 <div class="rest-item">
                     <span>Short Rests Available:</span>
@@ -357,13 +357,13 @@ window.showStreakModal = function showStreakModal() {
                 </div>
                 <div class="rest-reset">Next reset: ${getNextMonthDate()}</div>
             </div>
-            
+
             <div class="streak-buttons">
                 <button onclick="closeStreakModal()">Continue Adventure</button>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     localStorage.setItem('lastStreakView', today);
 }
@@ -407,7 +407,7 @@ function getRestOptions(daysMissed, restData) {
 function getRestData() {
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
     let restData = JSON.parse(localStorage.getItem('restData') || '{}');
-    
+
     // Reset if new month
     if (restData.month !== currentMonth) {
         restData = {
@@ -417,7 +417,7 @@ function getRestData() {
         };
         localStorage.setItem('restData', JSON.stringify(restData));
     }
-    
+
     return {
         shortRestsRemaining: 1 - restData.shortRestsUsed,
         longRestsRemaining: 1 - restData.longRestsUsed,
@@ -431,7 +431,7 @@ window.useShortRest = function useShortRest() {
         // Preserve streak
         const today = new Date().toDateString();
         localStorage.setItem('lastActiveDate', today);
-        
+
         // Update rest data
         restData.shortRestsUsed += 1;
         localStorage.setItem('restData', JSON.stringify({
@@ -439,7 +439,7 @@ window.useShortRest = function useShortRest() {
             shortRestsUsed: restData.shortRestsUsed,
             longRestsUsed: restData.longRestsUsed
         }));
-        
+
         showSelfCareMessage("🛌 Short rest used! Your streak is preserved.", 0);
         closeStreakModal();
         updateUI();
@@ -452,7 +452,7 @@ window.useLongRest = function useLongRest() {
         // Restore streak to what it was before the break
         const today = new Date().toDateString();
         localStorage.setItem('lastActiveDate', today);
-        
+
         // Update rest data
         restData.longRestsUsed += 1;
         localStorage.setItem('restData', JSON.stringify({
@@ -460,7 +460,7 @@ window.useLongRest = function useLongRest() {
             shortRestsUsed: restData.shortRestsUsed,
             longRestsUsed: restData.longRestsUsed
         }));
-        
+
         showSelfCareMessage("🏕️ Long rest used! Your streak is restored.", 0);
         closeStreakModal();
         updateUI();
@@ -469,12 +469,12 @@ window.useLongRest = function useLongRest() {
 
 function getDaysSince(dateString) {
     if (!dateString) return 0;
-    
+
     const lastDate = new Date(dateString);
     const today = new Date();
     const diffTime = today - lastDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
 }
 
@@ -497,18 +497,18 @@ window.showWellnessCheckIn = function showWellnessCheckIn() {
     // Check if user has done a check-in today
     const today = new Date().toDateString();
     const lastCheckIn = localStorage.getItem('lastWellnessCheckIn');
-    
+
     if (lastCheckIn === today) {
         return; // Already checked in today
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'wellness-modal';
     modal.innerHTML = `
         <div class="wellness-modal-content">
             <h2>🌟 Daily Wellness Check-In</h2>
             <p>How are you feeling today, adventurer?</p>
-            
+
             <div class="wellness-checkboxes">
                 <label><input type="checkbox" value="rested"> 😴 Well-rested</label>
                 <label><input type="checkbox" value="energized"> ⚡ Energized</label>
@@ -517,14 +517,14 @@ window.showWellnessCheckIn = function showWellnessCheckIn() {
                 <label><input type="checkbox" value="overwhelmed"> 🌊 Overwhelmed</label>
                 <label><input type="checkbox" value="motivated"> 🔥 Motivated</label>
             </div>
-            
+
             <div class="wellness-buttons">
                 <button onclick="completeWellnessCheckIn()">Complete Check-In</button>
                 <button onclick="skipWellnessCheckIn()">Skip for Today</button>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 }
 
@@ -533,7 +533,7 @@ window.completeWellnessCheckIn = function completeWellnessCheckIn() {
     const modal = document.querySelector('.wellness-modal');
     const checkboxes = modal.querySelectorAll('input[type="checkbox"]:checked');
     const checkedValues = Array.from(checkboxes).map(cb => cb.value);
-    
+
     // Adjust wellness stats based on check-in
     if (checkedValues.includes('rested')) {
         wellnessStats.energy = Math.min(100, wellnessStats.energy + 10);
@@ -555,20 +555,20 @@ window.completeWellnessCheckIn = function completeWellnessCheckIn() {
     if (checkedValues.includes('motivated')) {
         wellnessStats.mood = Math.min(100, wellnessStats.mood + 15);
     }
-    
+
     // Award XP for checking in
     user.xp += 5;
-    
+
     // Save check-in date
     localStorage.setItem('lastWellnessCheckIn', new Date().toDateString());
-    
+
     saveWellnessData();
     updateWellnessUI();
     updateUI();
-    
+
     // Show completion message
     showSelfCareMessage("Thank you for checking in! Your self-awareness helps your journey.", 5);
-    
+
     modal.remove();
 }
 
@@ -604,6 +604,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Rewire buttons AFTER DOM is ready
   setupButtonHandlers();
+
+  // Call setupTaskInputHandlers after a short delay to ensure game interface is ready
+  // This is a more robust way than a fixed timeout in the original code.
+  // A better solution would be to hook into the visibility change of the game interface.
+  const observer = new MutationObserver((mutationsList, obs) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+        const gameInterface = document.getElementById('game-interface');
+        if (gameInterface && gameInterface.style.display !== 'none') {
+          setupTaskInputHandlers();
+          obs.disconnect(); // Stop observing once handlers are set up
+          break;
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['style'],
+    subtree: true
+  });
 });
 
 // Hook up the Reset-Wizard dev button
@@ -721,7 +743,7 @@ window.loadUserData = function loadUserData() {
             }
         ];
     }
-    
+
     // Initialize avatar object if it doesn't exist
     if (!user.avatar) {
         user.avatar = {
@@ -730,7 +752,7 @@ window.loadUserData = function loadUserData() {
             cape: ""
         };
     }
-    
+
     // Initialize wellness system
     loadWellnessData();
 }
@@ -747,33 +769,33 @@ function updateUI() {
     const characterName = document.getElementById('character-name');
     const characterRace = document.getElementById('character-race');
     const characterClass = document.getElementById('character-class');
-    
+
     if (characterName && profile.name) characterName.textContent = profile.name;
     if (characterRace && profile.race) characterRace.textContent = profile.race;
     if (characterClass && profile.class) characterClass.textContent = profile.class;
-    
+
     // Update level and XP with null checks
     const userLevel = document.getElementById('user-level');
     const userXP = document.getElementById('user-xp');
     const userStreak = document.getElementById('user-streak');
     const cardCount = document.getElementById('card-count');
-    
+
     if (userLevel) userLevel.textContent = user.level;
     if (userXP) userXP.textContent = user.xp;
     if (userStreak) userStreak.textContent = user.streak;
     if (cardCount) cardCount.textContent = user.cards.length;
-    
+
     // Update XP bar
     const xpForCurrentLevel = getXPForLevel(user.level);
     const xpForNextLevel = getXPForLevel(user.level + 1);
     const xpProgress = (user.xp / xpForNextLevel) * 100;
-    
+
     const xpFill = document.getElementById('xp-fill');
     const xpNextLevel = document.getElementById('xp-next-level');
-    
+
     if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
     if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
-    
+
     // Update currency display - convert total coins to different denominations
     const totalCoins = user.coins || 0;
     console.log(`💰 Main app coin display update: ${totalCoins} total coins`);
@@ -781,23 +803,23 @@ function updateUI() {
     const gold = Math.floor((totalCoins % 1000) / 100);
     const silver = Math.floor((totalCoins % 100) / 10);
     const copper = totalCoins % 10;
-    
+
     const platinumElement = document.getElementById('platinum-coins');
     const goldElement = document.getElementById('gold-coins');
     const silverElement = document.getElementById('silver-coins');
     const copperElement = document.getElementById('copper-coins');
-    
+
     if (platinumElement) platinumElement.
         textContent = platinum;
     if (goldElement) goldElement.textContent = gold;
     if (silverElement) silverElement.textContent = silver;
     if (copperElement) copperElement.textContent = copper;
-    
+
     // Check for level up with new system
     if (checkLevelUp(user)) {
         showLevelUpMessage();
     }
-    
+
     renderTasks();
     renderCollection();
     saveUserData();
@@ -807,19 +829,19 @@ function updateUI() {
 function addTask() {
     const taskInput = document.getElementById('task-input');
     const taskText = taskInput.value.trim();
-    
+
     if (taskText === '') {
         alert('Please enter a quest!');
         return;
     }
-    
+
     const task = {
         id: Date.now(),
         text: taskText,
         completed: false,
         createdAt: new Date().toISOString()
     };
-    
+
     user.tasks.push(task);
     taskInput.value = '';
     updateUI();
@@ -829,22 +851,22 @@ function addTask() {
 function completeTask(taskId) {
     const taskIndex = user.tasks.findIndex(task => task.id === taskId);
     if (taskIndex === -1) return;
-    
+
     const task = user.tasks[taskIndex];
     const xpGained = calculateXPReward(task);
     const card = drawCard();
-    
+
     // Update user stats
     user.xp += xpGained;
     user.streak += 1;
     user.cards.push(card);
-    
+
     // Remove completed task
     user.tasks.splice(taskIndex, 1);
-    
+
     // Show reward modal
     showRewardModal(task.text, xpGained, card);
-    
+
     updateUI();
 }
 
@@ -858,13 +880,13 @@ function showRewardModal(taskText, xpGained, card) {
     const modal = document.getElementById('reward-modal');
     const rewardDetails = document.getElementById('reward-details');
     const newCardDiv = document.getElementById('new-card');
-    
+
     rewardDetails.innerHTML = `
         <p><strong>Quest Completed:</strong> "${taskText}"</p>
         <p><strong>XP Gained:</strong> +${xpGained}</p>
         <p><strong>Streak:</strong> ${user.streak} days</p>
     `;
-    
+
     newCardDiv.innerHTML = `
         <div class="card ${card.rarity.toLowerCase()}">
             ${card.image ? `<img src="${card.image}" alt="${card.name}" class="card-image">` : ''}
@@ -873,7 +895,7 @@ function showRewardModal(taskText, xpGained, card) {
             <div class="card-effect">${card.effect}</div>
         </div>
     `;
-    
+
     modal.classList.remove('hidden');
 }
 
@@ -886,7 +908,7 @@ function closeRewardModal() {
 function renderTasks() {
     const taskList = document.getElementById('task-list');
     taskList.innerHTML = '';
-    
+
     user.tasks.forEach(task => {
         const taskItem = document.createElement('li');
         taskItem.className = 'task-item';
@@ -920,7 +942,7 @@ function showPage(pageId, navElement) {
 function renderCollection() {
     const collectionGrid = document.getElementById('collection-grid');
     collectionGrid.innerHTML = '';
-    
+
     user.cards.forEach((card, index) => {
         const cardElement = document.createElement('div');
         cardElement.className = `card ${card.rarity.toLowerCase()}`;
@@ -933,7 +955,7 @@ function renderCollection() {
                 <button class="card-delete-btn" onclick="deleteCard(${index})" title="Delete Card">🗑️</button>
             </div>
         `;
-        
+
         // Add click listener for detailed view
         cardElement.addEventListener('click', (e) => {
             // Don't show modal if clicking delete button
@@ -941,7 +963,7 @@ function renderCollection() {
                 showCardDetails(card);
             }
         });
-        
+
         collectionGrid.appendChild(cardElement);
     });
 }
@@ -995,9 +1017,9 @@ function showCardDetails(card) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Close modal when clicking outside
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -1052,14 +1074,14 @@ function initializeAvatarCustomization() {
             console.log('Base avatar image loaded successfully');
         };
     }
-    
+
     // Load saved avatar state
     document.getElementById('armor-select').value = user.avatar.armor;
     document.getElementById('weapon-select').value = user.avatar.weapon;
     document.getElementById('cape-select').value = user.avatar.cape;
-    
+
     updateAvatarDisplay();
-    
+
     // Add event listeners for avatar customization
     document.getElementById("armor-select").addEventListener("change", function () {
         user.avatar.armor = this.value;
@@ -1085,21 +1107,21 @@ function updateAvatarDisplay() {
     const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
-    
+
     if (user.avatar.armor) {
         armorImg.src = user.avatar.armor;
         armorImg.style.display = "block";
     } else {
         armorImg.style.display = "none";
     }
-    
+
     if (user.avatar.weapon) {
         weaponImg.src = user.avatar.weapon;
         weaponImg.style.display = "block";
     } else {
         weaponImg.style.display = "none";
     }
-    
+
     if (user.avatar.cape) {
         capeImg.src = user.avatar.cape;
         capeImg.style.display = "block";
@@ -1108,20 +1130,36 @@ function updateAvatarDisplay() {
     }
 }
 
-// Allow Enter key to add tasks
+// Allow Enter key to add tasks and set up button handler
 document.addEventListener('DOMContentLoaded', function() {
-    const taskInput = document.getElementById('task-input');
-    if (taskInput) {
-        taskInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTask();
-            }
-        });
-    }
-    
     // Initialize avatar customization when DOM is loaded
     setTimeout(initializeAvatarCustomization, 100);
 });
+
+// Set up task input handlers when the game interface becomes visible
+function setupTaskInputHandlers() {
+    const taskInput = document.getElementById('task-input');
+    const addTaskBtn = document.getElementById('add-task-btn');
+
+    if (taskInput) {
+        // Remove any existing event listeners to prevent duplicates
+        taskInput.removeEventListener('keypress', handleTaskInputKeypress);
+        taskInput.addEventListener('keypress', handleTaskInputKeypress);
+    }
+
+    if (addTaskBtn) {
+        // Remove any existing event listeners to prevent duplicates
+        addTaskBtn.removeEventListener('click', addTask);
+        addTaskBtn.addEventListener('click', addTask);
+    }
+}
+
+// Separate function for keypress handling
+function handleTaskInputKeypress(e) {
+    if (e.key === 'Enter') {
+        addTask();
+    }
+}
 
     function enterApp() {
       const gameEl = document.getElementById("game-interface");
@@ -1154,15 +1192,15 @@ document.addEventListener('DOMContentLoaded', function() {
       // Load full game state
       loadUserData();
       updateUI();
-      
+
       // Initialize notifications
       initializeNotifications();
-      
+
       // Show streak modal first, then wellness check-in
       setTimeout(() => {
         showStreakModal();
       }, 500);
-      
+
       setTimeout(() => {
         showWellnessCheckIn();
       }, 2000);
