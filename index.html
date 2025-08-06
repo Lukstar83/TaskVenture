@@ -149,27 +149,28 @@
       <!-- Tasks Page -->
       <section id="tasks-page" class="page active">
         <div class="task-section">
-          <h2>Your Quests</h2>
+          <div class="task-header">
+            <h2>Your Quests</h2>
+            <!-- Hamburger Menu (only visible on base page) -->
+            <div class="hamburger-menu" id="hamburger-menu">
+              <button class="hamburger-btn" onclick="toggleHamburgerMenu()">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+              </button>
+              <div class="hamburger-dropdown" id="hamburger-dropdown">
+                <a href="#" onclick="showPage('wellness-page', null); toggleHamburgerMenu();">
+                  <span class="menu-icon">🌟</span>
+                  Wellness & Self-Care
+                </a>
+              </div>
+            </div>
+          </div>
           <div class="task-input-container">
             <input type="text" id="task-input" placeholder="Enter a new quest…" maxlength="100">
             <button id="add-task-btn">Add Quest</button>
           </div>
           <ul id="task-list" class="task-list"></ul>
-        </div>
-        
-        <!-- Hamburger Menu (only visible on base page) -->
-        <div class="hamburger-menu" id="hamburger-menu">
-          <button class="hamburger-btn" onclick="toggleHamburgerMenu()">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-          </button>
-          <div class="hamburger-dropdown" id="hamburger-dropdown">
-            <a href="#" onclick="showPage('wellness-page', null); toggleHamburgerMenu();">
-              <span class="menu-icon">🌟</span>
-              Wellness & Self-Care
-            </a>
-          </div>
         </div>
       </section>
 
