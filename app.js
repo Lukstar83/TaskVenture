@@ -606,14 +606,15 @@ document.addEventListener('DOMContentLoaded', () => {
   setupButtonHandlers();
 
   // Call setupTaskInputHandlers after a short delay to ensure game interface is ready
-  // This is a more robust way than a fixed timeout in the original code.
-  // A better solution would be to hook into the visibility change of the game interface.
+  // Also add a fallback timeout
   const observer = new MutationObserver((mutationsList, obs) => {
     for (const mutation of mutationsList) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
         const gameInterface = document.getElementById('game-interface');
         if (gameInterface && gameInterface.style.display !== 'none') {
-          setupTaskInputHandlers();
+          setTimeout(() => {
+            setupTaskInputHandlers();
+          }, 500);
           obs.disconnect(); // Stop observing once handlers are set up
           break;
         }
@@ -626,6 +627,14 @@ document.addEventListener('DOMContentLoaded', () => {
     attributeFilter: ['style'],
     subtree: true
   });
+
+  // Fallback timeout to ensure handlers are set up even if observer doesn't catch it
+  setTimeout(() => {
+    const gameInterface = document.getElementById('game-interface');
+    if (gameInterface && gameInterface.style.display !== 'none') {
+      setupTaskInputHandlers();
+    }
+  }, 2000);
 });
 
 // Hook up the Reset-Wizard dev button
@@ -827,8 +836,17 @@ function updateUI() {
 
 // Add a new task
 function addTask() {
+    console.log('🎯 addTask function called');
+    
     const taskInput = document.getElementById('task-input');
+    if (!taskInput) {
+        console.error('❌ Task input element not found in addTask');
+        alert('Error: Task input not found. Please refresh the page.');
+        return;
+    }
+
     const taskText = taskInput.value.trim();
+    console.log('📝 Task text:', taskText);
 
     if (taskText === '') {
         alert('Please enter a quest!');
@@ -845,7 +863,12 @@ function addTask() {
     user.tasks.push(task);
     taskInput.value = '';
     updateUI();
+    
+    console.log('✅ Task added successfully:', task);
 }
+
+// Make addTask globally available
+window.addTask = addTask;
 
 // Complete a task
 function completeTask(taskId) {
@@ -1138,19 +1161,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Set up task input handlers when the game interface becomes visible
 function setupTaskInputHandlers() {
+    console.log('Setting up task input handlers...');
+    
     const taskInput = document.getElementById('task-input');
     const addTaskBtn = document.getElementById('add-task-btn');
+
+    console.log('Task input found:', !!taskInput);
+    console.log('Add task button found:', !!addTaskBtn);
 
     if (taskInput) {
         // Remove any existing event listeners to prevent duplicates
         taskInput.removeEventListener('keypress', handleTaskInputKeypress);
         taskInput.addEventListener('keypress', handleTaskInputKeypress);
+        console.log('✅ Task input keypress listener added');
+    } else {
+        console.error('❌ Task input element not found');
     }
 
     if (addTaskBtn) {
         // Remove any existing event listeners to prevent duplicates
         addTaskBtn.removeEventListener('click', addTask);
         addTaskBtn.addEventListener('click', addTask);
+        console.log('✅ Add task button click listener added');
+    } else {
+        console.error('❌ Add task button element not found');
     }
 }
 
