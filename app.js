@@ -838,40 +838,52 @@ function updateUI() {
 function addTask() {
     console.log('🎯 addTask function called');
     
-    // Wait a moment to ensure DOM is ready
-    setTimeout(() => {
-        const taskInput = document.getElementById('task-input');
-        console.log('🔍 Looking for task input element...');
-        console.log('📍 Task input found:', !!taskInput);
-        console.log('📍 Current page:', document.querySelector('.page.active')?.id);
+    const taskInput = document.getElementById('task-input');
+    console.log('🔍 Looking for task input element...');
+    console.log('📍 Task input found:', !!taskInput);
+    console.log('📍 Current page:', document.querySelector('.page.active')?.id);
+    
+    if (!taskInput) {
+        console.error('❌ Task input element not found in addTask');
+        // Try to find it by other means
+        const allInputs = document.querySelectorAll('input[type="text"]');
+        const questInput = Array.from(allInputs).find(input => 
+            input.placeholder && input.placeholder.includes('quest')
+        );
         
-        if (!taskInput) {
-            console.error('❌ Task input element not found in addTask');
+        if (questInput) {
+            console.log('📍 Found quest input via fallback method');
+            processTaskInput(questInput);
+        } else {
             alert('Error: Task input not found. Please refresh the page.');
-            return;
         }
+        return;
+    }
 
-        const taskText = taskInput.value.trim();
-        console.log('📝 Task text:', taskText);
+    processTaskInput(taskInput);
+}
 
-        if (taskText === '') {
-            alert('Please enter a quest!');
-            return;
-        }
+function processTaskInput(inputElement) {
+    const taskText = inputElement.value.trim();
+    console.log('📝 Task text:', taskText);
 
-        const task = {
-            id: Date.now(),
-            text: taskText,
-            completed: false,
-            createdAt: new Date().toISOString()
-        };
+    if (taskText === '') {
+        alert('Please enter a quest!');
+        return;
+    }
 
-        user.tasks.push(task);
-        taskInput.value = '';
-        updateUI();
-        
-        console.log('✅ Task added successfully:', task);
-    }, 10);
+    const task = {
+        id: Date.now(),
+        text: taskText,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+
+    user.tasks.push(task);
+    inputElement.value = '';
+    updateUI();
+    
+    console.log('✅ Task added successfully:', task);
 }
 
 // Make addTask globally available
@@ -1170,29 +1182,41 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupTaskInputHandlers() {
     console.log('Setting up task input handlers...');
     
-    const taskInput = document.getElementById('task-input');
-    const addTaskBtn = document.getElementById('add-task-btn');
+    // Wait for elements to be available with retry mechanism
+    let retryCount = 0;
+    const maxRetries = 5;
+    
+    function trySetupHandlers() {
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
 
-    console.log('Task input found:', !!taskInput);
-    console.log('Add task button found:', !!addTaskBtn);
+        console.log('Task input found:', !!taskInput);
+        console.log('Add task button found:', !!addTaskBtn);
 
-    if (taskInput) {
-        // Remove any existing event listeners to prevent duplicates
-        taskInput.removeEventListener('keypress', handleTaskInputKeypress);
-        taskInput.addEventListener('keypress', handleTaskInputKeypress);
-        console.log('✅ Task input keypress listener added');
-    } else {
-        console.error('❌ Task input element not found');
+        if (taskInput && addTaskBtn) {
+            // Remove any existing event listeners to prevent duplicates
+            taskInput.removeEventListener('keypress', handleTaskInputKeypress);
+            taskInput.addEventListener('keypress', handleTaskInputKeypress);
+            console.log('✅ Task input keypress listener added');
+
+            addTaskBtn.removeEventListener('click', addTask);
+            addTaskBtn.addEventListener('click', addTask);
+            console.log('✅ Add task button click listener added');
+            
+            // Mark as successfully set up
+            window.taskHandlersReady = true;
+        } else {
+            retryCount++;
+            if (retryCount < maxRetries) {
+                console.log(`⏳ Retrying handler setup (${retryCount}/${maxRetries})...`);
+                setTimeout(trySetupHandlers, 200);
+            } else {
+                console.error('❌ Failed to set up task handlers after maximum retries');
+            }
+        }
     }
-
-    if (addTaskBtn) {
-        // Remove any existing event listeners to prevent duplicates
-        addTaskBtn.removeEventListener('click', addTask);
-        addTaskBtn.addEventListener('click', addTask);
-        console.log('✅ Add task button click listener added');
-    } else {
-        console.error('❌ Add task button element not found');
-    }
+    
+    trySetupHandlers();
 }
 
 // Separate function for keypress handling
