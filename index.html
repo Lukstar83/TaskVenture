@@ -78,6 +78,24 @@
     <header class="header">
       <img src="attached_assets/bedroom.png" alt="Header background" class="header">
       <img src="attached_assets/Determined Adventurer in Heroic Stance.png" alt="Avatar" class="Avatar">
+      <!-- Hamburger Menu (only visible on base page) -->
+      <div class="hamburger-menu" id="hamburger-menu">
+        <button class="hamburger-btn" onclick="toggleHamburgerMenu()">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <div class="hamburger-dropdown" id="hamburger-dropdown">
+          <a href="#" onclick="showPage('wellness-page', null); toggleHamburgerMenu();">
+            <span class="menu-icon">🌟</span>
+            Wellness & Self-Care
+          </a>
+          <a href="#" onclick="showPage('settings-page', null); toggleHamburgerMenu();">
+            <span class="menu-icon">⚙️</span>
+            Game Settings
+          </a>
+        </div>
+      </div>
     </header>
 
     <!-- Stats Container -->
@@ -227,6 +245,134 @@
         </div>
       </section>
 
+      <!-- Wellness Page -->
+      <section id="wellness-page" class="page">
+        <div class="wellness-section">
+          <h2>🌟 Wellness & Self-Care</h2>
+          <p class="wellness-intro">Take care of yourself, adventurer. Your well-being is the foundation of all great quests.</p>
+
+          <!-- Wellness Stats Display -->
+          <div class="wellness-stats">
+            <div class="stat-card">
+              <h4>Stress</h4>
+              <div class="stat-bar">
+                <div class="stat-fill stress-fill" id="stress-bar"></div>
+              </div>
+              <span id="stress-value">0%</span>
+            </div>
+            <div class="stat-card">
+              <h4>Energy</h4>
+              <div class="stat-bar">
+                <div class="stat-fill energy-fill" id="energy-bar"></div>
+              </div>
+              <span id="energy-value">100%</span>
+            </div>
+            <div class="stat-card">
+              <h4>Mood</h4>
+              <div class="stat-bar">
+                <div class="stat-fill mood-fill" id="mood-bar"></div>
+              </div>
+              <span id="mood-value">75%</span>
+            </div>
+            <div class="stat-card">
+              <h4>Mindfulness</h4>
+              <div class="stat-bar">
+                <div class="stat-fill mindfulness-fill" id="mindfulness-bar"></div>
+              </div>
+              <span id="mindfulness-value">50%</span>
+            </div>
+          </div>
+
+          <!-- Self-Care Actions -->
+          <div class="self-care-section">
+            <h3>Self-Care Activities</h3>
+            <div class="self-care-grid">
+              <button class="self-care-btn" onclick="performSelfCare('meditate')">🧘‍♀️ Meditate (5 min)</button>
+              <button class="self-care-btn" onclick="performSelfCare('walk')">🚶‍♂️ Take a Walk</button>
+              <button class="self-care-btn" onclick="performSelfCare('journal')">📝 Journal</button>
+              <button class="self-care-btn" onclick="performSelfCare('rest')">😴 Rest Break</button>
+              <button class="self-care-btn" onclick="performSelfCare('hydrate')">💧 Hydrate</button>
+              <button class="self-care-btn" onclick="performSelfCare('breathe')">🌬️ Deep Breathing</button>
+            </div>
+          </div>
+
+          <!-- Wellness Management -->
+          <div class="wellness-management">
+            <h3>Wellness Management</h3>
+            <div class="wellness-actions">
+              <button id="manual-checkin-btn" class="btn-secondary">Daily Wellness Check-In</button>
+              <button id="manual-streak-btn" class="btn-secondary">View Streak Status</button>
+            </div>
+          </div>
+
+          <!-- Notification Settings -->
+          <div class="wellness-notifications">
+            <h3>📱 Self-Care Notifications</h3>
+            
+            <div class="setting-item">
+              <label class="toggle-label">
+                <input type="checkbox" id="notifications-toggle" class="toggle-input">
+                <span class="toggle-slider"></span>
+                Enable Self-Care Reminders
+              </label>
+              <p class="setting-description">Get gentle reminders to take care of yourself throughout the day.</p>
+            </div>
+
+            <div class="notification-settings" id="notification-details" style="display: none;">
+              <div class="setting-item">
+                <label for="notification-frequency">Reminder Frequency</label>
+                <select id="notification-frequency" class="settings-select">
+                  <option value="60">Every hour</option>
+                  <option value="120" selected>Every 2 hours</option>
+                  <option value="180">Every 3 hours</option>
+                  <option value="240">Every 4 hours</option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label>Quiet Hours</label>
+                <div class="quiet-hours">
+                  <input type="time" id="quiet-start" value="22:00" class="time-input">
+                  <span>to</span>
+                  <input type="time" id="quiet-end" value="07:00" class="time-input">
+                </div>
+                <p class="setting-description">No notifications during these hours.</p>
+              </div>
+
+              <div class="setting-item">
+                <label>Activity Reminders</label>
+                <div class="activity-toggles">
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-hydrate" checked>
+                    💧 Hydration
+                  </label>
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-breathe" checked>
+                    🌬️ Breathing
+                  </label>
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-rest" checked>
+                    😴 Rest
+                  </label>
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-walk" checked>
+                    🚶‍♂️ Walking
+                  </label>
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-meditate" checked>
+                    🧘‍♀️ Meditation
+                  </label>
+                  <label class="activity-toggle">
+                    <input type="checkbox" id="notify-journal" checked>
+                    📝 Journaling
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Settings Page -->
       <section id="settings-page" class="page">
         <div class="settings-section">
@@ -261,134 +407,6 @@
             <div class="setting-item">
               <button id="reset-character-btn" class="btn-danger">Reset Character</button>
               <p class="setting-description">This will permanently delete your character and start the creation wizard again.</p>
-            </div>
-          </div>
-
-          <!-- Wellness Settings -->
-          <div class="settings-group">
-            <h3>Wellness & Self-Care</h3>
-
-            <!-- Wellness Stats Display -->
-            <div class="wellness-stats">
-              <div class="stat-card">
-                <h4>Stress</h4>
-                <div class="stat-bar">
-                  <div class="stat-fill stress-fill" id="stress-bar"></div>
-                </div>
-                <span id="stress-value">0%</span>
-              </div>
-              <div class="stat-card">
-                <h4>Energy</h4>
-                <div class="stat-bar">
-                  <div class="stat-fill energy-fill" id="energy-bar"></div>
-                </div>
-                <span id="energy-value">100%</span>
-              </div>
-              <div class="stat-card">
-                <h4>Mood</h4>
-                <div class="stat-bar">
-                  <div class="stat-fill mood-fill" id="mood-bar"></div>
-                </div>
-                <span id="mood-value">75%</span>
-              </div>
-              <div class="stat-card">
-                <h4>Mindfulness</h4>
-                <div class="stat-bar">
-                  <div class="stat-fill mindfulness-fill" id="mindfulness-bar"></div>
-                </div>
-                <span id="mindfulness-value">50%</span>
-              </div>
-            </div>
-
-            <!-- Self-Care Actions -->
-            <div class="self-care-section">
-              <h4>Self-Care Activities</h4>
-              <div class="self-care-grid">
-                <button class="self-care-btn" onclick="performSelfCare('meditate')">🧘‍♀️ Meditate (5 min)</button>
-                <button class="self-care-btn" onclick="performSelfCare('walk')">🚶‍♂️ Take a Walk</button>
-                <button class="self-care-btn" onclick="performSelfCare('journal')">📝 Journal</button>
-                <button class="self-care-btn" onclick="performSelfCare('rest')">😴 Rest Break</button>
-                <button class="self-care-btn" onclick="performSelfCare('hydrate')">💧 Hydrate</button>
-                <button class="self-care-btn" onclick="performSelfCare('breathe')">🌬️ Deep Breathing</button>
-              </div>
-            </div>
-
-            <!-- Manual Check-In -->
-            <div class="setting-item">
-              <button id="manual-checkin-btn" class="btn-secondary">Daily Wellness Check-In</button>
-              <p class="setting-description">Reflect on your current state and adjust your wellness stats.</p>
-            </div>
-
-            <!-- Manual Streak Modal -->
-            <div class="setting-item">
-              <button id="manual-streak-btn" class="btn-secondary">View Streak Status</button>
-              <p class="setting-description">Check your current streak and available rest options.</p>
-            </div>
-
-            <!-- Notification Settings -->
-            <div class="wellness-notifications">
-              <h4>📱 Self-Care Notifications</h4>
-              
-              <div class="setting-item">
-                <label class="toggle-label">
-                  <input type="checkbox" id="notifications-toggle" class="toggle-input">
-                  <span class="toggle-slider"></span>
-                  Enable Self-Care Reminders
-                </label>
-                <p class="setting-description">Get gentle reminders to take care of yourself throughout the day.</p>
-              </div>
-
-              <div class="notification-settings" id="notification-details" style="display: none;">
-                <div class="setting-item">
-                  <label for="notification-frequency">Reminder Frequency</label>
-                  <select id="notification-frequency" class="settings-select">
-                    <option value="60">Every hour</option>
-                    <option value="120" selected>Every 2 hours</option>
-                    <option value="180">Every 3 hours</option>
-                    <option value="240">Every 4 hours</option>
-                  </select>
-                </div>
-
-                <div class="setting-item">
-                  <label>Quiet Hours</label>
-                  <div class="quiet-hours">
-                    <input type="time" id="quiet-start" value="22:00" class="time-input">
-                    <span>to</span>
-                    <input type="time" id="quiet-end" value="07:00" class="time-input">
-                  </div>
-                  <p class="setting-description">No notifications during these hours.</p>
-                </div>
-
-                <div class="setting-item">
-                  <label>Activity Reminders</label>
-                  <div class="activity-toggles">
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-hydrate" checked>
-                      💧 Hydration
-                    </label>
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-breathe" checked>
-                      🌬️ Breathing
-                    </label>
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-rest" checked>
-                      😴 Rest
-                    </label>
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-walk" checked>
-                      🚶‍♂️ Walking
-                    </label>
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-meditate" checked>
-                      🧘‍♀️ Meditation
-                    </label>
-                    <label class="activity-toggle">
-                      <input type="checkbox" id="notify-journal" checked>
-                      📝 Journaling
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

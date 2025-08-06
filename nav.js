@@ -30,13 +30,19 @@ window.showPage = function(pageId, linkEl) {
   }
 
   // 3) Show header and stats only on specific pages
-  const showHeaderAndStats = ['tasks-page', 'character-sheet-page'].includes(pageId);
+  const showHeaderAndStats = ['tasks-page', 'character-sheet-page', 'wellness-page'].includes(pageId);
 
   const headerEl = document.querySelector('header');
   if (headerEl) headerEl.style.display = showHeaderAndStats ? '' : 'none';
 
   const statsEl = document.querySelector('.stats-container');
   if (statsEl) statsEl.style.display = showHeaderAndStats ? '' : 'none';
+
+  // 4) Show/hide hamburger menu only on base page
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  if (hamburgerMenu) {
+    hamburgerMenu.style.display = pageId === 'tasks-page' ? 'block' : 'none';
+  }
 
   // 4) Initialize dice if we're on the dice page
   if (pageId === 'dice-page' && typeof ensureDiceInitialized === 'function') {
@@ -52,3 +58,21 @@ window.showPage = function(pageId, linkEl) {
     }, 100);
   }
 };
+
+// Hamburger menu functionality
+window.toggleHamburgerMenu = function() {
+  const dropdown = document.getElementById('hamburger-dropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('active');
+  }
+};
+
+// Close hamburger menu when clicking outside
+document.addEventListener('click', function(event) {
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const dropdown = document.getElementById('hamburger-dropdown');
+  
+  if (hamburgerMenu && dropdown && !hamburgerMenu.contains(event.target)) {
+    dropdown.classList.remove('active');
+  }
+});
