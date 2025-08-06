@@ -847,17 +847,17 @@ body {
       z-index: 1;
     }
 
-.layered-item img {
-  position: absolute;            /* take out of flow */
-  top: 10%;                       /* tweak this to suit your art */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 90%;                   /* same scale as base */
-  width: auto;
-  object-fit: contain;
-  pointer-events: none;
-  z-index: 2;  
-}
+    .layered-item img {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 90%;
+      width: auto;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 2;  
+    }
 
     .gear-selectors {
       display: flex;
@@ -2261,8 +2261,8 @@ body {
 /* Hamburger Menu Styles */
 .hamburger-menu {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 2rem;
+    left: 1.5rem;
     z-index: 100;
 }
 
@@ -2293,7 +2293,7 @@ body {
 .hamburger-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
+    left: 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border: 2px solid var(--primary-gold);
     border-radius: 12px;
