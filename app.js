@@ -838,33 +838,40 @@ function updateUI() {
 function addTask() {
     console.log('🎯 addTask function called');
     
-    const taskInput = document.getElementById('task-input');
-    if (!taskInput) {
-        console.error('❌ Task input element not found in addTask');
-        alert('Error: Task input not found. Please refresh the page.');
-        return;
-    }
+    // Wait a moment to ensure DOM is ready
+    setTimeout(() => {
+        const taskInput = document.getElementById('task-input');
+        console.log('🔍 Looking for task input element...');
+        console.log('📍 Task input found:', !!taskInput);
+        console.log('📍 Current page:', document.querySelector('.page.active')?.id);
+        
+        if (!taskInput) {
+            console.error('❌ Task input element not found in addTask');
+            alert('Error: Task input not found. Please refresh the page.');
+            return;
+        }
 
-    const taskText = taskInput.value.trim();
-    console.log('📝 Task text:', taskText);
+        const taskText = taskInput.value.trim();
+        console.log('📝 Task text:', taskText);
 
-    if (taskText === '') {
-        alert('Please enter a quest!');
-        return;
-    }
+        if (taskText === '') {
+            alert('Please enter a quest!');
+            return;
+        }
 
-    const task = {
-        id: Date.now(),
-        text: taskText,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
+        const task = {
+            id: Date.now(),
+            text: taskText,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
 
-    user.tasks.push(task);
-    taskInput.value = '';
-    updateUI();
-    
-    console.log('✅ Task added successfully:', task);
+        user.tasks.push(task);
+        taskInput.value = '';
+        updateUI();
+        
+        console.log('✅ Task added successfully:', task);
+    }, 10);
 }
 
 // Make addTask globally available
