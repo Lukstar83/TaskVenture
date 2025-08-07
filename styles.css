@@ -1410,6 +1410,7 @@ margin-top: 1.5rem;
 }
 
 .modal-content h3 {
+  text-align: center;
     font-family: "Cinzel Decorative", serif;
     color: var(--text-gold);
     margin-bottom: 1.5rem;
@@ -1419,6 +1420,7 @@ margin-top: 1.5rem;
 }
 
 .reward-details {
+  text-align: center;
     margin: 1.5rem 0;
     font-size: 1.1rem;
     line-height: 1.6;
@@ -1449,6 +1451,7 @@ margin-top: 1.5rem;
     box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
     text-transform: uppercase;
     letter-spacing: 1px;
+  text-align: center;
 }
 
 .modal-content button:hover {
@@ -2263,6 +2266,7 @@ body {
     position: absolute;
     top: 2rem;
     left: 1.5rem;
+    transform: scale(.8);
     z-index: 100;
 }
 
@@ -2270,11 +2274,11 @@ body {
     background: rgba(212, 175, 55, 0.9);
     border: 2px solid var(--primary-gold);
     border-radius: 8px;
-    padding: 0.5rem;
+    padding: 0.4rem;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 5px;
     transition: all 0.3s ease;
 }
 
@@ -2284,8 +2288,8 @@ body {
 }
 
 .hamburger-line {
-    width: 20px;
-    height: 2px;
+    width: 24px;
+    height: 2.5px;
     background: white;
     transition: all 0.3s ease;
 }
