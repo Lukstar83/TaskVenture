@@ -847,52 +847,106 @@ function updateUI() {
 function addTask() {
     console.log('🎯 addTask function called');
     
-    const taskInput = document.getElementById('task-input');
+    // First, ensure we're on the tasks page
+    const tasksPage = document.getElementById('tasks-page');
+    if (!tasksPage || !tasksPage.classList.contains('active')) {
+        console.log('📍 Not on tasks page, switching to it first');
+        const tasksNavButton = document.querySelector('.nav-item[onclick*="tasks-page"]');
+        if (tasksNavButton) {
+            tasksNavButton.click();
+        }
+        // Wait a moment for the page to switch, then try again
+        setTimeout(() => {
+            addTask();
+        }, 100);
+        return;
+    }
+    
+    let taskInput = document.getElementById('task-input');
     console.log('🔍 Looking for task input element...');
     console.log('📍 Task input found:', !!taskInput);
     console.log('📍 Current page:', document.querySelector('.page.active')?.id);
     
+    // If input not found, try multiple fallback methods
     if (!taskInput) {
-        console.error('❌ Task input element not found in addTask');
-        // Try to find it by other means
+        console.log('🔄 Trying fallback methods to find input...');
+        
+        // Method 1: Look for any text input with quest-related placeholder
         const allInputs = document.querySelectorAll('input[type="text"]');
-        const questInput = Array.from(allInputs).find(input => 
-            input.placeholder && input.placeholder.includes('quest')
+        taskInput = Array.from(allInputs).find(input => 
+            input.placeholder && (
+                input.placeholder.toLowerCase().includes('quest') ||
+                input.placeholder.toLowerCase().includes('task')
+            )
         );
         
-        if (questInput) {
-            console.log('📍 Found quest input via fallback method');
-            processTaskInput(questInput);
+        if (taskInput) {
+            console.log('📍 Found input via placeholder search');
         } else {
-            alert('Error: Task input not found. Please refresh the page.');
+            // Method 2: Look within the task section specifically
+            const taskSection = document.querySelector('.task-section');
+            if (taskSection) {
+                taskInput = taskSection.querySelector('input[type="text"]');
+                if (taskInput) {
+                    console.log('📍 Found input within task section');
+                }
+            }
         }
-        return;
+        
+        // Method 3: Look for any input in the active page
+        if (!taskInput) {
+            const activePage = document.querySelector('.page.active');
+            if (activePage) {
+                taskInput = activePage.querySelector('input[type="text"]');
+                if (taskInput) {
+                    console.log('📍 Found input in active page');
+                }
+            }
+        }
     }
-
-    processTaskInput(taskInput);
-}
-
-function processTaskInput(inputElement) {
-    const taskText = inputElement.value.trim();
-    console.log('📝 Task text:', taskText);
-
-    if (taskText === '') {
-        alert('Please enter a quest!');
-        return;
-    }
-
-    const task = {
-        id: Date.now(),
-        text: taskText,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
-
-    user.tasks.push(task);
-    inputElement.value = '';
-    updateUI();
     
-    console.log('✅ Task added successfully:', task);
+    if (!taskInput) {
+        console.error('❌ Task input element not found after all attempts');
+        alert('Error: Task input not found. Please refresh the page and try again.');
+        return;
+    }
+
+    // Ensure the input element is valid and accessible
+    try {
+        const taskText = taskInput.value.trim();
+        console.log('📝 Task text:', taskText);
+
+        if (taskText === '') {
+            alert('Please enter a quest!');
+            taskInput.focus(); // Focus the input to help user
+            return;
+        }
+
+        const task = {
+            id: Date.now(),
+            text: taskText,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        user.tasks.push(task);
+        taskInput.value = '';
+        updateUI();
+        
+        console.log('✅ Task added successfully:', task);
+        
+        // Show success feedback
+        taskInput.placeholder = 'Quest added! Enter another...';
+        setTimeout(() => {
+            if (taskInput) {
+                taskInput.placeholder = 'Enter a new quest…';
+            }
+        }, 2000);
+        
+    } catch (error) {
+        console.error('❌ Error processing task input:', error);
+        alert('Error adding quest. Please try again.');
+    }
 }
 
 // Make addTask globally available
@@ -1193,35 +1247,75 @@ function setupTaskInputHandlers() {
     
     // Wait for elements to be available with retry mechanism
     let retryCount = 0;
-    const maxRetries = 5;
+    const maxRetries = 10;
     
     function trySetupHandlers() {
-        const taskInput = document.getElementById('task-input');
-        const addTaskBtn = document.getElementById('add-task-btn');
+        let taskInput = document.getElementById('task-input');
+        let addTaskBtn = document.getElementById('add-task-btn');
 
-        console.log('Task input found:', !!taskInput);
-        console.log('Add task button found:', !!addTaskBtn);
+        console.log(`Attempt ${retryCount + 1}: Task input found:`, !!taskInput, 'Button found:', !!addTaskBtn);
+
+        // If not found by ID, try alternative methods
+        if (!taskInput) {
+            const allInputs = document.querySelectorAll('input[type="text"]');
+            taskInput = Array.from(allInputs).find(input => 
+                input.placeholder && input.placeholder.toLowerCase().includes('quest')
+            );
+            if (taskInput) {
+                console.log('📍 Found task input via placeholder search');
+            }
+        }
+
+        if (!addTaskBtn) {
+            const allButtons = document.querySelectorAll('button');
+            addTaskBtn = Array.from(allButtons).find(btn => 
+                btn.textContent && btn.textContent.toLowerCase().includes('add quest')
+            );
+            if (addTaskBtn) {
+                console.log('📍 Found add button via text search');
+            }
+        }
 
         if (taskInput && addTaskBtn) {
-            // Remove any existing event listeners to prevent duplicates
-            taskInput.removeEventListener('keypress', handleTaskInputKeypress);
-            taskInput.addEventListener('keypress', handleTaskInputKeypress);
-            console.log('✅ Task input keypress listener added');
+            try {
+                // Remove any existing event listeners to prevent duplicates
+                taskInput.removeEventListener('keypress', handleTaskInputKeypress);
+                taskInput.addEventListener('keypress', handleTaskInputKeypress);
+                console.log('✅ Task input keypress listener added');
 
-            addTaskBtn.removeEventListener('click', addTask);
-            addTaskBtn.addEventListener('click', addTask);
-            console.log('✅ Add task button click listener added');
-            
-            // Mark as successfully set up
-            window.taskHandlersReady = true;
-        } else {
-            retryCount++;
-            if (retryCount < maxRetries) {
-                console.log(`⏳ Retrying handler setup (${retryCount}/${maxRetries})...`);
-                setTimeout(trySetupHandlers, 200);
-            } else {
-                console.error('❌ Failed to set up task handlers after maximum retries');
+                addTaskBtn.removeEventListener('click', addTask);
+                addTaskBtn.addEventListener('click', addTask);
+                console.log('✅ Add task button click listener added');
+                
+                // Test the elements work
+                if (typeof taskInput.value === 'string' && addTaskBtn.click) {
+                    console.log('✅ Elements are functional');
+                    window.taskHandlersReady = true;
+                    return true;
+                } else {
+                    console.warn('⚠️ Elements found but not functional');
+                }
+            } catch (error) {
+                console.error('❌ Error setting up handlers:', error);
             }
+        }
+
+        retryCount++;
+        if (retryCount < maxRetries) {
+            console.log(`⏳ Retrying handler setup (${retryCount}/${maxRetries})...`);
+            setTimeout(trySetupHandlers, 300);
+        } else {
+            console.error('❌ Failed to set up task handlers after maximum retries');
+            
+            // Final attempt: Set up a global click listener as fallback
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.textContent && e.target.textContent.includes('Add Quest')) {
+                    console.log('🎯 Fallback: Global click detected on Add Quest button');
+                    e.preventDefault();
+                    addTask();
+                }
+            });
+            console.log('🔄 Set up fallback global click listener');
         }
     }
     
@@ -1233,6 +1327,30 @@ function handleTaskInputKeypress(e) {
     if (e.key === 'Enter') {
         addTask();
     }
+}
+
+// Debug function to check current state
+window.debugTaskInput = function() {
+    console.log('=== TASK INPUT DEBUG ===');
+    console.log('Current page:', document.querySelector('.page.active')?.id);
+    console.log('Task input by ID:', !!document.getElementById('task-input'));
+    console.log('Add button by ID:', !!document.getElementById('add-task-btn'));
+    console.log('All text inputs:', document.querySelectorAll('input[type="text"]').length);
+    console.log('All buttons with "Add":', Array.from(document.querySelectorAll('button')).filter(b => b.textContent.includes('Add')).length);
+    console.log('Task handlers ready:', window.taskHandlersReady);
+    console.log('User object exists:', !!window.user);
+    console.log('Current tasks count:', window.user?.tasks?.length || 0);
+    
+    const taskInput = document.getElementById('task-input');
+    if (taskInput) {
+        console.log('Task input value access test:', typeof taskInput.value);
+        try {
+            console.log('Current input value:', taskInput.value);
+        } catch (e) {
+            console.error('Error accessing input value:', e);
+        }
+    }
+    console.log('=== END DEBUG ===');
 }
 
     function enterApp() {
