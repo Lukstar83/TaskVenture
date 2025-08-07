@@ -343,17 +343,6 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
-function addTask() {
-  const input = document.getElementById("ta");
-  const list  = document.getElementById("task-list");
-  const txt   = input.value.trim();
-  if (!txt) return;
-  const li = document.createElement("li");
-  li.textContent = txt;
-  list.appendChild(li);
-  input.value = "";
-}
-
 function rollDice(sides=20) {
   return Math.floor(Math.random()*sides) + 1;
 }
