@@ -602,6 +602,15 @@ document.addEventListener('DOMContentLoaded', () => {
     showStep(0);
   }
 
+      // wire up the button click:
+  const addBtn = document.getElementById('add-task-btn');
+  if (addBtn) {
+    addBtn.addEventListener('click', addTask);
+    console.log('🖱️ add-task-btn click listener attached');
+  } else {
+    console.warn('⚠️ #add-task-btn not found');
+  }
+
   // Rewire buttons AFTER DOM is ready
   setupButtonHandlers();
 
