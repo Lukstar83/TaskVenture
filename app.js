@@ -225,6 +225,14 @@ let walkingTimeRemaining = 0;
 let walkingSteps = 0;
 let walkingStartTime = 0;
 
+// Rest timer state
+let restTimer = null;
+let restTimeRemaining = 0;
+
+// Breathing timer state
+let breathingTimer = null;
+let breathingTimeRemaining = 0;
+
 // Self-care activities
 function performSelfCare(activity) {
     let message = "";
@@ -245,19 +253,16 @@ function performSelfCare(activity) {
             wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + 10);
             break;
         case 'rest':
-            message = "😴 You take a proper rest break. Your energy is restored.";
-            wellnessStats.energy = Math.min(100, wellnessStats.energy + 25);
-            wellnessStats.stress = Math.max(0, wellnessStats.stress - 15);
-            xpGain = 10;
+            showRestTimer();
+            return; // Don't continue with regular completion - timer will handle it
             break;
         case 'hydrate':
             message = "💧 You drink a refreshing glass of water. Your body thanks you.";
             wellnessStats.energy = Math.min(100, wellnessStats.energy + 10);
             break;
         case 'breathe':
-            message = "🌬️ You practice deep breathing exercises. Calm washes over you.";
-            wellnessStats.stress = Math.max(0, wellnessStats.stress - 20);
-            wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + 10);
+            showBreathingTimer();
+            return; // Don't continue with regular completion - timer will handle it
             break;
     }
 
@@ -686,6 +691,405 @@ window.closeWalkingTimer = function closeWalkingTimer() {
     }
     
     const modal = document.querySelector('.walking-timer-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Show rest timer modal
+function showRestTimer() {
+    const modal = document.createElement('div');
+    modal.className = 'rest-timer-modal';
+    modal.innerHTML = `
+        <div class="rest-timer-content">
+            <h2>😴 Rest Break</h2>
+            <p>Choose your rest duration:</p>
+            
+            <div class="timer-options">
+                <button class="timer-btn" onclick="startRest(300)">5 Minutes</button>
+                <button class="timer-btn" onclick="startRest(600)">10 Minutes</button>
+                <button class="timer-btn" onclick="startRest(900)">15 Minutes</button>
+                <button class="timer-btn" onclick="startRest(1800)">30 Minutes</button>
+            </div>
+            
+            <div class="rest-display" id="rest-display" style="display: none;">
+                <div class="timer-circle">
+                    <div class="timer-text" id="rest-timer-text">5:00</div>
+                </div>
+                <p class="rest-message" id="rest-message">Take a moment to relax and recharge...</p>
+                <div class="rest-controls">
+                    <button class="pause-btn" id="rest-pause-btn" onclick="pauseRest()">Pause</button>
+                    <button class="stop-btn" onclick="stopRest()">Stop</button>
+                </div>
+            </div>
+            
+            <button class="close-timer-btn" onclick="closeRestTimer()">Cancel</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Start rest timer
+window.startRest = function startRest(duration) {
+    restTimeRemaining = duration;
+    
+    // Hide options, show timer
+    const options = document.querySelector('.rest-timer-modal .timer-options');
+    const display = document.getElementById('rest-display');
+    const closeBtn = document.querySelector('.rest-timer-modal .close-timer-btn');
+    
+    if (options) options.style.display = 'none';
+    if (display) display.style.display = 'block';
+    if (closeBtn) closeBtn.style.display = 'none';
+    
+    updateRestDisplay();
+    
+    // Array of rest messages
+    const restMessages = [
+        "Take a moment to relax and recharge... 💤",
+        "Let your mind wander and be at peace... ☁️",
+        "Feel the tension leaving your body... 🌸",
+        "You deserve this time to rest... ✨",
+        "Breathe slowly and deeply... 🍃",
+        "Allow yourself to simply be... 🌅",
+        "Rest is productive too... 🛌",
+        "Your body is healing and recovering... 💆",
+        "Peace and calm surround you... 🕊️",
+        "Almost done - you're doing great! 🌟"
+    ];
+    
+    let messageIndex = 0;
+    const messageElement = document.getElementById('rest-message');
+    
+    restTimer = setInterval(() => {
+        restTimeRemaining--;
+        updateRestDisplay();
+        
+        // Change message every 45 seconds
+        if (restTimeRemaining % 45 === 0 && messageElement) {
+            messageIndex = (messageIndex + 1) % restMessages.length;
+            messageElement.textContent = restMessages[messageIndex];
+        }
+        
+        if (restTimeRemaining <= 0) {
+            completeRest(duration);
+        }
+    }, 1000);
+}
+
+// Update rest display
+function updateRestDisplay() {
+    const timerText = document.getElementById('rest-timer-text');
+    
+    if (timerText) {
+        const minutes = Math.floor(restTimeRemaining / 60);
+        const seconds = restTimeRemaining % 60;
+        timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+// Pause rest
+window.pauseRest = function pauseRest() {
+    const pauseBtn = document.getElementById('rest-pause-btn');
+    
+    if (restTimer) {
+        clearInterval(restTimer);
+        restTimer = null;
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
+        pauseBtn.onclick = resumeRest;
+    }
+}
+
+// Resume rest
+function resumeRest() {
+    const pauseBtn = document.getElementById('rest-pause-btn');
+    
+    restTimer = setInterval(() => {
+        restTimeRemaining--;
+        updateRestDisplay();
+        
+        if (restTimeRemaining <= 0) {
+            completeRest();
+        }
+    }, 1000);
+    
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
+    pauseBtn.onclick = pauseRest;
+}
+
+// Stop rest early
+window.stopRest = function stopRest() {
+    if (confirm('Are you sure you want to end your rest break early?')) {
+        if (restTimer) {
+            clearInterval(restTimer);
+            restTimer = null;
+        }
+        closeRestTimer();
+        
+        // Give partial benefits for incomplete session
+        const originalDuration = parseInt(document.querySelector('#rest-timer-text')?.textContent?.split(':')[0] || 5) * 60;
+        const timeSpent = originalDuration - restTimeRemaining;
+        
+        if (timeSpent >= 60) { // At least 1 minute
+            const minutes = Math.floor(timeSpent / 60);
+            
+            wellnessStats.energy = Math.min(100, wellnessStats.energy + minutes * 3);
+            wellnessStats.stress = Math.max(0, wellnessStats.stress - minutes * 2);
+            user.xp += Math.floor(minutes * 1.5);
+            
+            updateWellness('self_care');
+            updateUI();
+            showSelfCareMessage(`😴 Nice ${minutes}-minute rest! You feel a bit more refreshed.`, Math.floor(minutes * 1.5));
+        }
+    }
+}
+
+// Complete rest session
+function completeRest(duration) {
+    if (restTimer) {
+        clearInterval(restTimer);
+        restTimer = null;
+    }
+    
+    closeRestTimer();
+    
+    // Calculate benefits based on duration
+    const minutes = duration / 60;
+    
+    const energyGain = Math.min(30, 10 + minutes * 1.5);
+    const stressReduction = Math.min(25, 8 + minutes * 1);
+    const xpGain = Math.min(15, 5 + minutes * 0.7);
+    
+    wellnessStats.energy = Math.min(100, wellnessStats.energy + energyGain);
+    wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
+    user.xp += xpGain;
+    
+    updateWellness('self_care');
+    updateUI();
+    
+    const message = `😴 Excellent ${minutes}-minute rest completed! Your body and mind feel refreshed and recharged.`;
+    showSelfCareMessage(message, xpGain);
+    
+    // Reschedule notifications after completing activity
+    if (notificationSettings.enabled) {
+        setTimeout(() => {
+            scheduleSelfCareNotifications();
+        }, 1000);
+    }
+}
+
+// Close rest timer modal
+window.closeRestTimer = function closeRestTimer() {
+    if (restTimer) {
+        clearInterval(restTimer);
+        restTimer = null;
+    }
+    
+    const modal = document.querySelector('.rest-timer-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Show breathing timer modal
+function showBreathingTimer() {
+    const modal = document.createElement('div');
+    modal.className = 'breathing-timer-modal';
+    modal.innerHTML = `
+        <div class="breathing-timer-content">
+            <h2>🌬️ Deep Breathing</h2>
+            <p>Choose your breathing session duration:</p>
+            
+            <div class="timer-options">
+                <button class="timer-btn" onclick="startBreathing(180)">3 Minutes</button>
+                <button class="timer-btn" onclick="startBreathing(300)">5 Minutes</button>
+                <button class="timer-btn" onclick="startBreathing(600)">10 Minutes</button>
+                <button class="timer-btn" onclick="startBreathing(900)">15 Minutes</button>
+            </div>
+            
+            <div class="breathing-display" id="breathing-display" style="display: none;">
+                <div class="breathing-circle" id="breathing-circle">
+                    <div class="timer-text" id="breathing-timer-text">3:00</div>
+                </div>
+                <p class="breathing-instruction" id="breathing-instruction">Breathe in... hold... breathe out...</p>
+                <div class="breathing-controls">
+                    <button class="pause-btn" id="breathing-pause-btn" onclick="pauseBreathing()">Pause</button>
+                    <button class="stop-btn" onclick="stopBreathing()">Stop</button>
+                </div>
+            </div>
+            
+            <button class="close-timer-btn" onclick="closeBreathingTimer()">Cancel</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Start breathing timer
+window.startBreathing = function startBreathing(duration) {
+    breathingTimeRemaining = duration;
+    
+    // Hide options, show timer
+    const options = document.querySelector('.breathing-timer-modal .timer-options');
+    const display = document.getElementById('breathing-display');
+    const closeBtn = document.querySelector('.breathing-timer-modal .close-timer-btn');
+    
+    if (options) options.style.display = 'none';
+    if (display) display.style.display = 'block';
+    if (closeBtn) closeBtn.style.display = 'none';
+    
+    updateBreathingDisplay();
+    
+    // Array of breathing instructions
+    const breathingInstructions = [
+        "Breathe in slowly through your nose... 🌬️",
+        "Hold your breath gently... ⏸️",
+        "Breathe out slowly through your mouth... 💨",
+        "Feel your body relaxing... 🌸",
+        "Focus on the rhythm of your breath... 🎵",
+        "Let go of any tension... 🍃",
+        "You are calm and centered... ☮️",
+        "Each breath brings you peace... ✨",
+        "Feel the stress melting away... 💆",
+        "You're doing wonderfully! 🌟"
+    ];
+    
+    let instructionIndex = 0;
+    const instructionElement = document.getElementById('breathing-instruction');
+    const breathingCircle = document.getElementById('breathing-circle');
+    
+    breathingTimer = setInterval(() => {
+        breathingTimeRemaining--;
+        updateBreathingDisplay();
+        
+        // Change instruction every 8 seconds and animate circle
+        if (breathingTimeRemaining % 8 === 0 && instructionElement) {
+            instructionIndex = (instructionIndex + 1) % breathingInstructions.length;
+            instructionElement.textContent = breathingInstructions[instructionIndex];
+            
+            // Add breathing animation
+            if (breathingCircle) {
+                breathingCircle.classList.toggle('breathing-in');
+            }
+        }
+        
+        if (breathingTimeRemaining <= 0) {
+            completeBreathing(duration);
+        }
+    }, 1000);
+}
+
+// Update breathing display
+function updateBreathingDisplay() {
+    const timerText = document.getElementById('breathing-timer-text');
+    
+    if (timerText) {
+        const minutes = Math.floor(breathingTimeRemaining / 60);
+        const seconds = breathingTimeRemaining % 60;
+        timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+// Pause breathing
+window.pauseBreathing = function pauseBreathing() {
+    const pauseBtn = document.getElementById('breathing-pause-btn');
+    
+    if (breathingTimer) {
+        clearInterval(breathingTimer);
+        breathingTimer = null;
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
+        pauseBtn.onclick = resumeBreathing;
+    }
+}
+
+// Resume breathing
+function resumeBreathing() {
+    const pauseBtn = document.getElementById('breathing-pause-btn');
+    
+    breathingTimer = setInterval(() => {
+        breathingTimeRemaining--;
+        updateBreathingDisplay();
+        
+        if (breathingTimeRemaining <= 0) {
+            completeBreathing();
+        }
+    }, 1000);
+    
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
+    pauseBtn.onclick = pauseBreathing;
+}
+
+// Stop breathing early
+window.stopBreathing = function stopBreathing() {
+    if (confirm('Are you sure you want to end your breathing session early?')) {
+        if (breathingTimer) {
+            clearInterval(breathingTimer);
+            breathingTimer = null;
+        }
+        closeBreathingTimer();
+        
+        // Give partial benefits for incomplete session
+        const originalDuration = parseInt(document.querySelector('#breathing-timer-text')?.textContent?.split(':')[0] || 3) * 60;
+        const timeSpent = originalDuration - breathingTimeRemaining;
+        
+        if (timeSpent >= 30) { // At least 30 seconds
+            const minutes = Math.floor(timeSpent / 60);
+            const seconds = timeSpent % 60;
+            
+            wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(timeSpent / 15));
+            wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + Math.floor(timeSpent / 20));
+            user.xp += Math.floor(timeSpent / 30);
+            
+            updateWellness('self_care');
+            updateUI();
+            showSelfCareMessage(`🌬️ Good ${timeSpent >= 60 ? minutes + '-minute' : seconds + '-second'} breathing session! You feel calmer.`, Math.floor(timeSpent / 30));
+        }
+    }
+}
+
+// Complete breathing session
+function completeBreathing(duration) {
+    if (breathingTimer) {
+        clearInterval(breathingTimer);
+        breathingTimer = null;
+    }
+    
+    closeBreathingTimer();
+    
+    // Calculate benefits based on duration
+    const minutes = duration / 60;
+    
+    const stressReduction = Math.min(30, 10 + minutes * 2);
+    const mindfulnessGain = Math.min(25, 8 + minutes * 1.5);
+    const xpGain = Math.min(12, 3 + minutes);
+    
+    wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
+    wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + mindfulnessGain);
+    user.xp += xpGain;
+    
+    updateWellness('self_care');
+    updateUI();
+    
+    const message = `🌬️ Wonderful ${minutes}-minute breathing session completed! Your mind feels calm and centered.`;
+    showSelfCareMessage(message, xpGain);
+    
+    // Reschedule notifications after completing activity
+    if (notificationSettings.enabled) {
+        setTimeout(() => {
+            scheduleSelfCareNotifications();
+        }, 1000);
+    }
+}
+
+// Close breathing timer modal
+window.closeBreathingTimer = function closeBreathingTimer() {
+    if (breathingTimer) {
+        clearInterval(breathingTimer);
+        breathingTimer = null;
+    }
+    
+    const modal = document.querySelector('.breathing-timer-modal');
     if (modal) {
         modal.remove();
     }
