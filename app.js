@@ -215,6 +215,10 @@ function updateWellnessUI() {
     if (mindfulnessValue) mindfulnessValue.textContent = `${wellnessStats.mindfulness}%`;
 }
 
+// Meditation timer state
+let meditationTimer = null;
+let meditationTimeRemaining = 0;
+
 // Self-care activities
 function performSelfCare(activity) {
     let message = "";
@@ -222,9 +226,8 @@ function performSelfCare(activity) {
 
     switch(activity) {
         case 'meditate':
-            message = "🧘‍♀️ You spend 10 minutes in peaceful meditation. Your mind feels clearer.";
-            wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + 15);
-            wellnessStats.stress = Math.max(0, wellnessStats.stress - 10);
+            showMeditationTimer();
+            return; // Don't continue with regular completion - timer will handle it
             break;
         case 'walk':
             message = "🚶‍♂️ You take a refreshing walk in nature. Your body feels energized.";
@@ -267,6 +270,195 @@ function performSelfCare(activity) {
         setTimeout(() => {
             scheduleSelfCareNotifications();
         }, 1000);
+    }
+}
+
+// Show meditation timer modal
+function showMeditationTimer() {
+    const modal = document.createElement('div');
+    modal.className = 'meditation-timer-modal';
+    modal.innerHTML = `
+        <div class="meditation-timer-content">
+            <h2>🧘‍♀️ Meditation Session</h2>
+            <p>Choose your meditation duration:</p>
+            
+            <div class="timer-options">
+                <button class="timer-btn" onclick="startMeditation(300)">5 Minutes</button>
+                <button class="timer-btn" onclick="startMeditation(600)">10 Minutes</button>
+                <button class="timer-btn" onclick="startMeditation(900)">15 Minutes</button>
+                <button class="timer-btn" onclick="startMeditation(1200)">20 Minutes</button>
+            </div>
+            
+            <div class="meditation-display" id="meditation-display" style="display: none;">
+                <div class="timer-circle">
+                    <div class="timer-text" id="timer-text">5:00</div>
+                </div>
+                <p class="meditation-quote" id="meditation-quote">Find peace in this moment...</p>
+                <button class="pause-btn" id="pause-btn" onclick="pauseMeditation()">Pause</button>
+                <button class="stop-btn" onclick="stopMeditation()">Stop</button>
+            </div>
+            
+            <button class="close-timer-btn" onclick="closeMeditationTimer()">Cancel</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Start meditation timer
+window.startMeditation = function startMeditation(duration) {
+    meditationTimeRemaining = duration;
+    
+    // Hide options, show timer
+    const options = document.querySelector('.timer-options');
+    const display = document.getElementById('meditation-display');
+    const closeBtn = document.querySelector('.close-timer-btn');
+    
+    if (options) options.style.display = 'none';
+    if (display) display.style.display = 'block';
+    if (closeBtn) closeBtn.style.display = 'none';
+    
+    updateMeditationDisplay();
+    
+    // Array of meditation quotes/prompts
+    const meditationQuotes = [
+        "Find peace in this moment...",
+        "Breathe in calm, breathe out tension...",
+        "Let your thoughts pass like clouds in the sky...",
+        "Feel your body relax with each breath...",
+        "You are exactly where you need to be...",
+        "Notice the stillness within you...",
+        "Each breath brings you deeper into peace...",
+        "Release what no longer serves you...",
+        "Feel gratitude for this moment of self-care...",
+        "Your mind is clear, your heart is open..."
+    ];
+    
+    let quoteIndex = 0;
+    const quoteElement = document.getElementById('meditation-quote');
+    
+    meditationTimer = setInterval(() => {
+        meditationTimeRemaining--;
+        updateMeditationDisplay();
+        
+        // Change quote every 30 seconds
+        if (meditationTimeRemaining % 30 === 0 && quoteElement) {
+            quoteIndex = (quoteIndex + 1) % meditationQuotes.length;
+            quoteElement.textContent = meditationQuotes[quoteIndex];
+        }
+        
+        if (meditationTimeRemaining <= 0) {
+            completeMeditation(duration);
+        }
+    }, 1000);
+}
+
+// Update meditation display
+function updateMeditationDisplay() {
+    const timerText = document.getElementById('timer-text');
+    if (timerText) {
+        const minutes = Math.floor(meditationTimeRemaining / 60);
+        const seconds = meditationTimeRemaining % 60;
+        timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+// Pause meditation
+window.pauseMeditation = function pauseMeditation() {
+    const pauseBtn = document.getElementById('pause-btn');
+    
+    if (meditationTimer) {
+        clearInterval(meditationTimer);
+        meditationTimer = null;
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
+        pauseBtn.onclick = resumeMeditation;
+    }
+}
+
+// Resume meditation
+function resumeMeditation() {
+    const pauseBtn = document.getElementById('pause-btn');
+    
+    meditationTimer = setInterval(() => {
+        meditationTimeRemaining--;
+        updateMeditationDisplay();
+        
+        if (meditationTimeRemaining <= 0) {
+            completeMeditation();
+        }
+    }, 1000);
+    
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
+    pauseBtn.onclick = pauseMeditation;
+}
+
+// Stop meditation early
+window.stopMeditation = function stopMeditation() {
+    if (confirm('Are you sure you want to end your meditation session early?')) {
+        if (meditationTimer) {
+            clearInterval(meditationTimer);
+            meditationTimer = null;
+        }
+        closeMeditationTimer();
+        
+        // Give partial benefits for incomplete session
+        const originalDuration = parseInt(document.querySelector('.timer-text')?.textContent?.split(':')[0] || 5) * 60;
+        const timeSpent = originalDuration - meditationTimeRemaining;
+        
+        if (timeSpent >= 60) { // At least 1 minute
+            wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + Math.floor(timeSpent / 60) * 2);
+            wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(timeSpent / 60));
+            user.xp += Math.floor(timeSpent / 60);
+            updateWellness('self_care');
+            updateUI();
+            showSelfCareMessage("🧘‍♀️ Even a brief meditation helps. Your mind feels a bit clearer.", Math.floor(timeSpent / 60));
+        }
+    }
+}
+
+// Complete meditation
+function completeMeditation(duration) {
+    if (meditationTimer) {
+        clearInterval(meditationTimer);
+        meditationTimer = null;
+    }
+    
+    closeMeditationTimer();
+    
+    // Calculate benefits based on duration
+    const minutes = duration / 60;
+    const mindfulnessGain = Math.min(20, 5 + minutes * 2);
+    const stressReduction = Math.min(25, 5 + minutes * 1.5);
+    const xpGain = Math.min(15, 3 + minutes);
+    
+    wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + mindfulnessGain);
+    wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
+    user.xp += xpGain;
+    
+    updateWellness('self_care');
+    updateUI();
+    
+    const message = `🧘‍♀️ You completed a ${minutes}-minute meditation session. Your mind feels clear and peaceful.`;
+    showSelfCareMessage(message, xpGain);
+    
+    // Reschedule notifications after completing activity
+    if (notificationSettings.enabled) {
+        setTimeout(() => {
+            scheduleSelfCareNotifications();
+        }, 1000);
+    }
+}
+
+// Close meditation timer modal
+window.closeMeditationTimer = function closeMeditationTimer() {
+    if (meditationTimer) {
+        clearInterval(meditationTimer);
+        meditationTimer = null;
+    }
+    
+    const modal = document.querySelector('.meditation-timer-modal');
+    if (modal) {
+        modal.remove();
     }
 }
 
