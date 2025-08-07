@@ -219,6 +219,12 @@ function updateWellnessUI() {
 let meditationTimer = null;
 let meditationTimeRemaining = 0;
 
+// Walking timer state
+let walkingTimer = null;
+let walkingTimeRemaining = 0;
+let walkingSteps = 0;
+let walkingStartTime = 0;
+
 // Self-care activities
 function performSelfCare(activity) {
     let message = "";
@@ -230,9 +236,8 @@ function performSelfCare(activity) {
             return; // Don't continue with regular completion - timer will handle it
             break;
         case 'walk':
-            message = "🚶‍♂️ You take a refreshing walk in nature. Your body feels energized.";
-            wellnessStats.energy = Math.min(100, wellnessStats.energy + 20);
-            wellnessStats.mood = Math.min(100, wellnessStats.mood + 10);
+            showWalkingTimer();
+            return; // Don't continue with regular completion - timer will handle it
             break;
         case 'journal':
             message = "📝 You write in your journal, processing your thoughts and feelings.";
@@ -457,6 +462,230 @@ window.closeMeditationTimer = function closeMeditationTimer() {
     }
     
     const modal = document.querySelector('.meditation-timer-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Show walking timer modal
+function showWalkingTimer() {
+    const modal = document.createElement('div');
+    modal.className = 'walking-timer-modal';
+    modal.innerHTML = `
+        <div class="walking-timer-content">
+            <h2>🚶‍♂️ Walking Session</h2>
+            <p>Choose your walking duration:</p>
+            
+            <div class="timer-options">
+                <button class="timer-btn" onclick="startWalking(600)">10 Minutes</button>
+                <button class="timer-btn" onclick="startWalking(900)">15 Minutes</button>
+                <button class="timer-btn" onclick="startWalking(1200)">20 Minutes</button>
+                <button class="timer-btn" onclick="startWalking(1800)">30 Minutes</button>
+            </div>
+            
+            <div class="walking-display" id="walking-display" style="display: none;">
+                <div class="walking-stats">
+                    <div class="timer-circle">
+                        <div class="timer-text" id="walking-timer-text">10:00</div>
+                    </div>
+                    <div class="step-counter">
+                        <div class="step-icon">👣</div>
+                        <div class="step-count" id="step-count">0</div>
+                        <div class="step-label">estimated steps</div>
+                    </div>
+                </div>
+                <p class="walking-prompt" id="walking-prompt">Let's start your refreshing walk!</p>
+                <div class="walking-controls">
+                    <button class="pause-btn" id="walking-pause-btn" onclick="pauseWalking()">Pause</button>
+                    <button class="stop-btn" onclick="stopWalking()">Stop</button>
+                </div>
+            </div>
+            
+            <button class="close-timer-btn" onclick="closeWalkingTimer()">Cancel</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Start walking timer
+window.startWalking = function startWalking(duration) {
+    walkingTimeRemaining = duration;
+    walkingStartTime = Date.now();
+    walkingSteps = 0;
+    
+    // Hide options, show timer
+    const options = document.querySelector('.walking-timer-modal .timer-options');
+    const display = document.getElementById('walking-display');
+    const closeBtn = document.querySelector('.walking-timer-modal .close-timer-btn');
+    
+    if (options) options.style.display = 'none';
+    if (display) display.style.display = 'block';
+    if (closeBtn) closeBtn.style.display = 'none';
+    
+    updateWalkingDisplay();
+    
+    // Array of walking prompts/motivation
+    const walkingPrompts = [
+        "Let's start your refreshing walk! 🌟",
+        "Feel the fresh air filling your lungs... 🌬️",
+        "Notice the world around you as you move... 🌳",
+        "Each step is improving your health! 💪",
+        "You're doing great! Keep that steady pace... ⚡",
+        "Feel your energy building with each step... 🔋",
+        "Take in the sights and sounds around you... 👀",
+        "Your body thanks you for this movement! ❤️",
+        "Almost there! You're crushing this walk! 🎯",
+        "Great job! Feel that natural endorphin boost! 🌈"
+    ];
+    
+    let promptIndex = 0;
+    const promptElement = document.getElementById('walking-prompt');
+    
+    walkingTimer = setInterval(() => {
+        walkingTimeRemaining--;
+        
+        // Estimate steps (approximately 2 steps per second for moderate walking)
+        const elapsedSeconds = duration - walkingTimeRemaining;
+        walkingSteps = Math.floor(elapsedSeconds * 1.8); // Slightly slower pace
+        
+        updateWalkingDisplay();
+        
+        // Change prompt every 60 seconds
+        if (walkingTimeRemaining % 60 === 0 && promptElement) {
+            promptIndex = (promptIndex + 1) % walkingPrompts.length;
+            promptElement.textContent = walkingPrompts[promptIndex];
+        }
+        
+        if (walkingTimeRemaining <= 0) {
+            completeWalking(duration);
+        }
+    }, 1000);
+}
+
+// Update walking display
+function updateWalkingDisplay() {
+    const timerText = document.getElementById('walking-timer-text');
+    const stepCount = document.getElementById('step-count');
+    
+    if (timerText) {
+        const minutes = Math.floor(walkingTimeRemaining / 60);
+        const seconds = walkingTimeRemaining % 60;
+        timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    if (stepCount) {
+        stepCount.textContent = walkingSteps.toLocaleString();
+    }
+}
+
+// Pause walking
+window.pauseWalking = function pauseWalking() {
+    const pauseBtn = document.getElementById('walking-pause-btn');
+    
+    if (walkingTimer) {
+        clearInterval(walkingTimer);
+        walkingTimer = null;
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
+        pauseBtn.onclick = resumeWalking;
+    }
+}
+
+// Resume walking
+function resumeWalking() {
+    const pauseBtn = document.getElementById('walking-pause-btn');
+    
+    walkingTimer = setInterval(() => {
+        walkingTimeRemaining--;
+        
+        // Continue estimating steps
+        const totalDuration = parseInt(document.querySelector('.timer-text')?.textContent?.split(':')[0] || 10) * 60;
+        const elapsedSeconds = totalDuration - walkingTimeRemaining;
+        walkingSteps = Math.floor(elapsedSeconds * 1.8);
+        
+        updateWalkingDisplay();
+        
+        if (walkingTimeRemaining <= 0) {
+            completeWalking(totalDuration);
+        }
+    }, 1000);
+    
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
+    pauseBtn.onclick = pauseWalking;
+}
+
+// Stop walking early
+window.stopWalking = function stopWalking() {
+    if (confirm('Are you sure you want to end your walking session early?')) {
+        if (walkingTimer) {
+            clearInterval(walkingTimer);
+            walkingTimer = null;
+        }
+        closeWalkingTimer();
+        
+        // Give partial benefits for incomplete session
+        const originalDuration = parseInt(document.querySelector('#walking-timer-text')?.textContent?.split(':')[0] || 10) * 60;
+        const timeSpent = originalDuration - walkingTimeRemaining;
+        
+        if (timeSpent >= 60) { // At least 1 minute
+            const minutes = Math.floor(timeSpent / 60);
+            const steps = Math.floor(timeSpent * 1.8);
+            
+            wellnessStats.energy = Math.min(100, wellnessStats.energy + minutes * 2);
+            wellnessStats.mood = Math.min(100, wellnessStats.mood + minutes * 1.5);
+            user.xp += Math.floor(minutes * 1.5);
+            
+            updateWellness('self_care');
+            updateUI();
+            showSelfCareMessage(`🚶‍♂️ Nice ${minutes}-minute walk! You took approximately ${steps.toLocaleString()} steps.`, Math.floor(minutes * 1.5));
+        }
+    }
+}
+
+// Complete walking session
+function completeWalking(duration) {
+    if (walkingTimer) {
+        clearInterval(walkingTimer);
+        walkingTimer = null;
+    }
+    
+    closeWalkingTimer();
+    
+    // Calculate benefits based on duration and steps
+    const minutes = duration / 60;
+    const finalSteps = walkingSteps;
+    
+    const energyGain = Math.min(25, 8 + minutes * 1.2);
+    const moodGain = Math.min(20, 5 + minutes * 1);
+    const xpGain = Math.min(20, 5 + minutes * 0.8);
+    
+    wellnessStats.energy = Math.min(100, wellnessStats.energy + energyGain);
+    wellnessStats.mood = Math.min(100, wellnessStats.mood + moodGain);
+    wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(minutes * 0.5));
+    user.xp += xpGain;
+    
+    updateWellness('self_care');
+    updateUI();
+    
+    const message = `🚶‍♂️ Excellent ${minutes}-minute walk completed! You took approximately ${finalSteps.toLocaleString()} steps. Your body feels refreshed and energized!`;
+    showSelfCareMessage(message, xpGain);
+    
+    // Reschedule notifications after completing activity
+    if (notificationSettings.enabled) {
+        setTimeout(() => {
+            scheduleSelfCareNotifications();
+        }, 1000);
+    }
+}
+
+// Close walking timer modal
+window.closeWalkingTimer = function closeWalkingTimer() {
+    if (walkingTimer) {
+        clearInterval(walkingTimer);
+        walkingTimer = null;
+    }
+    
+    const modal = document.querySelector('.walking-timer-modal');
     if (modal) {
         modal.remove();
     }

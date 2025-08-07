@@ -2096,6 +2096,165 @@ margin-top: 1.5rem;
   z-index: 1000;
 }
 
+/* Walking Timer Modal */
+.walking-timer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.walking-timer-content {
+  background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+  border: 2px solid #10b981;
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  color: white;
+  max-width: 450px;
+  width: 90%;
+}
+
+.walking-timer-content h2 {
+  color: #e5e7eb;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.walking-display {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.walking-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 2rem;
+}
+
+.walking-stats .timer-circle {
+  width: 120px;
+  height: 120px;
+  border: 3px solid #10b981;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+}
+
+.walking-stats .timer-text {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  font-family: 'Courier New', monospace;
+}
+
+.step-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.step-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-count {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #a7f3d0;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.25rem;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  color: #d1fae5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.walking-prompt {
+  font-style: italic;
+  color: #e5e7eb;
+  margin: 1.5rem 0;
+  font-size: 1.1rem;
+  min-height: 2rem;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.walking-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.walking-controls .pause-btn,
+.walking-controls .stop-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: 2px solid;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.walking-controls .pause-btn {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  border-color: #92400e;
+  color: white;
+}
+
+.walking-controls .pause-btn:hover {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+}
+
+.walking-controls .stop-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  border-color: #991b1b;
+  color: white;
+}
+
+.walking-controls .stop-btn:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+}
+
+.walking-timer-modal .close-timer-btn {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  border: 2px solid #4b5563;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.walking-timer-modal .close-timer-btn:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+}
+
 .meditation-timer-content {
   background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
   border: 2px solid #8b5cf6;
