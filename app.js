@@ -291,14 +291,14 @@ function showMeditationTimer() {
         <div class="meditation-timer-content">
             <h2>🧘‍♀️ Meditation Session</h2>
             <p>Choose your meditation duration:</p>
-            
+
             <div class="timer-options">
                 <button class="timer-btn" onclick="startMeditation(300)">5 Minutes</button>
                 <button class="timer-btn" onclick="startMeditation(600)">10 Minutes</button>
                 <button class="timer-btn" onclick="startMeditation(900)">15 Minutes</button>
                 <button class="timer-btn" onclick="startMeditation(1200)">20 Minutes</button>
             </div>
-            
+
             <div class="meditation-display" id="meditation-display" style="display: none;">
                 <div class="timer-circle">
                     <div class="timer-text" id="timer-text">5:00</div>
@@ -307,7 +307,7 @@ function showMeditationTimer() {
                 <button class="pause-btn" id="pause-btn" onclick="pauseMeditation()">Pause</button>
                 <button class="stop-btn" onclick="stopMeditation()">Stop</button>
             </div>
-            
+
             <button class="close-timer-btn" onclick="closeMeditationTimer()">Cancel</button>
         </div>
     `;
@@ -318,18 +318,18 @@ function showMeditationTimer() {
 // Start meditation timer
 window.startMeditation = function startMeditation(duration) {
     meditationTimeRemaining = duration;
-    
+
     // Hide options, show timer
     const options = document.querySelector('.timer-options');
     const display = document.getElementById('meditation-display');
     const closeBtn = document.querySelector('.close-timer-btn');
-    
+
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
     if (closeBtn) closeBtn.style.display = 'none';
-    
+
     updateMeditationDisplay();
-    
+
     // Array of meditation quotes/prompts
     const meditationQuotes = [
         "Find peace in this moment...",
@@ -343,20 +343,20 @@ window.startMeditation = function startMeditation(duration) {
         "Feel gratitude for this moment of self-care...",
         "Your mind is clear, your heart is open..."
     ];
-    
+
     let quoteIndex = 0;
     const quoteElement = document.getElementById('meditation-quote');
-    
+
     meditationTimer = setInterval(() => {
         meditationTimeRemaining--;
         updateMeditationDisplay();
-        
+
         // Change quote every 30 seconds
         if (meditationTimeRemaining % 30 === 0 && quoteElement) {
             quoteIndex = (quoteIndex + 1) % meditationQuotes.length;
             quoteElement.textContent = meditationQuotes[quoteIndex];
         }
-        
+
         if (meditationTimeRemaining <= 0) {
             completeMeditation(duration);
         }
@@ -376,7 +376,7 @@ function updateMeditationDisplay() {
 // Pause meditation
 window.pauseMeditation = function pauseMeditation() {
     const pauseBtn = document.getElementById('pause-btn');
-    
+
     if (meditationTimer) {
         clearInterval(meditationTimer);
         meditationTimer = null;
@@ -388,16 +388,16 @@ window.pauseMeditation = function pauseMeditation() {
 // Resume meditation
 function resumeMeditation() {
     const pauseBtn = document.getElementById('pause-btn');
-    
+
     meditationTimer = setInterval(() => {
         meditationTimeRemaining--;
         updateMeditationDisplay();
-        
+
         if (meditationTimeRemaining <= 0) {
             completeMeditation();
         }
     }, 1000);
-    
+
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     pauseBtn.onclick = pauseMeditation;
 }
@@ -410,11 +410,11 @@ window.stopMeditation = function stopMeditation() {
             meditationTimer = null;
         }
         closeMeditationTimer();
-        
+
         // Give partial benefits for incomplete session
         const originalDuration = parseInt(document.querySelector('.timer-text')?.textContent?.split(':')[0] || 5) * 60;
         const timeSpent = originalDuration - meditationTimeRemaining;
-        
+
         if (timeSpent >= 60) { // At least 1 minute
             wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + Math.floor(timeSpent / 60) * 2);
             wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(timeSpent / 60));
@@ -432,25 +432,25 @@ function completeMeditation(duration) {
         clearInterval(meditationTimer);
         meditationTimer = null;
     }
-    
+
     closeMeditationTimer();
-    
+
     // Calculate benefits based on duration
     const minutes = duration / 60;
     const mindfulnessGain = Math.min(20, 5 + minutes * 2);
     const stressReduction = Math.min(25, 5 + minutes * 1.5);
     const xpGain = Math.min(15, 3 + minutes);
-    
+
     wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + mindfulnessGain);
     wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
     user.xp += xpGain;
-    
+
     updateWellness('self_care');
     updateUI();
-    
+
     const message = `🧘‍♀️ You completed a ${minutes}-minute meditation session. Your mind feels clear and peaceful.`;
     showSelfCareMessage(message, xpGain);
-    
+
     // Reschedule notifications after completing activity
     if (notificationSettings.enabled) {
         setTimeout(() => {
@@ -465,7 +465,7 @@ window.closeMeditationTimer = function closeMeditationTimer() {
         clearInterval(meditationTimer);
         meditationTimer = null;
     }
-    
+
     const modal = document.querySelector('.meditation-timer-modal');
     if (modal) {
         modal.remove();
@@ -480,14 +480,14 @@ function showWalkingTimer() {
         <div class="walking-timer-content">
             <h2>🚶‍♂️ Walking Session</h2>
             <p>Choose your walking duration:</p>
-            
+
             <div class="timer-options">
                 <button class="timer-btn" onclick="startWalking(600)">10 Minutes</button>
                 <button class="timer-btn" onclick="startWalking(900)">15 Minutes</button>
                 <button class="timer-btn" onclick="startWalking(1200)">20 Minutes</button>
                 <button class="timer-btn" onclick="startWalking(1800)">30 Minutes</button>
             </div>
-            
+
             <div class="walking-display" id="walking-display" style="display: none;">
                 <div class="walking-stats">
                     <div class="timer-circle">
@@ -505,7 +505,7 @@ function showWalkingTimer() {
                     <button class="stop-btn" onclick="stopWalking()">Stop</button>
                 </div>
             </div>
-            
+
             <button class="close-timer-btn" onclick="closeWalkingTimer()">Cancel</button>
         </div>
     `;
@@ -518,18 +518,18 @@ window.startWalking = function startWalking(duration) {
     walkingTimeRemaining = duration;
     walkingStartTime = Date.now();
     walkingSteps = 0;
-    
+
     // Hide options, show timer
     const options = document.querySelector('.walking-timer-modal .timer-options');
     const display = document.getElementById('walking-display');
     const closeBtn = document.querySelector('.walking-timer-modal .close-timer-btn');
-    
+
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
     if (closeBtn) closeBtn.style.display = 'none';
-    
+
     updateWalkingDisplay();
-    
+
     // Array of walking prompts/motivation
     const walkingPrompts = [
         "Let's start your refreshing walk! 🌟",
@@ -543,25 +543,25 @@ window.startWalking = function startWalking(duration) {
         "Almost there! You're crushing this walk! 🎯",
         "Great job! Feel that natural endorphin boost! 🌈"
     ];
-    
+
     let promptIndex = 0;
     const promptElement = document.getElementById('walking-prompt');
-    
+
     walkingTimer = setInterval(() => {
         walkingTimeRemaining--;
-        
+
         // Estimate steps (approximately 2 steps per second for moderate walking)
         const elapsedSeconds = duration - walkingTimeRemaining;
         walkingSteps = Math.floor(elapsedSeconds * 1.8); // Slightly slower pace
-        
+
         updateWalkingDisplay();
-        
+
         // Change prompt every 60 seconds
         if (walkingTimeRemaining % 60 === 0 && promptElement) {
             promptIndex = (promptIndex + 1) % walkingPrompts.length;
             promptElement.textContent = walkingPrompts[promptIndex];
         }
-        
+
         if (walkingTimeRemaining <= 0) {
             completeWalking(duration);
         }
@@ -572,13 +572,13 @@ window.startWalking = function startWalking(duration) {
 function updateWalkingDisplay() {
     const timerText = document.getElementById('walking-timer-text');
     const stepCount = document.getElementById('step-count');
-    
+
     if (timerText) {
         const minutes = Math.floor(walkingTimeRemaining / 60);
         const seconds = walkingTimeRemaining % 60;
         timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
-    
+
     if (stepCount) {
         stepCount.textContent = walkingSteps.toLocaleString();
     }
@@ -587,7 +587,7 @@ function updateWalkingDisplay() {
 // Pause walking
 window.pauseWalking = function pauseWalking() {
     const pauseBtn = document.getElementById('walking-pause-btn');
-    
+
     if (walkingTimer) {
         clearInterval(walkingTimer);
         walkingTimer = null;
@@ -599,22 +599,22 @@ window.pauseWalking = function pauseWalking() {
 // Resume walking
 function resumeWalking() {
     const pauseBtn = document.getElementById('walking-pause-btn');
-    
+
     walkingTimer = setInterval(() => {
         walkingTimeRemaining--;
-        
+
         // Continue estimating steps
         const totalDuration = parseInt(document.querySelector('.timer-text')?.textContent?.split(':')[0] || 10) * 60;
         const elapsedSeconds = totalDuration - walkingTimeRemaining;
         walkingSteps = Math.floor(elapsedSeconds * 1.8);
-        
+
         updateWalkingDisplay();
-        
+
         if (walkingTimeRemaining <= 0) {
             completeWalking(totalDuration);
         }
     }, 1000);
-    
+
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     pauseBtn.onclick = pauseWalking;
 }
@@ -627,19 +627,19 @@ window.stopWalking = function stopWalking() {
             walkingTimer = null;
         }
         closeWalkingTimer();
-        
+
         // Give partial benefits for incomplete session
         const originalDuration = parseInt(document.querySelector('#walking-timer-text')?.textContent?.split(':')[0] || 10) * 60;
         const timeSpent = originalDuration - walkingTimeRemaining;
-        
+
         if (timeSpent >= 60) { // At least 1 minute
             const minutes = Math.floor(timeSpent / 60);
             const steps = Math.floor(timeSpent * 1.8);
-            
+
             wellnessStats.energy = Math.min(100, wellnessStats.energy + minutes * 2);
             wellnessStats.mood = Math.min(100, wellnessStats.mood + minutes * 1.5);
             user.xp += Math.floor(minutes * 1.5);
-            
+
             updateWellness('self_care');
             updateUI();
             showSelfCareMessage(`🚶‍♂️ Nice ${minutes}-minute walk! You took approximately ${steps.toLocaleString()} steps.`, Math.floor(minutes * 1.5));
@@ -653,28 +653,28 @@ function completeWalking(duration) {
         clearInterval(walkingTimer);
         walkingTimer = null;
     }
-    
+
     closeWalkingTimer();
-    
+
     // Calculate benefits based on duration and steps
     const minutes = duration / 60;
     const finalSteps = walkingSteps;
-    
+
     const energyGain = Math.min(25, 8 + minutes * 1.2);
     const moodGain = Math.min(20, 5 + minutes * 1);
     const xpGain = Math.min(20, 5 + minutes * 0.8);
-    
+
     wellnessStats.energy = Math.min(100, wellnessStats.energy + energyGain);
     wellnessStats.mood = Math.min(100, wellnessStats.mood + moodGain);
     wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(minutes * 0.5));
     user.xp += xpGain;
-    
+
     updateWellness('self_care');
     updateUI();
-    
+
     const message = `🚶‍♂️ Excellent ${minutes}-minute walk completed! You took approximately ${finalSteps.toLocaleString()} steps. Your body feels refreshed and energized!`;
     showSelfCareMessage(message, xpGain);
-    
+
     // Reschedule notifications after completing activity
     if (notificationSettings.enabled) {
         setTimeout(() => {
@@ -689,7 +689,7 @@ window.closeWalkingTimer = function closeWalkingTimer() {
         clearInterval(walkingTimer);
         walkingTimer = null;
     }
-    
+
     const modal = document.querySelector('.walking-timer-modal');
     if (modal) {
         modal.remove();
@@ -704,14 +704,14 @@ function showRestTimer() {
         <div class="rest-timer-content">
             <h2>😴 Rest Break</h2>
             <p>Choose your rest duration:</p>
-            
+
             <div class="timer-options">
                 <button class="timer-btn" onclick="startRest(300)">5 Minutes</button>
                 <button class="timer-btn" onclick="startRest(600)">10 Minutes</button>
                 <button class="timer-btn" onclick="startRest(900)">15 Minutes</button>
                 <button class="timer-btn" onclick="startRest(1800)">30 Minutes</button>
             </div>
-            
+
             <div class="rest-display" id="rest-display" style="display: none;">
                 <div class="timer-circle">
                     <div class="timer-text" id="rest-timer-text">5:00</div>
@@ -722,7 +722,7 @@ function showRestTimer() {
                     <button class="stop-btn" onclick="stopRest()">Stop</button>
                 </div>
             </div>
-            
+
             <button class="close-timer-btn" onclick="closeRestTimer()">Cancel</button>
         </div>
     `;
@@ -733,18 +733,18 @@ function showRestTimer() {
 // Start rest timer
 window.startRest = function startRest(duration) {
     restTimeRemaining = duration;
-    
+
     // Hide options, show timer
-    const options = document.querySelector('.rest-timer-modal .timer-options');
+    const options = document.querySelector('.meditation-timer-modal .timer-options');
     const display = document.getElementById('rest-display');
-    const closeBtn = document.querySelector('.rest-timer-modal .close-timer-btn');
-    
+    const closeBtn = document.querySelector('.meditation-timer-modal .close-timer-btn');
+
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
     if (closeBtn) closeBtn.style.display = 'none';
-    
+
     updateRestDisplay();
-    
+
     // Array of rest messages
     const restMessages = [
         "Take a moment to relax and recharge... 💤",
@@ -758,20 +758,20 @@ window.startRest = function startRest(duration) {
         "Peace and calm surround you... 🕊️",
         "Almost done - you're doing great! 🌟"
     ];
-    
+
     let messageIndex = 0;
     const messageElement = document.getElementById('rest-message');
-    
+
     restTimer = setInterval(() => {
         restTimeRemaining--;
         updateRestDisplay();
-        
+
         // Change message every 45 seconds
         if (restTimeRemaining % 45 === 0 && messageElement) {
             messageIndex = (messageIndex + 1) % restMessages.length;
             messageElement.textContent = restMessages[messageIndex];
         }
-        
+
         if (restTimeRemaining <= 0) {
             completeRest(duration);
         }
@@ -781,7 +781,7 @@ window.startRest = function startRest(duration) {
 // Update rest display
 function updateRestDisplay() {
     const timerText = document.getElementById('rest-timer-text');
-    
+
     if (timerText) {
         const minutes = Math.floor(restTimeRemaining / 60);
         const seconds = restTimeRemaining % 60;
@@ -792,7 +792,7 @@ function updateRestDisplay() {
 // Pause rest
 window.pauseRest = function pauseRest() {
     const pauseBtn = document.getElementById('rest-pause-btn');
-    
+
     if (restTimer) {
         clearInterval(restTimer);
         restTimer = null;
@@ -804,16 +804,16 @@ window.pauseRest = function pauseRest() {
 // Resume rest
 function resumeRest() {
     const pauseBtn = document.getElementById('rest-pause-btn');
-    
+
     restTimer = setInterval(() => {
         restTimeRemaining--;
         updateRestDisplay();
-        
+
         if (restTimeRemaining <= 0) {
             completeRest();
         }
     }, 1000);
-    
+
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     pauseBtn.onclick = pauseRest;
 }
@@ -826,18 +826,18 @@ window.stopRest = function stopRest() {
             restTimer = null;
         }
         closeRestTimer();
-        
+
         // Give partial benefits for incomplete session
         const originalDuration = parseInt(document.querySelector('#rest-timer-text')?.textContent?.split(':')[0] || 5) * 60;
         const timeSpent = originalDuration - restTimeRemaining;
-        
+
         if (timeSpent >= 60) { // At least 1 minute
             const minutes = Math.floor(timeSpent / 60);
-            
+
             wellnessStats.energy = Math.min(100, wellnessStats.energy + minutes * 3);
             wellnessStats.stress = Math.max(0, wellnessStats.stress - minutes * 2);
             user.xp += Math.floor(minutes * 1.5);
-            
+
             updateWellness('self_care');
             updateUI();
             showSelfCareMessage(`😴 Nice ${minutes}-minute rest! You feel a bit more refreshed.`, Math.floor(minutes * 1.5));
@@ -851,26 +851,26 @@ function completeRest(duration) {
         clearInterval(restTimer);
         restTimer = null;
     }
-    
+
     closeRestTimer();
-    
+
     // Calculate benefits based on duration
     const minutes = duration / 60;
-    
+
     const energyGain = Math.min(30, 10 + minutes * 1.5);
     const stressReduction = Math.min(25, 8 + minutes * 1);
     const xpGain = Math.min(15, 5 + minutes * 0.7);
-    
+
     wellnessStats.energy = Math.min(100, wellnessStats.energy + energyGain);
     wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
     user.xp += xpGain;
-    
+
     updateWellness('self_care');
     updateUI();
-    
+
     const message = `😴 Excellent ${minutes}-minute rest completed! Your body and mind feel refreshed and recharged.`;
     showSelfCareMessage(message, xpGain);
-    
+
     // Reschedule notifications after completing activity
     if (notificationSettings.enabled) {
         setTimeout(() => {
@@ -885,7 +885,7 @@ window.closeRestTimer = function closeRestTimer() {
         clearInterval(restTimer);
         restTimer = null;
     }
-    
+
     const modal = document.querySelector('.rest-timer-modal');
     if (modal) {
         modal.remove();
@@ -900,14 +900,14 @@ function showBreathingTimer() {
         <div class="breathing-timer-content">
             <h2>🌬️ Deep Breathing</h2>
             <p>Choose your breathing session duration:</p>
-            
+
             <div class="timer-options">
                 <button class="timer-btn" onclick="startBreathing(180)">3 Minutes</button>
                 <button class="timer-btn" onclick="startBreathing(300)">5 Minutes</button>
                 <button class="timer-btn" onclick="startBreathing(600)">10 Minutes</button>
                 <button class="timer-btn" onclick="startBreathing(900)">15 Minutes</button>
             </div>
-            
+
             <div class="breathing-display" id="breathing-display" style="display: none;">
                 <div class="breathing-circle" id="breathing-circle">
                     <div class="timer-text" id="breathing-timer-text">3:00</div>
@@ -918,7 +918,7 @@ function showBreathingTimer() {
                     <button class="stop-btn" onclick="stopBreathing()">Stop</button>
                 </div>
             </div>
-            
+
             <button class="close-timer-btn" onclick="closeBreathingTimer()">Cancel</button>
         </div>
     `;
@@ -929,18 +929,18 @@ function showBreathingTimer() {
 // Start breathing timer
 window.startBreathing = function startBreathing(duration) {
     breathingTimeRemaining = duration;
-    
+
     // Hide options, show timer
-    const options = document.querySelector('.breathing-timer-modal .timer-options');
+    const options = document.querySelector('.meditation-timer-modal .timer-options');
     const display = document.getElementById('breathing-display');
-    const closeBtn = document.querySelector('.breathing-timer-modal .close-timer-btn');
-    
+    const closeBtn = document.querySelector('.meditation-timer-modal .close-timer-btn');
+
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
     if (closeBtn) closeBtn.style.display = 'none';
-    
+
     updateBreathingDisplay();
-    
+
     // Array of breathing instructions
     const breathingInstructions = [
         "Breathe in slowly through your nose... 🌬️",
@@ -954,26 +954,26 @@ window.startBreathing = function startBreathing(duration) {
         "Feel the stress melting away... 💆",
         "You're doing wonderfully! 🌟"
     ];
-    
+
     let instructionIndex = 0;
     const instructionElement = document.getElementById('breathing-instruction');
     const breathingCircle = document.getElementById('breathing-circle');
-    
+
     breathingTimer = setInterval(() => {
         breathingTimeRemaining--;
         updateBreathingDisplay();
-        
+
         // Change instruction every 8 seconds and animate circle
         if (breathingTimeRemaining % 8 === 0 && instructionElement) {
             instructionIndex = (instructionIndex + 1) % breathingInstructions.length;
             instructionElement.textContent = breathingInstructions[instructionIndex];
-            
+
             // Add breathing animation
             if (breathingCircle) {
                 breathingCircle.classList.toggle('breathing-in');
             }
         }
-        
+
         if (breathingTimeRemaining <= 0) {
             completeBreathing(duration);
         }
@@ -983,7 +983,7 @@ window.startBreathing = function startBreathing(duration) {
 // Update breathing display
 function updateBreathingDisplay() {
     const timerText = document.getElementById('breathing-timer-text');
-    
+
     if (timerText) {
         const minutes = Math.floor(breathingTimeRemaining / 60);
         const seconds = breathingTimeRemaining % 60;
@@ -994,7 +994,7 @@ function updateBreathingDisplay() {
 // Pause breathing
 window.pauseBreathing = function pauseBreathing() {
     const pauseBtn = document.getElementById('breathing-pause-btn');
-    
+
     if (breathingTimer) {
         clearInterval(breathingTimer);
         breathingTimer = null;
@@ -1006,16 +1006,16 @@ window.pauseBreathing = function pauseBreathing() {
 // Resume breathing
 function resumeBreathing() {
     const pauseBtn = document.getElementById('breathing-pause-btn');
-    
+
     breathingTimer = setInterval(() => {
         breathingTimeRemaining--;
         updateBreathingDisplay();
-        
+
         if (breathingTimeRemaining <= 0) {
             completeBreathing();
         }
     }, 1000);
-    
+
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     pauseBtn.onclick = pauseBreathing;
 }
@@ -1028,19 +1028,19 @@ window.stopBreathing = function stopBreathing() {
             breathingTimer = null;
         }
         closeBreathingTimer();
-        
+
         // Give partial benefits for incomplete session
         const originalDuration = parseInt(document.querySelector('#breathing-timer-text')?.textContent?.split(':')[0] || 3) * 60;
         const timeSpent = originalDuration - breathingTimeRemaining;
-        
+
         if (timeSpent >= 30) { // At least 30 seconds
             const minutes = Math.floor(timeSpent / 60);
             const seconds = timeSpent % 60;
-            
+
             wellnessStats.stress = Math.max(0, wellnessStats.stress - Math.floor(timeSpent / 15));
             wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + Math.floor(timeSpent / 20));
             user.xp += Math.floor(timeSpent / 30);
-            
+
             updateWellness('self_care');
             updateUI();
             showSelfCareMessage(`🌬️ Good ${timeSpent >= 60 ? minutes + '-minute' : seconds + '-second'} breathing session! You feel calmer.`, Math.floor(timeSpent / 30));
@@ -1054,26 +1054,26 @@ function completeBreathing(duration) {
         clearInterval(breathingTimer);
         breathingTimer = null;
     }
-    
+
     closeBreathingTimer();
-    
+
     // Calculate benefits based on duration
     const minutes = duration / 60;
-    
+
     const stressReduction = Math.min(30, 10 + minutes * 2);
     const mindfulnessGain = Math.min(25, 8 + minutes * 1.5);
     const xpGain = Math.min(12, 3 + minutes);
-    
+
     wellnessStats.stress = Math.max(0, wellnessStats.stress - stressReduction);
     wellnessStats.mindfulness = Math.min(100, wellnessStats.mindfulness + mindfulnessGain);
     user.xp += xpGain;
-    
+
     updateWellness('self_care');
     updateUI();
-    
+
     const message = `🌬️ Wonderful ${minutes}-minute breathing session completed! Your mind feels calm and centered.`;
     showSelfCareMessage(message, xpGain);
-    
+
     // Reschedule notifications after completing activity
     if (notificationSettings.enabled) {
         setTimeout(() => {
@@ -1088,7 +1088,7 @@ window.closeBreathingTimer = function closeBreathingTimer() {
         clearInterval(breathingTimer);
         breathingTimer = null;
     }
-    
+
     const modal = document.querySelector('.breathing-timer-modal');
     if (modal) {
         modal.remove();
@@ -1671,7 +1671,7 @@ function updateUI() {
 // Add a new task
 function addTask() {
     console.log('🎯 addTask function called');
-    
+
     // First, ensure we're on the tasks page
     const tasksPage = document.getElementById('tasks-page');
     if (!tasksPage || !tasksPage.classList.contains('active')) {
@@ -1686,16 +1686,16 @@ function addTask() {
         }, 100);
         return;
     }
-    
+
     let taskInput = document.getElementById('task-input');
     console.log('🔍 Looking for task input element...');
     console.log('📍 Task input found:', !!taskInput);
     console.log('📍 Current page:', document.querySelector('.page.active')?.id);
-    
+
     // If input not found, try multiple fallback methods
     if (!taskInput) {
         console.log('🔄 Trying fallback methods to find input...');
-        
+
         // Method 1: Look for any text input with quest-related placeholder
         const allInputs = document.querySelectorAll('input[type="text"]');
         taskInput = Array.from(allInputs).find(input => 
@@ -1704,7 +1704,7 @@ function addTask() {
                 input.placeholder.toLowerCase().includes('task')
             )
         );
-        
+
         if (taskInput) {
             console.log('📍 Found input via placeholder search');
         } else {
@@ -1717,7 +1717,7 @@ function addTask() {
                 }
             }
         }
-        
+
         // Method 3: Look for any input in the active page
         if (!taskInput) {
             const activePage = document.querySelector('.page.active');
@@ -1729,7 +1729,7 @@ function addTask() {
             }
         }
     }
-    
+
     if (!taskInput) {
         console.error('❌ Task input element not found after all attempts');
         alert('Error: Task input not found. Please refresh the page and try again.');
@@ -1757,9 +1757,9 @@ function addTask() {
         user.tasks.push(task);
         taskInput.value = '';
         updateUI();
-        
+
         console.log('✅ Task added successfully:', task);
-        
+
         // Show success feedback
         taskInput.placeholder = 'Quest added! Enter another...';
         setTimeout(() => {
@@ -1767,7 +1767,7 @@ function addTask() {
                 taskInput.placeholder = 'Enter a new quest…';
             }
         }, 2000);
-        
+
     } catch (error) {
         console.error('❌ Error processing task input:', error);
         alert('Error adding quest. Please try again.');
@@ -2069,11 +2069,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // Set up task input handlers when the game interface becomes visible
 function setupTaskInputHandlers() {
     console.log('Setting up task input handlers...');
-    
+
     // Wait for elements to be available with retry mechanism
     let retryCount = 0;
     const maxRetries = 10;
-    
+
     function trySetupHandlers() {
         let taskInput = document.getElementById('task-input');
         let addTaskBtn = document.getElementById('add-task-btn');
@@ -2111,7 +2111,7 @@ function setupTaskInputHandlers() {
                 addTaskBtn.removeEventListener('click', addTask);
                 addTaskBtn.addEventListener('click', addTask);
                 console.log('✅ Add task button click listener added');
-                
+
                 // Test the elements work
                 if (typeof taskInput.value === 'string' && addTaskBtn.click) {
                     console.log('✅ Elements are functional');
@@ -2131,7 +2131,7 @@ function setupTaskInputHandlers() {
             setTimeout(trySetupHandlers, 300);
         } else {
             console.error('❌ Failed to set up task handlers after maximum retries');
-            
+
             // Final attempt: Set up a global click listener as fallback
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.textContent && e.target.textContent.includes('Add Quest')) {
@@ -2143,7 +2143,7 @@ function setupTaskInputHandlers() {
             console.log('🔄 Set up fallback global click listener');
         }
     }
-    
+
     trySetupHandlers();
 }
 
@@ -2165,7 +2165,7 @@ window.debugTaskInput = function() {
     console.log('Task handlers ready:', window.taskHandlersReady);
     console.log('User object exists:', !!window.user);
     console.log('Current tasks count:', window.user?.tasks?.length || 0);
-    
+
     const taskInput = document.getElementById('task-input');
     if (taskInput) {
         console.log('Task input value access test:', typeof taskInput.value);
