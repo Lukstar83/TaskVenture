@@ -1617,6 +1617,15 @@ function updateUI() {
     if (characterRace && profile.race) characterRace.textContent = profile.race;
     if (characterClass && profile.class) characterClass.textContent = profile.class;
 
+    // Update avatar display to reflect any profile changes
+    updateAvatarDisplay();
+
+    // Update header avatar
+    const headerAvatar = document.getElementById('header-avatar');
+    if (headerAvatar) {
+        headerAvatar.src = getBaseAvatarImage();
+    }
+
     // Update level and XP with null checks
     const userLevel = document.getElementById('user-level');
     const userXP = document.getElementById('user-xp');
@@ -1992,13 +2001,14 @@ function showLevelUpMessage() {
 
 // Initialize avatar customization
 function initializeAvatarCustomization() {
-    // Ensure base avatar is visible
+    // Ensure base avatar is visible and set to correct image
     const baseAvatar = document.getElementById('avatar-base');
     if (baseAvatar) {
+        baseAvatar.src = getBaseAvatarImage();
         baseAvatar.style.display = 'block';
         baseAvatar.onerror = function() {
-            console.error('Base avatar image failed to load');
-            this.style.display = 'none';
+            console.error('Base avatar image failed to load, falling back to default');
+            this.src = 'images/base_avatar.png';
         };
         baseAvatar.onload = function() {
             console.log('Base avatar image loaded successfully');
@@ -2032,11 +2042,38 @@ function initializeAvatarCustomization() {
     });
 }
 
+// Get dynamic base avatar based on race and gender
+function getBaseAvatarImage() {
+    const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+    
+    if (profile.race && profile.gender) {
+        // Map gender to the naming convention used in your files
+        const genderMap = {
+            'Male': 'Male',
+            'Female': 'Female', 
+            'Non-binary': 'Enby'
+        };
+        
+        const mappedGender = genderMap[profile.gender] || 'Male';
+        const imageName = `${profile.race} ${mappedGender}.png`;
+        return `images/Avatar bases/${imageName}`;
+    }
+    
+    // Fallback to default base avatar
+    return "images/base_avatar.png";
+}
+
 // Update avatar display
 function updateAvatarDisplay() {
+    const baseImg = document.getElementById("avatar-base");
     const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
+
+    // Update base avatar based on race and gender
+    if (baseImg) {
+        baseImg.src = getBaseAvatarImage();
+    }
 
     if (user.avatar.armor) {
         armorImg.src = user.avatar.armor;
