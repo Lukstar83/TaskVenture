@@ -699,9 +699,9 @@ window.closeWalkingTimer = function closeWalkingTimer() {
 // Show rest timer modal
 function showRestTimer() {
     const modal = document.createElement('div');
-    modal.className = 'rest-timer-modal';
+    modal.className = 'meditation-timer-modal';
     modal.innerHTML = `
-        <div class="rest-timer-content">
+        <div class="meditation-timer-content">
             <h2>😴 Rest Break</h2>
             <p>Choose your rest duration:</p>
 
@@ -712,11 +712,11 @@ function showRestTimer() {
                 <button class="timer-btn" onclick="startRest(1800)">30 Minutes</button>
             </div>
 
-            <div class="rest-display" id="rest-display" style="display: none;">
+            <div class="meditation-display" id="rest-display" style="display: none;">
                 <div class="timer-circle">
                     <div class="timer-text" id="rest-timer-text">5:00</div>
                 </div>
-                <p class="rest-message" id="rest-message">Take a moment to relax and recharge...</p>
+                <p class="meditation-quote" id="rest-message">Take a moment to relax and recharge...</p>
                 <div class="rest-controls">
                     <button class="pause-btn" id="rest-pause-btn" onclick="pauseRest()">Pause</button>
                     <button class="stop-btn" onclick="stopRest()">Stop</button>
@@ -735,9 +735,9 @@ window.startRest = function startRest(duration) {
     restTimeRemaining = duration;
 
     // Hide options, show timer
-    const options = document.querySelector('.meditation-timer-modal .timer-options');
+    const options = document.querySelector('.timer-options');
     const display = document.getElementById('rest-display');
-    const closeBtn = document.querySelector('.meditation-timer-modal .close-timer-btn');
+    const closeBtn = document.querySelector('.close-timer-btn');
 
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
@@ -886,7 +886,7 @@ window.closeRestTimer = function closeRestTimer() {
         restTimer = null;
     }
 
-    const modal = document.querySelector('.rest-timer-modal');
+    const modal = document.querySelector('.meditation-timer-modal');
     if (modal) {
         modal.remove();
     }
@@ -895,9 +895,9 @@ window.closeRestTimer = function closeRestTimer() {
 // Show breathing timer modal
 function showBreathingTimer() {
     const modal = document.createElement('div');
-    modal.className = 'breathing-timer-modal';
+    modal.className = 'meditation-timer-modal';
     modal.innerHTML = `
-        <div class="breathing-timer-content">
+        <div class="meditation-timer-content">
             <h2>🌬️ Deep Breathing</h2>
             <p>Choose your breathing session duration:</p>
 
@@ -908,11 +908,11 @@ function showBreathingTimer() {
                 <button class="timer-btn" onclick="startBreathing(900)">15 Minutes</button>
             </div>
 
-            <div class="breathing-display" id="breathing-display" style="display: none;">
-                <div class="breathing-circle" id="breathing-circle">
+            <div class="meditation-display" id="breathing-display" style="display: none;">
+                <div class="timer-circle" id="breathing-circle">
                     <div class="timer-text" id="breathing-timer-text">3:00</div>
                 </div>
-                <p class="breathing-instruction" id="breathing-instruction">Breathe in... hold... breathe out...</p>
+                <p class="meditation-quote" id="breathing-instruction">Breathe in... hold... breathe out...</p>
                 <div class="breathing-controls">
                     <button class="pause-btn" id="breathing-pause-btn" onclick="pauseBreathing()">Pause</button>
                     <button class="stop-btn" onclick="stopBreathing()">Stop</button>
@@ -931,9 +931,9 @@ window.startBreathing = function startBreathing(duration) {
     breathingTimeRemaining = duration;
 
     // Hide options, show timer
-    const options = document.querySelector('.meditation-timer-modal .timer-options');
+    const options = document.querySelector('.timer-options');
     const display = document.getElementById('breathing-display');
-    const closeBtn = document.querySelector('.meditation-timer-modal .close-timer-btn');
+    const closeBtn = document.querySelector('.close-timer-btn');
 
     if (options) options.style.display = 'none';
     if (display) display.style.display = 'block';
@@ -1089,7 +1089,7 @@ window.closeBreathingTimer = function closeBreathingTimer() {
         breathingTimer = null;
     }
 
-    const modal = document.querySelector('.breathing-timer-modal');
+    const modal = document.querySelector('.meditation-timer-modal');
     if (modal) {
         modal.remove();
     }
