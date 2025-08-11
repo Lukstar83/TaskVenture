@@ -442,10 +442,17 @@ body {
     bottom: 7vw;
     height: auto;
     width: auto;
-    max-width: 30%;
     object-fit: contain;
     filter: drop-shadow(-15px 10px 3px rgba(0, 0, 0, 0.2));
   }
+
+.dragonborn-male img {
+  max-width: 45vw; /* Full size */
+}
+
+.halfling-male img {
+  max-width: 22.5vw; /* Half size */
+}
 
 .stats-container {
   display: flex;
