@@ -1624,6 +1624,7 @@ function updateUI() {
     const headerAvatar = document.getElementById('header-avatar');
     if (headerAvatar) {
         headerAvatar.src = getBaseAvatarImage();
+        headerAvatar.alt = `${profile.race} ${profile.gender}`;
     }
 
     // Update level and XP with null checks
