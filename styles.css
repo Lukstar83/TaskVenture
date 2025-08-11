@@ -439,10 +439,12 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 15;
-    bottom: 7vw;  
-    height: 75%;
+    bottom: 7vw;
+    height: auto;
     width: auto;
-    max-height: 100%;
+    max-height: 75%;
+    max-width: 90%;
+    object-fit: contain;
     filter: drop-shadow(-15px 10px 3px rgba(0, 0, 0, 0.2));
   }
 
