@@ -627,7 +627,7 @@ body {
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .task-section, .card-section, .dice-section, .avatar-section, .char-sheet-container {
+    .task-section, .card-section, .dice-section, .char-sheet-container {
       position: relative;
       width: 100vw;
       left: 50%;
@@ -642,7 +642,17 @@ body {
       box-shadow: var(--shadow-premium);
     }
 
-    .task-section h2, .card-section h2, .dice-section h2, .avatar-section h2 {
+    .avatar-section {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -25px;
+      z-index: 5;
+      padding: 1rem 1.5rem;
+    }
+
+    .task-section h2, .card-section h2, .dice-section h2 {
       font-family: "Cinzel Decorative", serif;
       color: var(--text-gold);
       padding: 1rem;
