@@ -2769,3 +2769,21 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* Hide any unwanted headers */
+#avatar-page h1:contains("Customize"),
+#avatar-page h2:contains("Customize"),
+#avatar-page h3:contains("Customize"),
+#avatar-page h1:contains("Adventurer"),
+#avatar-page h2:contains("Adventurer"),
+#avatar-page h3:contains("Adventurer"),
+.avatar-section h1,
+.avatar-section h2,
+.avatar-section h3 {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Avatar customization styles */

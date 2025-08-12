@@ -2063,23 +2063,47 @@ function showPage(pageId, navElement) {
             updateAvatarDisplay();
         }
 
-        // Remove any headers that might have been added
-        setTimeout(() => {
+        // Aggressive header removal - run multiple times to catch dynamic content
+        const removeHeaders = () => {
+            const avatarPage = document.getElementById('avatar-page');
             const avatarSection = document.querySelector('.avatar-section');
-            if (avatarSection) {
-                const allHeaders = avatarSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                allHeaders.forEach(header => {
-                    if (header.textContent && (
-                        header.textContent.includes('Customize') || 
-                        header.textContent.includes('Adventurer') ||
-                        header.textContent.includes('Avatar')
-                    )) {
-                        header.remove();
-                        console.log('Removed header:', header.textContent);
-                    }
-                });
-            }
-        }, 100);
+            
+            [avatarPage, avatarSection, document.body].forEach(container => {
+                if (container) {
+                    // Remove any headers with problematic text
+                    const allHeaders = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    allHeaders.forEach(header => {
+                        const text = header.textContent || '';
+                        if (text.includes('Customize') || 
+                            text.includes('Adventurer') ||
+                            text.includes('Avatar') ||
+                            text.includes('Your Avatar') ||
+                            text.includes('Character Avatar')) {
+                            header.remove();
+                            console.log('Removed header:', text);
+                        }
+                    });
+                    
+                    // Also remove any divs or spans that might contain the text
+                    const allElements = container.querySelectorAll('div, span, p');
+                    allElements.forEach(el => {
+                        const text = el.textContent || '';
+                        if (text.trim() === 'Customize Your Adventurer' || 
+                            text.trim() === 'Customize Your Avatar' ||
+                            text.trim() === 'Avatar Customization') {
+                            el.remove();
+                            console.log('Removed element:', text);
+                        }
+                    });
+                }
+            });
+        };
+
+        // Run immediately and with delays to catch any dynamically added content
+        removeHeaders();
+        setTimeout(removeHeaders, 50);
+        setTimeout(removeHeaders, 150);
+        setTimeout(removeHeaders, 300);
     }
 }
 
