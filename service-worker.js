@@ -1,6 +1,6 @@
 
 /* TaskVenture service worker */
-const CACHE = 'taskventure-v1';
+const CACHE = 'taskventure-v2';
 const ASSETS = [
   '/',
   '/index.html',
