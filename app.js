@@ -1,15 +1,28 @@
 // app.js
 
-// Ensure initial visibility is set immediately to prevent flash
-document.documentElement.style.setProperty("--initial-load", "true");
+// Wait for DOM to be ready before initializing
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure initial visibility is set immediately to prevent flash
+    if (document.documentElement) {
+        document.documentElement.style.setProperty("--initial-load", "true");
+    }
+});
 
-const splashEl = document.getElementById("splash-screen");
-const wizardEl = document.getElementById("wizard");
-const gameEl = document.getElementById("game-interface");
+// Initialize DOM elements after DOM is ready
+let splashEl, wizardEl, gameEl;
 
-// Immediately hide game interface to prevent flash
-if (gameEl) gameEl.style.display = "none";
-if (wizardEl) wizardEl.style.display = "none";
+document.addEventListener('DOMContentLoaded', function() {
+    splashEl = document.getElementById("splash-screen");
+    wizardEl = document.getElementById("wizard");
+    gameEl = document.getElementById("game-interface");
+
+    // Immediately hide game interface to prevent flash
+    if (gameEl) gameEl.style.display = "none";
+    if (wizardEl) wizardEl.style.display = "none";
+    
+    // Initialize the app after DOM is ready
+    initializeApp();
+});
 
 // auto-launch wizard on fresh load if no profile
 
@@ -1575,7 +1588,7 @@ window.skipWellnessCheckIn = function skipWellnessCheckIn() {
     modal.remove();
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeApp() {
     const hasProfile = localStorage.getItem("tv_profile");
 
     // Ensure proper initial state
@@ -1609,40 +1622,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Rewire buttons AFTER DOM is ready
     setupButtonHandlers();
 
-    // Call setupTaskInputHandlers after a short delay to ensure game interface is ready
-    // Also add a fallback timeout
-    const observer = new MutationObserver((mutationsList, obs) => {
-        for (const mutation of mutationsList) {
-            if (
-                mutation.type === "attributes" &&
-                mutation.attributeName === "style"
-            ) {
-                const gameInterface = document.getElementById("game-interface");
-                if (gameInterface && gameInterface.style.display !== "none") {
-                    setTimeout(() => {
-                        setupTaskInputHandlers();
-                    }, 500);
-                    obs.disconnect(); // Stop observing once handlers are set up
-                    break;
-                }
-            }
-        }
-    });
-
-    observer.observe(document.body, {
-        attributes: true,
-        attributeFilter: ["style"],
-        subtree: true,
-    });
-
-    // Fallback timeout to ensure handlers are set up even if observer doesn't catch it
-    setTimeout(() => {
-        const gameInterface = document.getElementById("game-interface");
-        if (gameInterface && gameInterface.style.display !== "none") {
-            setupTaskInputHandlers();
-        }
-    }, 2000);
-});
+    // Initialize user data
+    loadUserData();
+}
 
 // Hook up the Reset-Wizard dev button
 document.getElementById("reset-wizard").addEventListener("click", () => {
@@ -1657,7 +1639,8 @@ function setupButtonHandlers() {
     const playBtn = document.getElementById("play-button");
     const resetBtn = document.getElementById("reset-wizard");
 
-    playBtn?.addEventListener("click", () => {
+    if (playBtn) {
+        playBtn.addEventListener("click", () => {
         if (splashEl) {
             splashEl.classList.add("hidden");
             splashEl.style.display = "none";
@@ -1673,7 +1656,10 @@ function setupButtonHandlers() {
         }
     });
 
-    resetBtn?.addEventListener("click", () => {
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
         localStorage.removeItem("tv_profile");
         if (splashEl) {
             splashEl.classList.remove("hidden");
@@ -1688,11 +1674,12 @@ function setupButtonHandlers() {
             gameEl.style.display = "none";
         }
         alert("✅ Wizard has been reset. Press PLAY to start over.");
-    });
+        });
+    }
 }
 
-// User data
-let user = {
+// User data - Initialize immediately
+window.user = {
     xp: 0,
     level: 1,
     streak: 0,
@@ -1709,6 +1696,9 @@ let user = {
         cape: "",
     },
 };
+
+// Also create a local reference
+let user = window.user;
 
 // Game state
 let gameStarted = false;

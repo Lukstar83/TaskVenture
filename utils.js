@@ -272,9 +272,10 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
-function addTask() {
-  const input = document.getElementById("ta");
+function addTaskSimple() {
+  const input = document.getElementById("task-input");
   const list  = document.getElementById("task-list");
+  if (!input || !list) return;
   const txt   = input.value.trim();
   if (!txt) return;
   const li = document.createElement("li");
