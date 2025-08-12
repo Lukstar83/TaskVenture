@@ -435,9 +435,11 @@ body {
 }
 
 .header-bg {
+  position: relative;
   display: block;
   width: 100%;
   height: auto;
+  z-index: 1;
 }
 
 .character-avatar img {
@@ -854,7 +856,8 @@ body {
       position: relative;
       width: auto;
       height: 400px;
-      margin: 0 auto 2rem;
+      margin: 2rem;
+      z-index: 2;
     }
 
     #avatar-base {
