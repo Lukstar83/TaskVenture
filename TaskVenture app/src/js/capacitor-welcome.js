@@ -22,6 +22,14 @@ window.customElements.define(
       h1, h2, h3, h4, h5 {
         text-transform: uppercase;
       }
+      /* Hide any avatar customization headers */
+      h1:contains("Customize"),
+      h2:contains("Customize"),
+      h3:contains("Customize"),
+      *:contains("Adventurer") {
+        display: none !important;
+        visibility: hidden !important;
+      }
       .button {
         display: inline-block;
         padding: 10px;

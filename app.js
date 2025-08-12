@@ -2063,93 +2063,69 @@ function showPage(pageId, navElement) {
             updateAvatarDisplay();
         }
 
-        // Super aggressive header removal with mutation observer
-        const removeHeaders = () => {
-            // Check entire document for the problematic text
+        // Nuclear option: continuous header removal
+        const nukeHeaders = () => {
+            // Remove all text nodes and elements containing problematic text
             const walker = document.createTreeWalker(
-                document.body,
-                NodeFilter.SHOW_TEXT,
+                document.documentElement,
+                NodeFilter.SHOW_ALL,
                 null,
                 false
             );
 
-            const textNodesToRemove = [];
+            const nodesToRemove = [];
             let node;
             while (node = walker.nextNode()) {
-                const text = node.textContent.trim();
-                if (text === 'Customize Your Adventurer' || 
-                    text === 'Customize Your Avatar' ||
-                    text === 'Avatar Customization' ||
-                    text.includes('Customize') && text.includes('Adventurer')) {
-                    textNodesToRemove.push(node.parentElement);
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.textContent.trim();
+                    if ((text.includes('Customize') && text.includes('Adventurer')) ||
+                        text === 'Customize Your Avatar' ||
+                        text === 'Avatar Customization') {
+                        nodesToRemove.push(node.parentNode);
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    const text = node.textContent || node.innerText || '';
+                    const tagName = node.tagName ? node.tagName.toLowerCase() : '';
+                    
+                    if ((tagName.match(/^h[1-6]$/) || tagName === 'div' || tagName === 'span') &&
+                        (text.includes('Customize') && text.includes('Adventurer'))) {
+                        nodesToRemove.push(node);
+                    }
                 }
             }
 
-            // Remove elements containing the problematic text
-            textNodesToRemove.forEach(element => {
+            // Remove all problematic nodes
+            nodesToRemove.forEach(element => {
                 if (element && element.parentNode) {
-                    console.log('Removing element with text:', element.textContent);
+                    console.log('NUKING element with text:', element.textContent);
                     element.parentNode.removeChild(element);
-                }
-            });
-
-            // Also check all elements with specific selectors
-            const selectorsToCheck = [
-                'h1, h2, h3, h4, h5, h6',
-                '.avatar-section *',
-                '#avatar-page *',
-                '[data-title]',
-                '.title',
-                '.header-text',
-                '.section-title'
-            ];
-
-            selectorsToCheck.forEach(selector => {
-                try {
-                    document.querySelectorAll(selector).forEach(el => {
-                        const text = el.textContent || el.getAttribute('data-title') || '';
-                        if (text.includes('Customize') && (text.includes('Adventurer') || text.includes('Avatar'))) {
-                            console.log('Removing via selector:', text);
-                            el.remove();
-                        }
-                    });
-                } catch (e) {
-                    // Ignore selector errors
                 }
             });
         };
 
-        // Set up mutation observer to catch dynamically added content
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            const text = node.textContent || '';
-                            if (text.includes('Customize') && text.includes('Adventurer')) {
-                                console.log('Observer removing:', text);
-                                node.remove();
-                            }
-                        }
-                    });
-                }
-            });
-        });
+        // Set up continuous monitoring
+        const continuousNuke = setInterval(nukeHeaders, 100);
+        
+        // Stop after 10 seconds to avoid infinite loop
+        setTimeout(() => {
+            clearInterval(continuousNuke);
+        }, 10000);
 
-        // Start observing
-        observer.observe(document.body, {
+        // Also set up mutation observer
+        const observer = new MutationObserver(nukeHeaders);
+        observer.observe(document.documentElement, {
             childList: true,
-            subtree: true
+            subtree: true,
+            characterData: true
         });
 
-        // Run removal multiple times
-        removeHeaders();
-        setTimeout(removeHeaders, 10);
-        setTimeout(removeHeaders, 50);
-        setTimeout(removeHeaders, 150);
-        setTimeout(removeHeaders, 300);
-        setTimeout(removeHeaders, 500);
-        setTimeout(removeHeaders, 1000);
+        // Stop observer after 10 seconds
+        setTimeout(() => {
+            observer.disconnect();
+        }, 10000);
+
+        // Initial immediate nuke
+        nukeHeaders();
     }
 }
 

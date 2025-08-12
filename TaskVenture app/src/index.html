@@ -28,5 +28,17 @@
     <capacitor-welcome></capacitor-welcome>
 
     <script src="./js/capacitor-welcome.js" type="module"></script>
+    
+    <!-- Prevent any avatar customization headers -->
+    <style>
+      *:contains("Customize Your Adventurer"),
+      *:contains("Customize Your Avatar"),
+      h1:contains("Customize"),
+      h2:contains("Customize"),
+      h3:contains("Customize") {
+        display: none !important;
+        visibility: hidden !important;
+      }
+    </style>
   </body>
 </html>
