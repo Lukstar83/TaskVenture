@@ -12,6 +12,7 @@ if (gameEl) gameEl.style.display = "none";
 if (wizardEl) wizardEl.style.display = "none";
 
 // auto-launch wizard on fresh load if no profile
+console.log("🚀 App.js loading...");
 
 // Import Capacitor plugins for notifications
 let LocalNotifications;
@@ -1576,6 +1577,11 @@ window.skipWellnessCheckIn = function skipWellnessCheckIn() {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("🔧 DOM Content Loaded, initializing app...");
+    
+    // Initialize user data first
+    loadUserData();
+    
     const hasProfile = localStorage.getItem("tv_profile");
 
     // Ensure initial visibility is set immediately to prevent flash
@@ -1691,7 +1697,7 @@ function setupButtonHandlers() {
     });
 }
 
-// User data
+// User data - Initialize with default values
 let user = {
     xp: 0,
     level: 1,
@@ -1710,17 +1716,22 @@ let user = {
     },
 };
 
+// Ensure user is globally accessible for debugging
+window.user = user;
+
 // Game state
 let gameStarted = false;
 
 // Load user data from localStorage
 window.loadUserData = function loadUserData() {
-    const savedData = localStorage.getItem("taskventureData");
-    if (savedData) {
-        user = JSON.parse(savedData);
+    try {
+        const savedData = localStorage.getItem("taskventureData");
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            user = { ...user, ...parsedData }; // Merge with defaults
     } else {
-        // Add default starter quests for new users
-        user.tasks = [
+            // Add default starter quests for new users
+            user.tasks = [
             {
                 id: Date.now() + 1,
                 text: "Explore the TaskVenture interface",
@@ -1758,19 +1769,42 @@ window.loadUserData = function loadUserData() {
                 createdAt: new Date().toISOString(),
             },
         ];
-    }
+        }
+        
+        // Initialize avatar object if it doesn't exist
+        if (!user.avatar) {
+            user.avatar = {
+                armor: "",
+                weapon: "",
+                cape: "",
+            };
+        }
 
-    // Initialize avatar object if it doesn't exist
-    if (!user.avatar) {
-        user.avatar = {
-            armor: "",
-            weapon: "",
-            cape: "",
+        // Make sure user is globally accessible
+        window.user = user;
+        
+        // Initialize wellness system
+        loadWellnessData();
+        
+        console.log("✅ User data loaded:", user);
+    } catch (error) {
+        console.error("❌ Error loading user data:", error);
+        // Reset to defaults on error
+        user = {
+            xp: 0,
+            level: 1,
+            streak: 0,
+            cards: [],
+            tasks: [],
+            inventory: [],
+            questItems: [],
+            coins: 0,
+            restToken: false,
+            lastActiveDate: null,
+            avatar: { armor: "", weapon: "", cape: "" },
         };
+        window.user = user;
     }
-
-    // Initialize wellness system
-    loadWellnessData();
 };
 
 // Save user data to localStorage
@@ -1921,12 +1955,18 @@ function addTask() {
 
     // Ensure the input element is valid and accessible
     try {
+        if (!taskInput || typeof taskInput.value !== 'string') {
+            console.error("❌ Task input element is invalid");
+            alert("Error: Cannot access task input. Please refresh the page.");
+            return;
+        }
+        
         const taskText = taskInput.value.trim();
         console.log("📝 Task text:", taskText);
 
         if (taskText === "") {
             alert("Please enter a quest!");
-            taskInput.focus(); // Focus the input to help user
+            if (taskInput.focus) taskInput.focus(); // Focus the input to help user
             return;
         }
 
@@ -2997,6 +3037,11 @@ if (installBtn) {
 }
 
 window.addEventListener("load", () => {
+    if (!document.body) {
+        console.warn("⚠️ Document body not ready yet");
+        return;
+    }
+    
     const splash = document.getElementById("splash-screen");
     if (!splash) return;
 
@@ -3004,4 +3049,6 @@ window.addEventListener("load", () => {
     splash.style.opacity = 1;
     splash.style.display = "flex";
     splash.classList.add("visible");
+    
+    console.log("🎮 App fully loaded and ready");
 });
