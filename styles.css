@@ -446,7 +446,7 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 15;
+  z-index: 2;
   bottom: 7.5vw;
   height: auto;
   width: auto;
@@ -644,16 +644,6 @@ body {
       box-shadow: var(--shadow-premium);
     }
 
-    .avatar-section {
-      position: relative;
-      width: 100vw;
-      left: 50%;
-      transform: translateX(-50%);
-      top: -25px;
-      z-index: 5;
-      padding: 1rem 1.5rem;
-    }
-
     .task-section h2, .card-section h2, .dice-section h2 {
       font-family: "Cinzel Decorative", serif;
       color: var(--text-gold);
@@ -847,7 +837,6 @@ body {
     }
 
     /* Avatar Customization - Premium Design */
-
     .avatar-section {
       position: relative;
       width: 100vw;
@@ -855,31 +844,12 @@ body {
       transform: translateX(-50%);
       top: -25px;
       z-index: 5;
-    }
-
-    .avatar-section .header-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-      z-index: 1;
-    }
-
-    .avatar-section .character-avatar img {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      bottom: 7.5vw;
-      height: auto;
-      width: auto;
-      object-fit: contain;
-      filter: drop-shadow(-15px 10px 3px rgba(0, 0, 0, 0.3));
-    }
-
-    .avatar-section h2 {
-      margin-top: 1.5rem;
+      background: var(--gradient-surface);
+      backdrop-filter: blur(20px);
+      border-top: 3px solid var(--primary-gold);
+      border-radius: 24px 24px 0 0;
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-premium);
     }
 
     .avatar-container {
@@ -887,7 +857,6 @@ body {
       width: auto;
       height: 400px;
       margin: 2rem;
-      z-index: 2;
     }
 
     #avatar-base {
@@ -898,7 +867,6 @@ body {
       height: 95%;
       transform: translate(-50%, -50%);
       filter: drop-shadow(6px -5px 6px rgb(30, 30, 30));
-      z-index: 1;
     }
 
     .layered-item img {
@@ -910,7 +878,6 @@ body {
       width: auto;
       object-fit: contain;
       pointer-events: none;
-      z-index: 2;  
     }
 
     .gear-selectors {
@@ -954,7 +921,7 @@ body {
   position: absolute;
   top: 42%;
   left: 50%;
-  z-index: 3;
+  z-index: 7;
   height: 34%;
   width: auto;     
   transform: translate(-50%, -50%);
