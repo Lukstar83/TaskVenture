@@ -2315,10 +2315,7 @@ function initializeAvatarCustomization() {
             }
         });
     }
-}tion () {
-            user.avatar.armor = this.value;
-            updateAvatarDisplay();
-            saveUserData();
+}
         });
 
     document
