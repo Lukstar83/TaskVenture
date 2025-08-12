@@ -855,12 +855,6 @@ body {
       width: auto;
       height: 400px;
       margin: 0 auto 2rem;
-      background: var(--surface-glass);
-      backdrop-filter: blur(15px);
-      border: 2px solid var(--border-gold);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: var(--shadow-premium);
     }
 
     #avatar-base {
