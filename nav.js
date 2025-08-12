@@ -14,7 +14,7 @@ window.showPage = function(pageId, linkEl) {
   linkEl.classList.add('active');
 
   // 3) Show header and stats only on specific pages
-  const showHeaderAndStats = ['tasks-page', 'character-sheet-page'].includes(pageId);
+  const showHeaderAndStats = ['tasks-page', 'character-sheet-page', 'avatar-page'].includes(pageId);
 
   const headerEl = document.querySelector('header');
   if (headerEl) headerEl.style.display = showHeaderAndStats ? '' : 'none';
