@@ -1970,9 +1970,15 @@ function completeTask(taskId) {
     // Remove completed task
     user.tasks.splice(taskIndex, 1);
 
-    // 🎉 Reward feedback
-    fireConfetti();
-    playSuccessChime();
+    // 🎉 Reward feedback - ensure these fire
+    console.log("🎉 Triggering celebration effects");
+    setTimeout(() => {
+        fireConfetti();
+    }, 100);
+    
+    setTimeout(() => {
+        playSuccessChime();
+    }, 200);
 
     // Show reward modal
     showRewardModal(task.text, xpGained, card);
@@ -2777,7 +2783,21 @@ let _confettiCanvas, _confettiCtx, _confettiRAF;
 function fireConfetti(bursts = 180) {
     if (!_confettiCanvas) {
         _confettiCanvas = document.getElementById("confetti-canvas");
-        if (!_confettiCanvas) return;
+        if (!_confettiCanvas) {
+            // Create confetti canvas if it doesn't exist
+            _confettiCanvas = document.createElement("canvas");
+            _confettiCanvas.id = "confetti-canvas";
+            _confettiCanvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                pointer-events: none;
+                z-index: 9999;
+            `;
+            document.body.appendChild(_confettiCanvas);
+        }
         _confettiCtx = _confettiCanvas.getContext("2d");
         const resize = () => {
             _confettiCanvas.width = window.innerWidth;
@@ -2786,6 +2806,8 @@ function fireConfetti(bursts = 180) {
         window.addEventListener("resize", resize);
         resize();
     }
+
+    console.log("🎊 Firing confetti with", bursts, "particles");
 
     const particles = [];
     const colors = [
@@ -2862,30 +2884,50 @@ function fireConfetti(bursts = 180) {
 // ---- Success Chime (Web Audio) ----
 function playSuccessChime() {
     try {
+        console.log("🔊 Playing success chime");
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioCtx();
-        const now = ctx.currentTime;
-
-        function beep(freq, start, dur = 0.12, type = "sine") {
-            const o = ctx.createOscillator();
-            const g = ctx.createGain();
-            o.type = type;
-            o.frequency.setValueAtTime(freq, now + start);
-            o.connect(g);
-            g.connect(ctx.destination);
-            g.gain.setValueAtTime(0.0001, now + start);
-            g.gain.exponentialRampToValueAtTime(0.15, now + start + 0.03);
-            g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
-            o.start(now + start);
-            o.stop(now + start + dur + 0.05);
+        
+        if (!AudioCtx) {
+            console.log("Web Audio not supported");
+            return;
         }
 
-        // Simple ascending triad
-        beep(523.25, 0.0, 0.12, "triangle"); // C5
-        beep(659.25, 0.12, 0.12, "triangle"); // E5
-        beep(783.99, 0.24, 0.16, "triangle"); // G5
+        const ctx = new AudioCtx();
+        
+        // Resume audio context if suspended (required for user interaction)
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(() => {
+                playChimeBeeps(ctx);
+            });
+        } else {
+            playChimeBeeps(ctx);
+        }
+
+        function playChimeBeeps(audioCtx) {
+            const now = audioCtx.currentTime;
+
+            function beep(freq, start, dur = 0.12, type = "triangle") {
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = type;
+                o.frequency.setValueAtTime(freq, now + start);
+                o.connect(g);
+                g.connect(audioCtx.destination);
+                g.gain.setValueAtTime(0.0001, now + start);
+                g.gain.exponentialRampToValueAtTime(0.1, now + start + 0.03);
+                g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+                o.start(now + start);
+                o.stop(now + start + dur + 0.05);
+            }
+
+            // Simple ascending triad
+            beep(523.25, 0.0, 0.12, "triangle"); // C5
+            beep(659.25, 0.12, 0.12, "triangle"); // E5
+            beep(783.99, 0.24, 0.16, "triangle"); // G5
+        }
+        
     } catch (error) {
-        console.log("Audio context not available for success chime");
+        console.log("Audio context error:", error.message);
     }
 }
 
