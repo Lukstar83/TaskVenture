@@ -2769,21 +2769,31 @@ body {
     grid-template-columns: 1fr;
   }
 }
-/* Hide any unwanted headers */
-#avatar-page h1:contains("Customize"),
-#avatar-page h2:contains("Customize"),
-#avatar-page h3:contains("Customize"),
-#avatar-page h1:contains("Adventurer"),
-#avatar-page h2:contains("Adventurer"),
-#avatar-page h3:contains("Adventurer"),
+/* Hide any unwanted headers - more aggressive approach */
+#avatar-page h1,
+#avatar-page h2, 
+#avatar-page h3,
+#avatar-page h4,
+#avatar-page h5,
+#avatar-page h6,
 .avatar-section h1,
 .avatar-section h2,
-.avatar-section h3 {
+.avatar-section h3,
+.avatar-section h4,
+.avatar-section h5,
+.avatar-section h6,
+.avatar-section > h2,
+div.avatar-section h2 {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
+    width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    overflow: hidden !important;
 }
 
 /* Avatar customization styles */
