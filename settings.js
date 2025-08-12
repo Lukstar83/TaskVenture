@@ -95,21 +95,40 @@ function initializeSettings() {
 }
 
 function loadSettings() {
-    const musicVolume = getSetting('musicVolume', 50);
-    const sfxVolume = getSetting('sfxVolume', 75);
-    const muteAll = getSetting('muteAll', false);
-    const editStatsEnabled = getSetting('editStatsEnabled', false);
+    // Audio settings - add null checks
+    const musicVolume = document.getElementById('music-volume');
+    const sfxVolume = document.getElementById('sfx-volume');
+    const muteAll = document.getElementById('mute-all');
+    const musicValue = document.getElementById('music-value');
+    const sfxValue = document.getElementById('sfx-value');
+    const editStatsToggle = document.getElementById('edit-stats-toggle');
 
-    document.getElementById('music-volume').value = musicVolume;
-    document.getElementById('sfx-volume').value = sfxVolume;
-    document.getElementById('mute-all').checked = muteAll;
-    document.getElementById('edit-stats-toggle').checked = editStatsEnabled;
-    document.getElementById('music-value').textContent = musicVolume + '%';
-    document.getElementById('sfx-value').textContent = sfxVolume + '%';
+    if (musicVolume) {
+        musicVolume.value = getSetting('musicVolume', 50);
+    }
+    if (sfxVolume) {
+        sfxVolume.value = getSetting('sfxVolume', 75);
+    }
+    if (muteAll) {
+        muteAll.checked = getSetting('muteAll', false);
+    }
 
-    updateAudioVolume('music', musicVolume / 100);
-    updateAudioVolume('sfx', sfxVolume / 100);
-    updateAudioMute(muteAll);
+    // Update display values
+    if (musicValue) {
+        musicValue.textContent = getSetting('musicVolume', 50) + '%';
+    }
+    if (sfxValue) {
+        sfxValue.textContent = getSetting('sfxVolume', 75) + '%';
+    }
+
+    // Character settings
+    if (editStatsToggle) {
+        editStatsToggle.checked = getSetting('editStatsEnabled', false);
+    }
+
+    updateAudioVolume('music', getSetting('musicVolume', 50) / 100);
+    updateAudioVolume('sfx', getSetting('sfxVolume', 75) / 100);
+    updateAudioMute(getSetting('muteAll', false));
 }
 
 function saveSetting(key, value) {

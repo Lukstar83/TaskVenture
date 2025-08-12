@@ -218,43 +218,51 @@ function updateStreakSystem(user, didCompleteTaskToday) {
 
 // Streak tracking utilities (legacy support)
 function updateStreak() {
-    const today = new Date().toDateString();
-    const lastActive = localStorage.getItem('lastActiveDate');
-    
-    if (lastActive === today) {
-        // Already counted today
-        return;
-    }
-    
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (lastActive === yesterday.toDateString()) {
-        // Continuing streak
-        user.streak += 1;
-    } else if (lastActive !== null) {
-        // Streak broken (unless rest token is used)
-        if (!user.restToken) {
-            user.streak = 1;
-        } else {
-            user.restToken = false;
+    // Ensure user object exists before using it
+    if (typeof window !== 'undefined' && window.user) {
+        const today = new Date().toDateString();
+        const lastActive = localStorage.getItem('lastActiveDate');
+        
+        if (lastActive === today) {
+            // Already counted today
+            return;
         }
-    } else {
-        // First day
-        user.streak = 1;
+        
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (lastActive === yesterday.toDateString()) {
+            // Continuing streak
+            window.user.streak += 1;
+        } else if (lastActive !== null) {
+            // Streak broken (unless rest token is used)
+            if (!window.user.restToken) {
+                window.user.streak = 1;
+            } else {
+                window.user.restToken = false;
+            }
+        } else {
+            // First day
+            window.user.streak = 1;
+        }
+        
+        localStorage.setItem('lastActiveDate', today);
     }
-    
-    localStorage.setItem('lastActiveDate', today);
 }
 
 // Initialize streak tracking when game starts
 function initializeStreakTracking() {
-    updateStreak();
+    // Only initialize if user object exists
+    if (typeof window !== 'undefined' && window.user) {
+        updateStreak();
+    }
 }
 
-// Call this when the game starts
+// Call this when the game starts - with a delay to ensure user is loaded
 if (typeof window !== 'undefined') {
-    window.addEventListener('load', initializeStreakTracking);
+    window.addEventListener('load', () => {
+        setTimeout(initializeStreakTracking, 100);
+    });
 }
 
 // Export functions for use in other files

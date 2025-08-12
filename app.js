@@ -1162,8 +1162,10 @@ function resumeBreathing() {
         }
     }, 1000);
 
-    if (pauseBtn) pauseBtn.textContent = "Pause";
-    pauseBtn.onclick = pauseBreathing;
+    if (pauseBtn) {
+        pauseBtn.textContent = "Pause";
+        pauseBtn.onclick = pauseBreathing;
+    }
 }
 
 // Stop breathing early
@@ -1679,23 +1681,25 @@ function setupButtonHandlers() {
 }
 
 // User data - Initialize immediately
-window.user = {
-    xp: 0,
-    level: 1,
-    streak: 0,
-    cards: [],
-    tasks: [],
-    inventory: [],
-    questItems: [],
-    coins: 0,
-    restToken: false,
-    lastActiveDate: null,
-    avatar: {
-        armor: "",
-        weapon: "",
-        cape: "",
-    },
-};
+if (!window.user) {
+    window.user = {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        cards: [],
+        tasks: [],
+        inventory: [],
+        questItems: [],
+        coins: 0,
+        restToken: false,
+        lastActiveDate: null,
+        avatar: {
+            armor: "",
+            weapon: "",
+            cape: "",
+        },
+    };
+}
 
 // Also create a local reference
 let user = window.user;
