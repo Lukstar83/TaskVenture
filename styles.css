@@ -857,7 +857,7 @@ body {
       z-index: 5;
     }
 
-    .header-bg {
+    .avatar-section .header-bg {
       position: absolute;
       top: 0;
       left: 0;
@@ -866,7 +866,7 @@ body {
       z-index: 1;
     }
 
-    .character-avatar img {
+    .avatar-section .character-avatar img {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
