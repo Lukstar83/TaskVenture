@@ -848,6 +848,36 @@ body {
 
     /* Avatar Customization - Premium Design */
 
+    .avatar-section {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -25px;
+      z-index: 5;
+    }
+
+    .header-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      z-index: 1;
+    }
+
+    .character-avatar img {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      bottom: 7.5vw;
+      height: auto;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(-15px 10px 3px rgba(0, 0, 0, 0.3));
+    }
+
     .avatar-section h2 {
       margin-top: 1.5rem;
     }
