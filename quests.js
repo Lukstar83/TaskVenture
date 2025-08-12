@@ -11,8 +11,6 @@ class QuestEngine {
         this.enemyHP = 0;
         this.maxEnemyHP = 0;
         this.pendingRoll = null;
-        this.enemyHasAdvantage = false;
-        this.playerHasAdvantage = false;
     }
 
     // Generate random quests based on character level
@@ -188,84 +186,7 @@ class QuestEngine {
                         enemy: { name: 'Elemental Lord', hp: 50, ac: 17, damage: '2d6+4' }
                     }
                 ]
-            },
-        // Wellness-focused quests
-        {
-            id: 'healing_springs',
-            title: 'The Healing Springs',
-            description: 'Discover ancient springs said to restore mind, body, and spirit.',
-            difficulty: 'Easy',
-            minLevel: 1,
-            rewards: { xp: 35, coins: 20, items: ['Spring Water', 'Meditation Stone'] },
-            scenes: [
-                {
-                    id: 'springs_discovery',
-                    text: 'You find the mystical healing springs. The water glows with restorative energy.',
-                    options: [
-                        { text: 'Meditate by the springs (Wisdom)', skill: 'WIS', dc: 10 },
-                        { text: 'Study the magical properties (Investigation)', skill: 'INT', dc: 12 },
-                        { text: 'Take a healing bath (Constitution)', skill: 'CON', dc: 8 }
-                    ]
-                }
-            ]
-        },
-        {
-            id: 'monastery_peace',
-            title: 'The Monastery of Inner Peace',
-            description: 'Monks invite you to learn ancient techniques for mental clarity and emotional balance.',
-            difficulty: 'Easy',
-            minLevel: 1,
-            rewards: { xp: 40, coins: 15, items: ['Mindfulness Bell', 'Breathing Technique Scroll'] },
-            scenes: [
-                {
-                    id: 'monk_teachings',
-                    text: 'The head monk offers to teach you the ways of inner peace and self-compassion.',
-                    options: [
-                        { text: 'Practice meditation (Wisdom)', skill: 'WIS', dc: 11 },
-                        { text: 'Learn breathing techniques (Constitution)', skill: 'CON', dc: 9 },
-                        { text: 'Study mindfulness principles (Intelligence)', skill: 'INT', dc: 13 }
-                    ]
-                }
-            ]
-        },
-        {
-            id: 'garden_therapy',
-            title: 'The Therapeutic Garden',
-            description: 'A wise druid tends a magical garden that heals emotional wounds through nature connection.',
-            difficulty: 'Medium',
-            minLevel: 2,
-            rewards: { xp: 60, coins: 30, items: ['Healing Herbs', 'Nature\'s Blessing Amulet'] },
-            scenes: [
-                {
-                    id: 'garden_work',
-                    text: 'The druid invites you to help tend the garden while learning about emotional healing.',
-                    options: [
-                        { text: 'Plant seeds mindfully (Wisdom)', skill: 'WIS', dc: 12 },
-                        { text: 'Connect with plant spirits (Charisma)', skill: 'CHA', dc: 14 },
-                        { text: 'Study herbalism (Intelligence)', skill: 'INT', dc: 11 }
-                    ]
-                }
-            ]
-        },
-        {
-            id: 'stress_dragon',
-            title: 'The Stress Dragon',
-            description: 'A unique dragon feeds on stress and anxiety. Learn to tame it through self-care practices.',
-            difficulty: 'Medium',
-            minLevel: 2,
-            rewards: { xp: 70, coins: 35, items: ['Stress Relief Potion', 'Dragon Calming Whistle'] },
-            scenes: [
-                {
-                    id: 'dragon_encounter',
-                    text: 'The Stress Dragon appears, growing larger as it senses your worries. You must find a way to calm it.',
-                    options: [
-                        { text: 'Practice deep breathing (Constitution)', skill: 'CON', dc: 13 },
-                        { text: 'Use calming words (Charisma)', skill: 'CHA', dc: 15 },
-                        { text: 'Channel peaceful thoughts (Wisdom)', skill: 'WIS', dc: 14 }
-                    ]
-                }
-            ]
-        }
+            }
         ];
 
         // Add daily quest if needed
@@ -418,54 +339,6 @@ class QuestEngine {
         return Math.floor((score - 10) / 2);
     }
 
-    getPlayerAC() {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        const scores = profile.scores || {};
-        const cls = profile.class || '';
-        
-        const dexMod = Math.floor((scores.DEX - 10) / 2);
-        let baseAC = 10 + dexMod;
-        
-        // Class-based AC adjustments
-        if (cls === 'Barbarian' && !window.user?.avatar?.armor) {
-            const conMod = Math.floor((scores.CON - 10) / 2);
-            baseAC = 10 + dexMod + conMod;
-        } else if (cls === 'Monk' && !window.user?.avatar?.armor) {
-            const wisMod = Math.floor((scores.WIS - 10) / 2);
-            baseAC = 10 + dexMod + wisMod;
-        }
-        
-        // Add armor bonus
-        let armorBonus = 0;
-        if (window.user?.avatar?.armor) {
-            if (window.user.avatar.armor.includes('leather')) armorBonus = 1;
-            else if (window.user.avatar.armor.includes('chain')) armorBonus = 3;
-            else if (window.user.avatar.armor.includes('plate')) armorBonus = 6;
-        }
-        
-        return baseAC + armorBonus;
-    }
-
-    getProficiencyBonus() {
-        const level = window.user?.level || 1;
-        return Math.ceil(level / 4) + 1;
-    }
-
-    getSpellAttackBonus() {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        const cls = profile.class || '';
-        const spellcastingClasses = {
-            'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
-            'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
-        };
-        
-        const spellcastingAbility = spellcastingClasses[cls];
-        if (!spellcastingAbility) return 0;
-        
-        const spellMod = this.getAbilityModifier(spellcastingAbility);
-        return this.getProficiencyBonus() + spellMod;
-    }
-
     displayRollResult(choice, roll, modifier, total, success) {
         const resultDiv = document.getElementById('quest-results');
         const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
@@ -536,7 +409,7 @@ class QuestEngine {
 
         // Award rewards
         const rewards = this.activeQuest.rewards;
-
+        
         // Ensure user object exists and load from main app data
         if (!window.user) {
             // Try to load existing user data from main app
@@ -570,8 +443,6 @@ class QuestEngine {
 
         window.user.xp = oldXP + rewards.xp;
         window.user.coins = oldCoins + rewards.coins;
-        
-        console.log(`💰 Coin update: ${oldCoins} + ${rewards.coins} = ${window.user.coins}`);
 
         // Initialize arrays if they don't exist
         if (!window.user.questItems) window.user.questItems = [];
@@ -582,7 +453,7 @@ class QuestEngine {
         rewards.items.forEach(item => {
             // Add to quest items inventory
             window.user.questItems.push(item);
-
+            
             // Add to main inventory as well
             window.user.inventory.push(item);
 
@@ -607,11 +478,6 @@ class QuestEngine {
 
         // Save to main app storage system (taskventureData is the primary one)
         localStorage.setItem('taskventureData', JSON.stringify(window.user));
-        
-        // Force sync with main app user object if it exists
-        if (typeof window.loadUserData === 'function') {
-            window.loadUserData();
-        }
 
         console.log('Quest completed! Rewards added:', {
             xp: rewards.xp,
@@ -646,14 +512,14 @@ class QuestEngine {
         const xpElement = document.getElementById('user-xp');
         const levelElement = document.getElementById('user-level');
         const cardCountElement = document.getElementById('card-count');
-
+        
         // Update currency display - convert total coins to different denominations
         const totalCoins = window.user.coins || 0;
         const platinum = Math.floor(totalCoins / 1000);
         const gold = Math.floor((totalCoins % 1000) / 100);
         const silver = Math.floor((totalCoins % 100) / 10);
         const copper = totalCoins % 10;
-
+        
         const platinumElement = document.getElementById('platinum-coins');
         const goldElement = document.getElementById('gold-coins');
         const silverElement = document.getElementById('silver-coins');
@@ -662,7 +528,7 @@ class QuestEngine {
         if (xpElement) xpElement.textContent = window.user.xp;
         if (levelElement) levelElement.textContent = window.user.level || 1;
         if (cardCountElement) cardCountElement.textContent = window.user.cards ? window.user.cards.length : 0;
-
+        
         if (platinumElement) platinumElement.textContent = platinum;
         if (goldElement) goldElement.textContent = gold;
         if (silverElement) silverElement.textContent = silver;
@@ -674,7 +540,7 @@ class QuestEngine {
         const xpProgress = (window.user.xp / xpForNextLevel) * 100;
         const xpFill = document.getElementById('xp-fill');
         const xpNextLevel = document.getElementById('xp-next-level');
-
+        
         if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
         if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
 
@@ -934,24 +800,15 @@ class QuestEngine {
         const { type } = this.pendingRoll;
         const logDiv = document.getElementById('combat-log');
 
-        // Handle player advantage for attack/spell rolls
-        let finalRoll = diceResult;
-        if ((type === 'attack' || type === 'spell') && this.playerHasAdvantage) {
-            const secondRoll = Math.floor(Math.random() * 20) + 1;
-            finalRoll = Math.max(diceResult, secondRoll);
-            logDiv.innerHTML += `<p><strong>🎯 You have ADVANTAGE!</strong> Rolled ${diceResult} and ${secondRoll}, taking ${finalRoll}!</p>`;
-            this.playerHasAdvantage = false; // Reset advantage after use
-        }
-
         switch (type) {
             case 'attack':
-                this.resolveAttack(finalRoll);
+                this.resolveAttack(diceResult);
                 break;
             case 'spell':
-                this.resolveSpell(finalRoll);
+                this.resolveSpell(diceResult);
                 break;
             case 'defend':
-                this.resolveDefend(finalRoll);
+                this.resolveDefend(diceResult);
                 break;
         }
 
@@ -982,129 +839,49 @@ class QuestEngine {
 
     resolveAttack(diceRoll) {
         const strModifier = this.getAbilityModifier('STR');
-        const proficiencyBonus = this.getProficiencyBonus();
-        const total = diceRoll + strModifier + proficiencyBonus;
+        const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
-        // Check for critical hit (natural 20)
-        if (diceRoll === 20) {
-            logDiv.innerHTML += `<p><strong>🎯 CRITICAL HIT!</strong> Natural 20!</p>`;
-            const baseDamage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
-            const critDamage = Math.floor(Math.random() * 8) + 1; // Extra 1d8 for crit
-            const totalDamage = baseDamage + critDamage;
-            this.enemyHP = Math.max(0, this.enemyHP - totalDamage);
-            logDiv.innerHTML += `<p class="success">Critical damage! Dealt ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
+        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} = ${total} vs AC ${enemy.ac}</p>`;
+
+        if (total >= enemy.ac) {
+            const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
+            this.enemyHP = Math.max(0, this.enemyHP - damage);
+            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage.</p>`;
 
             if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by a critical strike!</strong></p>`;
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
                 setTimeout(() => this.completeQuest(), 2000);
                 return;
             }
-        }
-        // Check for critical failure (natural 1)
-        else if (diceRoll === 1) {
-            logDiv.innerHTML += `<p><strong>💥 CRITICAL FAILURE!</strong> Natural 1!</p>`;
-            logDiv.innerHTML += `<p class="failure">You stumble and leave yourself open to attack!</p>`;
-            // Mark that enemy gets advantage on next attack
-            this.enemyHasAdvantage = true;
-            // Player takes 1 damage from stumbling
-            this.playerHP = Math.max(0, this.playerHP - 1);
-            logDiv.innerHTML += `<p class="failure">You take 1 damage from your fumble.</p>`;
-            
-            if (this.playerHP <= 0) {
-                logDiv.innerHTML += `<p class="failure"><strong>Your critical failure was fatal!</strong></p>`;
-                setTimeout(() => this.handleCombatDefeat(), 2000);
-                return;
-            }
-        }
-        // Normal attack resolution
-        else {
-            logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
-
-            if (total >= enemy.ac) {
-                const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
-                this.enemyHP = Math.max(0, this.enemyHP - damage);
-                logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage.</p>`;
-
-                if (this.enemyHP <= 0) {
-                    logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
-                    setTimeout(() => this.completeQuest(), 2000);
-                    return;
-                }
-            } else {
-                logDiv.innerHTML += `<p class="failure">Attack missed!</p>`;
-            }
+        } else {
+            logDiv.innerHTML += `<p class="failure">Attack missed!</p>`;
         }
 
         this.updateHealthBars();
     }
 
     resolveSpell(diceRoll) {
-        const spellAttackBonus = this.getSpellAttackBonus();
-        const total = diceRoll + spellAttackBonus;
+        const intModifier = this.getAbilityModifier('INT');
+        const total = diceRoll + intModifier;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
-        // Determine spellcasting ability for damage
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        const cls = profile.class || '';
-        const spellcastingClasses = {
-            'Wizard': 'INT', 'Sorcerer': 'CHA', 'Warlock': 'CHA', 'Bard': 'CHA',
-            'Cleric': 'WIS', 'Druid': 'WIS', 'Ranger': 'WIS', 'Paladin': 'CHA'
-        };
-        const spellcastingAbility = spellcastingClasses[cls] || 'INT';
-        const spellMod = this.getAbilityModifier(spellcastingAbility);
+        logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${intModifier} = ${total} vs AC ${enemy.ac}</p>`;
 
-        // Check for critical hit (natural 20)
-        if (diceRoll === 20) {
-            logDiv.innerHTML += `<p><strong>🔮 CRITICAL SPELL!</strong> Natural 20!</p>`;
-            const baseDamage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
-            const critDamage = Math.floor(Math.random() * 10) + 1; // Extra 1d10 for crit
-            const totalDamage = baseDamage + critDamage;
-            this.enemyHP = Math.max(0, this.enemyHP - totalDamage);
-            logDiv.innerHTML += `<p class="success">Critical magical damage! Dealt ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
+        if (total >= enemy.ac) {
+            const damage = Math.floor(Math.random() * 10) + 1 + intModifier; // 1d10 + INT
+            this.enemyHP = Math.max(0, this.enemyHP - damage);
+            logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
 
             if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} obliterated by critical magic!</strong></p>`;
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
                 setTimeout(() => this.completeQuest(), 2000);
                 return;
             }
-        }
-        // Check for critical failure (natural 1)
-        else if (diceRoll === 1) {
-            logDiv.innerHTML += `<p><strong>💥 SPELL BACKFIRE!</strong> Natural 1!</p>`;
-            logDiv.innerHTML += `<p class="failure">Your spell backfires spectacularly!</p>`;
-            // Mark that enemy gets advantage on next attack
-            this.enemyHasAdvantage = true;
-            // Player takes magical backlash damage
-            const backlashDamage = Math.floor(Math.random() * 4) + 1; // 1d4
-            this.playerHP = Math.max(0, this.playerHP - backlashDamage);
-            logDiv.innerHTML += `<p class="failure">Magical backlash deals ${backlashDamage} damage to you!</p>`;
-            
-            if (this.playerHP <= 0) {
-                logDiv.innerHTML += `<p class="failure"><strong>Your spell backfire was fatal!</strong></p>`;
-                setTimeout(() => this.handleCombatDefeat(), 2000);
-                return;
-            }
-        }
-        // Normal spell resolution
-        else {
-            logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${spellAttackBonus} = ${total} vs AC ${enemy.ac}</p>`;
-
-            if (total >= enemy.ac) {
-                const damage = Math.floor(Math.random() * 10) + 1 + spellMod; // 1d10 + spell mod
-                this.enemyHP = Math.max(0, this.enemyHP - damage);
-                logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
-
-                if (this.enemyHP <= 0) {
-                    logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
-                    setTimeout(() => this.completeQuest(), 2000);
-                    return;
-                }
-            } else {
-                logDiv.innerHTML += `<p class="failure">Spell missed!</p>`;
-            }
+        } else {
+            logDiv.innerHTML += `<p class="failure">Spell missed!</p>`;
         }
 
         this.updateHealthBars();
@@ -1123,63 +900,30 @@ class QuestEngine {
     enemyAttack() {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
+        const attackRoll = Math.floor(Math.random() * 20) + 1;
         const enemyAttackBonus = 4; // Moderate attack bonus
-        
-        let attackRoll;
-        let rollDescription = '';
-
-        // Check if enemy has advantage from player's critical failure
-        if (this.enemyHasAdvantage) {
-            const roll1 = Math.floor(Math.random() * 20) + 1;
-            const roll2 = Math.floor(Math.random() * 20) + 1;
-            attackRoll = Math.max(roll1, roll2);
-            rollDescription = `${roll1}, ${roll2} (advantage - taking higher)`;
-            logDiv.innerHTML += `<p><strong>🎯 ${enemy.name} attacks with ADVANTAGE!</strong></p>`;
-            this.enemyHasAdvantage = false; // Reset advantage after use
-        } else {
-            attackRoll = Math.floor(Math.random() * 20) + 1;
-            rollDescription = attackRoll.toString();
-        }
-
         const total = attackRoll + enemyAttackBonus;
 
-        // Get player AC from character sheet calculation
-        const playerAC = this.getPlayerAC();
+        // Player AC is based on DEX modifier + 10
+        const playerAC = 10 + this.getAbilityModifier('DEX');
 
-        logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${rollDescription} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
+        logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 
-        // Check for enemy critical hit (natural 20)
-        if (attackRoll === 20) {
-            logDiv.innerHTML += `<p><strong>💀 ENEMY CRITICAL HIT!</strong></p>`;
-            const baseDamage = Math.floor(Math.random() * 6) + 3; // 1d6+3
-            const critDamage = Math.floor(Math.random() * 6) + 1; // Extra 1d6 for crit
-            const totalDamage = baseDamage + critDamage;
-            this.playerHP = Math.max(0, this.playerHP - totalDamage);
-            logDiv.innerHTML += `<p class="failure">${enemy.name} scores a critical hit for ${totalDamage} damage (${baseDamage} + ${critDamage} crit)!</p>`;
-        }
-        // Check for enemy critical failure (natural 1)
-        else if (attackRoll === 1) {
-            logDiv.innerHTML += `<p><strong>😅 ${enemy.name} FUMBLES!</strong></p>`;
-            logDiv.innerHTML += `<p class="success">${enemy.name} stumbles and creates an opening!</p>`;
-            // Player gets advantage on next attack
-            this.playerHasAdvantage = true;
-        }
-        // Normal attack resolution
-        else if (total >= playerAC) {
+        if (total >= playerAC) {
             const damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
+
+            if (this.playerHP <= 0) {
+                logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
+                // Disable combat buttons when defeated
+                const buttons = document.querySelectorAll('.combat-options button');
+                buttons.forEach(btn => btn.disabled = true);
+                setTimeout(() => this.handleCombatDefeat(), 2000);
+                return;
+            }
         } else {
             logDiv.innerHTML += `<p class="success">${enemy.name} misses!</p>`;
-        }
-
-        if (this.playerHP <= 0) {
-            logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
-            // Disable combat buttons when defeated
-            const buttons = document.querySelectorAll('.combat-options button');
-            buttons.forEach(btn => btn.disabled = true);
-            setTimeout(() => this.handleCombatDefeat(), 2000);
-            return;
         }
 
         this.updateHealthBars();
@@ -1245,7 +989,7 @@ class QuestEngine {
 
     renderQuestList() {
         const questContainer = document.getElementById('quest-container');
-
+        
         if (!questContainer) {
             console.error('Quest container not found!');
             return;
@@ -1308,7 +1052,7 @@ window.initializeQuestsPage = function() {
     if (!window.questEngine) {
         window.questEngine = new QuestEngine();
     }
-
+    
     if (window.questEngine && document.getElementById('quest-container')) {
         window.questEngine.renderQuestList();
     }

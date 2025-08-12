@@ -12,7 +12,6 @@ if (gameEl) gameEl.style.display = "none";
 if (wizardEl) wizardEl.style.display = "none";
 
 // auto-launch wizard on fresh load if no profile
-console.log("🚀 App.js loading...");
 
 // Import Capacitor plugins for notifications
 let LocalNotifications;
@@ -1577,14 +1576,9 @@ window.skipWellnessCheckIn = function skipWellnessCheckIn() {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🔧 DOM Content Loaded, initializing app...");
-    
-    // Initialize user data first
-    loadUserData();
-    
     const hasProfile = localStorage.getItem("tv_profile");
 
-    // Ensure initial visibility is set immediately to prevent flash
+    // Ensure proper initial state
     if (splashEl) {
         splashEl.classList.remove("hidden");
         splashEl.style.display = "flex";
@@ -1697,7 +1691,7 @@ function setupButtonHandlers() {
     });
 }
 
-// User data - Initialize with default values
+// User data
 let user = {
     xp: 0,
     level: 1,
@@ -1716,22 +1710,17 @@ let user = {
     },
 };
 
-// Ensure user is globally accessible for debugging
-window.user = user;
-
 // Game state
 let gameStarted = false;
 
 // Load user data from localStorage
 window.loadUserData = function loadUserData() {
-    try {
-        const savedData = localStorage.getItem("taskventureData");
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            user = { ...user, ...parsedData }; // Merge with defaults
+    const savedData = localStorage.getItem("taskventureData");
+    if (savedData) {
+        user = JSON.parse(savedData);
     } else {
-            // Add default starter quests for new users
-            user.tasks = [
+        // Add default starter quests for new users
+        user.tasks = [
             {
                 id: Date.now() + 1,
                 text: "Explore the TaskVenture interface",
@@ -1769,42 +1758,19 @@ window.loadUserData = function loadUserData() {
                 createdAt: new Date().toISOString(),
             },
         ];
-        }
-        
-        // Initialize avatar object if it doesn't exist
-        if (!user.avatar) {
-            user.avatar = {
-                armor: "",
-                weapon: "",
-                cape: "",
-            };
-        }
-
-        // Make sure user is globally accessible
-        window.user = user;
-        
-        // Initialize wellness system
-        loadWellnessData();
-        
-        console.log("✅ User data loaded:", user);
-    } catch (error) {
-        console.error("❌ Error loading user data:", error);
-        // Reset to defaults on error
-        user = {
-            xp: 0,
-            level: 1,
-            streak: 0,
-            cards: [],
-            tasks: [],
-            inventory: [],
-            questItems: [],
-            coins: 0,
-            restToken: false,
-            lastActiveDate: null,
-            avatar: { armor: "", weapon: "", cape: "" },
-        };
-        window.user = user;
     }
+
+    // Initialize avatar object if it doesn't exist
+    if (!user.avatar) {
+        user.avatar = {
+            armor: "",
+            weapon: "",
+            cape: "",
+        };
+    }
+
+    // Initialize wellness system
+    loadWellnessData();
 };
 
 // Save user data to localStorage
@@ -1955,18 +1921,12 @@ function addTask() {
 
     // Ensure the input element is valid and accessible
     try {
-        if (!taskInput || typeof taskInput.value !== 'string') {
-            console.error("❌ Task input element is invalid");
-            alert("Error: Cannot access task input. Please refresh the page.");
-            return;
-        }
-        
         const taskText = taskInput.value.trim();
         console.log("📝 Task text:", taskText);
 
         if (taskText === "") {
             alert("Please enter a quest!");
-            if (taskInput.focus) taskInput.focus(); // Focus the input to help user
+            taskInput.focus(); // Focus the input to help user
             return;
         }
 
@@ -2097,75 +2057,9 @@ function showPage(pageId, navElement) {
         .forEach((n) => n.classList.remove("active"));
     navElement.classList.add("active");
 
-    // 4) If it's the Avatar tab, re-apply saved gear and remove any headers
-    if (pageId === "avatar-page") {
-        if (typeof updateAvatarDisplay === "function") {
-            updateAvatarDisplay();
-        }
-
-        // Nuclear option: continuous header removal
-        const nukeHeaders = () => {
-            // Remove all text nodes and elements containing problematic text
-            const walker = document.createTreeWalker(
-                document.documentElement,
-                NodeFilter.SHOW_ALL,
-                null,
-                false
-            );
-
-            const nodesToRemove = [];
-            let node;
-            while (node = walker.nextNode()) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    const text = node.textContent.trim();
-                    if ((text.includes('Customize') && text.includes('Adventurer')) ||
-                        text === 'Customize Your Avatar' ||
-                        text === 'Avatar Customization') {
-                        nodesToRemove.push(node.parentNode);
-                    }
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    const text = node.textContent || node.innerText || '';
-                    const tagName = node.tagName ? node.tagName.toLowerCase() : '';
-                    
-                    if ((tagName.match(/^h[1-6]$/) || tagName === 'div' || tagName === 'span') &&
-                        (text.includes('Customize') && text.includes('Adventurer'))) {
-                        nodesToRemove.push(node);
-                    }
-                }
-            }
-
-            // Remove all problematic nodes
-            nodesToRemove.forEach(element => {
-                if (element && element.parentNode) {
-                    console.log('NUKING element with text:', element.textContent);
-                    element.parentNode.removeChild(element);
-                }
-            });
-        };
-
-        // Set up continuous monitoring
-        const continuousNuke = setInterval(nukeHeaders, 100);
-        
-        // Stop after 10 seconds to avoid infinite loop
-        setTimeout(() => {
-            clearInterval(continuousNuke);
-        }, 10000);
-
-        // Also set up mutation observer
-        const observer = new MutationObserver(nukeHeaders);
-        observer.observe(document.documentElement, {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
-
-        // Stop observer after 10 seconds
-        setTimeout(() => {
-            observer.disconnect();
-        }, 10000);
-
-        // Initial immediate nuke
-        nukeHeaders();
+    // 4) If it’s the Avatar tab, re-apply saved gear
+    if (pageId === "avatar-page" && typeof updateAvatarDisplay === "function") {
+        updateAvatarDisplay();
     }
 }
 
@@ -2945,6 +2839,7 @@ function fireConfetti(bursts = 180) {
             _confettiCtx.save();
             _confettiCtx.translate(p.x, p.y);
             _confettiCtx.rotate(p.angle);
+            _confettiCtx.fillStyle = p.color;
             _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
             _confettiCtx.restore();
         });
@@ -3037,11 +2932,6 @@ if (installBtn) {
 }
 
 window.addEventListener("load", () => {
-    if (!document.body) {
-        console.warn("⚠️ Document body not ready yet");
-        return;
-    }
-    
     const splash = document.getElementById("splash-screen");
     if (!splash) return;
 
@@ -3049,6 +2939,4 @@ window.addEventListener("load", () => {
     splash.style.opacity = 1;
     splash.style.display = "flex";
     splash.classList.add("visible");
-    
-    console.log("🎮 App fully loaded and ready");
 });

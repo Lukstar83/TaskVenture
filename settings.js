@@ -1,40 +1,35 @@
 // settings.js
 
 // Global audio elements
-const bgMusic = new Audio('attached_assets/bg-music.mp3');
+const bgMusic = new Audio('attached-assets/bg-music.mp3');
 bgMusic.loop = true;
 
-const clickSound = new Audio('attached_assets/button-click.aac');
+const clickSound = new Audio('attached-assets/button-click.aac');
 
 function playClickSound() {
-    if (!clickSound.muted) {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(e => console.warn('Click sound blocked:', e));
-    }
+    clickSound.currentTime = 0;
+    clickSound.play().catch(e => console.warn('Click sound blocked:', e));
 }
-
-// Export for use in other files
-window.playClickSound = playClickSound;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeSettings();
 });
 
 function initializeSettings() {
-    // Load saved settings first
+    // Load saved settings
     loadSettings();
 
-    // Start music on first user interaction
-    const startAudio = () => {
+    // Load saved volume or default to 0.5
+    const savedVolume = parseFloat(localStorage.getItem('volume')) || 0.5;
+    bgMusic.volume = savedVolume;
+    clickSound.volume = savedVolume;
+
+    // Start music
+    window.addEventListener('load', () => {
         bgMusic.play().catch(e => {
             console.warn('Autoplay blocked. Music will start on user interaction.');
         });
-        document.removeEventListener('click', startAudio);
-        document.removeEventListener('keydown', startAudio);
-    };
-    
-    document.addEventListener('click', startAudio);
-    document.addEventListener('keydown', startAudio);
+    });
 
     // Audio controls
     const musicSlider = document.getElementById('music-volume');
@@ -97,37 +92,6 @@ function initializeSettings() {
     exportDataBtn?.addEventListener('click', function () {
         exportSaveData();
     });
-
-    // Wellness check-in button
-    const manualCheckinBtn = document.getElementById('manual-checkin-btn');
-    manualCheckinBtn?.addEventListener('click', function () {
-        // Force check-in to always work by bypassing the daily limit
-        localStorage.removeItem('lastWellnessCheckIn');
-        
-        if (typeof window.showWellnessCheckIn === 'function') {
-            window.showWellnessCheckIn();
-        } else {
-            // Fallback implementation
-            showWellnessCheckInFallback();
-        }
-    });
-    
-    // Manual streak modal button
-    const manualStreakBtn = document.getElementById('manual-streak-btn');
-    manualStreakBtn?.addEventListener('click', function () {
-        // Force streak modal to always show by bypassing the daily limit
-        localStorage.removeItem('lastStreakView');
-        
-        if (typeof window.showStreakModal === 'function') {
-            window.showStreakModal();
-        } else {
-            // Fallback implementation
-            showStreakModalFallback();
-        }
-    });
-
-    // Notification settings
-    initializeNotificationSettings();
 }
 
 function loadSettings() {
@@ -160,20 +124,13 @@ function getSetting(key, defaultValue) {
 }
 
 function updateAudioVolume(type, volume) {
-    if (type === 'music') {
-        bgMusic.volume = volume;
-        console.log('music volume set to:', volume);
-    }
-    if (type === 'sfx') {
-        clickSound.volume = volume;
-        console.log('sfx volume set to:', volume);
-    }
+    if (type === 'music') bgMusic.volume = volume;
+    if (type === 'sfx') clickSound.volume = volume;
 }
 
 function updateAudioMute(muted) {
     bgMusic.muted = muted;
     clickSound.muted = muted;
-    console.log('Audio muted:', muted);
 }
 
 function resetCharacter() {
@@ -193,24 +150,17 @@ function resetCharacter() {
 function resetProgress() {
     const profile = localStorage.getItem('tv_profile');
 
-    // Remove all game data
     localStorage.removeItem('taskventureData');
     localStorage.removeItem('lastActiveDate');
-    
-    // Remove quest-related data
-    localStorage.removeItem('completedQuests');
-    localStorage.removeItem('lastDailyQuest');
 
     if (typeof window.user !== 'undefined') {
         window.user = {
             xp: 0,
             level: 1,
             streak: 0,
-            coins: 0,
             cards: [],
             tasks: [],
             inventory: [],
-            questItems: [],
             restToken: false,
             lastActiveDate: null,
             avatar: {
@@ -222,22 +172,6 @@ function resetProgress() {
 
         if (typeof window.updateUI === 'function') {
             window.updateUI();
-        }
-    }
-
-    // Reset quest engine if it exists
-    if (typeof window.questEngine !== 'undefined') {
-        window.questEngine.completedQuests = [];
-        window.questEngine.availableQuests = window.questEngine.generateAvailableQuests();
-        window.questEngine.activeQuest = null;
-        window.questEngine.currentScene = null;
-        window.questEngine.playerHP = 100;
-        window.questEngine.enemyHP = 0;
-        window.questEngine.pendingRoll = null;
-        
-        // Re-render the quest list if we're on the quest page
-        if (document.getElementById('quest-container')) {
-            window.questEngine.renderQuestList();
         }
     }
 
@@ -280,179 +214,4 @@ function showFloatingMessage(message, type = 'info') {
             messageEl.parentNode.removeChild(messageEl);
         }
     }, 3000);
-}
-
-// Fallback functions for when main app functions aren't available
-function showWellnessCheckInFallback() {
-    const modal = document.createElement('div');
-    modal.className = 'wellness-modal';
-    modal.innerHTML = `
-        <div class="wellness-modal-content">
-            <h2>🌟 Daily Wellness Check-In</h2>
-            <p>How are you feeling today, adventurer?</p>
-            
-            <div class="wellness-checkboxes">
-                <label><input type="checkbox" value="rested"> 😴 Well-rested</label>
-                <label><input type="checkbox" value="energized"> ⚡ Energized</label>
-                <label><input type="checkbox" value="focused"> 🎯 Focused</label>
-                <label><input type="checkbox" value="stressed"> 😰 Stressed</label>
-                <label><input type="checkbox" value="overwhelmed"> 🌊 Overwhelmed</label>
-                <label><input type="checkbox" value="motivated"> 🔥 Motivated</label>
-            </div>
-            
-            <div class="wellness-buttons">
-                <button onclick="completeWellnessCheckInFallback(this)">Complete Check-In</button>
-                <button onclick="skipWellnessCheckInFallback(this)">Skip for Today</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-}
-
-function showStreakModalFallback() {
-    // Get current user data
-    const userData = JSON.parse(localStorage.getItem('taskventureData') || '{"streak": 0}');
-    
-    const modal = document.createElement('div');
-    modal.className = 'streak-modal';
-    modal.innerHTML = `
-        <div class="streak-modal-content">
-            <h2>⚔️ Daily Streak Report</h2>
-            <div class="streak-display">
-                <div class="streak-number">${userData.streak || 0}</div>
-                <div class="streak-label">Day Streak</div>
-            </div>
-            
-            <div class="streak-success">
-                <p>🔥 Keep up the momentum, adventurer!</p>
-            </div>
-            
-            <div class="streak-buttons">
-                <button onclick="closeStreakModalFallback(this)">Continue Adventure</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-}
-
-// Fallback completion functions
-window.completeWellnessCheckInFallback = function(button) {
-    const modal = button.closest('.wellness-modal');
-    localStorage.setItem('lastWellnessCheckIn', new Date().toDateString());
-    showFloatingMessage("Thank you for checking in! Your self-awareness helps your journey.", 'success');
-    modal.remove();
-}
-
-window.skipWellnessCheckInFallback = function(button) {
-    const modal = button.closest('.wellness-modal');
-    localStorage.setItem('lastWellnessCheckIn', new Date().toDateString());
-    modal.remove();
-}
-
-window.closeStreakModalFallback = function(button) {
-    const modal = button.closest('.streak-modal');
-    modal.remove();
-}
-
-// Initialize notification settings
-function initializeNotificationSettings() {
-    const notificationsToggle = document.getElementById('notifications-toggle');
-    const notificationDetails = document.getElementById('notification-details');
-    const frequencySelect = document.getElementById('notification-frequency');
-    const quietStart = document.getElementById('quiet-start');
-    const quietEnd = document.getElementById('quiet-end');
-    
-    // Load saved settings
-    const savedNotifications = JSON.parse(localStorage.getItem('taskventureNotifications') || '{}');
-    
-    if (notificationsToggle) {
-        notificationsToggle.checked = savedNotifications.enabled || false;
-        
-        // Show/hide details based on toggle
-        if (notificationDetails) {
-            notificationDetails.style.display = notificationsToggle.checked ? 'block' : 'none';
-        }
-        
-        notificationsToggle.addEventListener('change', function() {
-            const enabled = this.checked;
-            if (notificationDetails) {
-                notificationDetails.style.display = enabled ? 'block' : 'none';
-            }
-            
-            // Call the toggle function from app.js
-            if (typeof window.toggleNotifications === 'function') {
-                window.toggleNotifications(enabled);
-            }
-        });
-    }
-    
-    // Frequency setting
-    if (frequencySelect) {
-        frequencySelect.value = savedNotifications.frequency || 120;
-        frequencySelect.addEventListener('change', function() {
-            updateNotificationSetting('frequency', parseInt(this.value));
-        });
-    }
-    
-    // Quiet hours
-    if (quietStart && quietEnd) {
-        const quietHours = savedNotifications.quietHours || { start: 22, end: 7 };
-        quietStart.value = String(quietHours.start).padStart(2, '0') + ':00';
-        quietEnd.value = String(quietHours.end).padStart(2, '0') + ':00';
-        
-        quietStart.addEventListener('change', function() {
-            const hour = parseInt(this.value.split(':')[0]);
-            updateNotificationSetting('quietHours.start', hour);
-        });
-        
-        quietEnd.addEventListener('change', function() {
-            const hour = parseInt(this.value.split(':')[0]);
-            updateNotificationSetting('quietHours.end', hour);
-        });
-    }
-    
-    // Activity toggles
-    const activities = ['hydrate', 'breathe', 'rest', 'walk', 'meditate', 'journal'];
-    activities.forEach(activity => {
-        const toggle = document.getElementById(`notify-${activity}`);
-        if (toggle) {
-            const savedActivities = savedNotifications.activities || {};
-            toggle.checked = savedActivities[activity] !== false;
-            
-            toggle.addEventListener('change', function() {
-                updateNotificationSetting(`activities.${activity}`, this.checked);
-            });
-        }
-    });
-}
-
-// Update notification setting
-function updateNotificationSetting(path, value) {
-    let settings = JSON.parse(localStorage.getItem('taskventureNotifications') || '{}');
-    
-    // Handle nested paths like 'quietHours.start' or 'activities.hydrate'
-    const keys = path.split('.');
-    let current = settings;
-    
-    for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) {
-            current[keys[i]] = {};
-        }
-        current = current[keys[i]];
-    }
-    
-    current[keys[keys.length - 1]] = value;
-    
-    localStorage.setItem('taskventureNotifications', JSON.stringify(settings));
-    
-    // Reschedule notifications if they're enabled
-    if (typeof window.scheduleSelfCareNotifications === 'function' && settings.enabled) {
-        setTimeout(() => {
-            window.scheduleSelfCareNotifications();
-        }, 500);
-    }
-    
-    showFloatingMessage('Notification settings updated!', 'success');
 }

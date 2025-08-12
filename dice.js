@@ -295,7 +295,6 @@ function initDice() {
     if (renderer && scene && camera) {
         renderer.render(scene, camera);
         console.log('✅ Initial scene rendered');
-    }d');
     }
 }
 

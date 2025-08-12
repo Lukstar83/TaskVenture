@@ -845,6 +845,12 @@ body {
       width: auto;
       height: 400px;
       margin: 0 auto 2rem;
+      background: var(--surface-glass);
+      backdrop-filter: blur(15px);
+      border: 2px solid var(--border-gold);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-premium);
     }
 
     #avatar-base {
@@ -2020,7 +2026,7 @@ margin-top: 1.5rem;
 }
 
 .stress-fill {
-  background: linear-gradient(90deg, #22c55e 0%, #22c55e 50%, #ef4444 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #fbbf24 50%, #ef4444 100%);
 }
 
 .energy-fill {
@@ -2719,116 +2725,3 @@ body {
     align-items: center;
     z-index: 1000;
 }
-
-/* Drag & drop visual cues */
-#task-list { list-style: none; padding: 0; margin: 0; }
-.task-item { cursor: move; user-select: none; transition: opacity 0.2s ease; }
-.task-item.dragging { opacity: 0.5; transform: rotate(3deg); }
-.task-item.drop-marker { 
-  border-top: 3px dashed var(--primary-gold); 
-  height: 2px !important;
-  padding: 0 !important;
-  margin: 4px 0 !important;
-}
-
-/* Confetti canvas */
-#confetti-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* PWA install button */
-#install-btn {
-  background: linear-gradient(135deg, var(--primary-gold) 0%, #f1c40f 100%);
-  color: var(--text-dark);
-  border: 2px solid var(--primary-gold);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#install-btn:hover {
-  background: linear-gradient(135deg, #f1c40f 0%, var(--primary-gold) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .wellness-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .self-care-grid {
-    grid-template-columns: 1fr;
-  }
-}
-/* Nuclear option - hide ALL text that contains problematic words */
-*:not(input):not(textarea):not(script):not(style) {
-    -webkit-user-select: text;
-}
-
-/* Super aggressive header hiding */
-#avatar-page h1,
-#avatar-page h2, 
-#avatar-page h3,
-#avatar-page h4,
-#avatar-page h5,
-#avatar-page h6,
-.avatar-section h1,
-.avatar-section h2,
-.avatar-section h3,
-.avatar-section h4,
-.avatar-section h5,
-.avatar-section h6,
-.avatar-section > h2,
-div.avatar-section h2,
-*[data-title*="Customize"],
-*[data-title*="Adventurer"],
-.title,
-.header-text,
-.section-title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    width: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    opacity: 0 !important;
-    position: absolute !important;
-    left: -9999px !important;
-    overflow: hidden !important;
-    z-index: -9999 !important;
-    font-size: 0 !important;
-    line-height: 0 !important;
-    content: '' !important;
-}
-
-/* Hide any element containing the problematic text */
-*:has-text("Customize Your Adventurer"),
-*:has-text("Customize Your Avatar"),
-*:has-text("Avatar Customization") {
-    display: none !important;
-    visibility: hidden !important;
-}
-
-/* Alternative approach using content filtering */
-.avatar-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: var(--gradient-surface);
-    z-index: 1000;
-    pointer-events: none;
-}
-
-/* Avatar customization styles */

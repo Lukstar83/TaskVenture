@@ -163,77 +163,6 @@ const cardDatabase = [
         "rarity": "Legendary",
         "type": "Artifact",
         "effect": "All tasks become clear, gain perfect focus"
-    },
-    // Self-Care themed cards
-    {
-        "id": "tea_restoration_common",
-        "name": "Tea of Restoration",
-        "rarity": "Common",
-        "type": "Consumable",
-        "effect": "Restores mental energy, reduces stress by 1 point"
-    },
-    {
-        "id": "pillow_rest_common",
-        "name": "Pillow of Peaceful Rest",
-        "rarity": "Common",
-        "type": "Artifact",
-        "effect": "Grants well-rested bonus, +2 to morning productivity"
-    },
-    {
-        "id": "journal_reflection_common",
-        "name": "Journal of Self-Reflection",
-        "rarity": "Common",
-        "type": "Scroll",
-        "effect": "Clarifies thoughts and emotions, +1 to wisdom"
-    },
-    {
-        "id": "candle_serenity_uncommon",
-        "name": "Candle of Serenity",
-        "rarity": "Uncommon",
-        "type": "Artifact",
-        "effect": "Creates calming atmosphere, reduces anxiety for 2 hours"
-    },
-    {
-        "id": "bath_rejuvenation_uncommon",
-        "name": "Bath Salts of Rejuvenation",
-        "rarity": "Uncommon",
-        "type": "Consumable",
-        "effect": "Cleanses body and spirit, removes 1 stress condition"
-    },
-    {
-        "id": "cloak_boundaries_rare",
-        "name": "Cloak of Healthy Boundaries",
-        "rarity": "Rare",
-        "type": "Armor",
-        "effect": "Protects against emotional drain, +3 to saying 'no'"
-    },
-    {
-        "id": "amulet_selfcompassion_rare",
-        "name": "Amulet of Self-Compassion",
-        "rarity": "Rare",
-        "type": "Accessory",
-        "effect": "Grants inner kindness, immunity to self-criticism"
-    },
-    {
-        "id": "mirror_acceptance_epic",
-        "name": "Mirror of Self-Acceptance",
-        "rarity": "Epic",
-        "type": "Artifact",
-        "effect": "Shows your true worth, +5 confidence, +3 self-esteem"
-    },
-    {
-        "id": "garden_mindfulness_epic",
-        "name": "Garden of Mindfulness",
-        "rarity": "Epic",
-        "type": "Artifact",
-        "effect": "Cultivates present moment awareness, +4 to all mental stats"
-    },
-    {
-        "id": "crown_selflove_legendary",
-        "name": "Crown of Unconditional Self-Love",
-        "rarity": "Legendary",
-        "type": "Artifact",
-        "effect": "Perfect self-acceptance, immunity to negative self-talk, heals all mental wounds"
     }
 ];
 
@@ -341,6 +270,17 @@ if (typeof module !== 'undefined' && module.exports) {
         useRestItem,
         updateStreakSystem
     };
+}
+
+function addTask() {
+  const input = document.getElementById("ta");
+  const list  = document.getElementById("task-list");
+  const txt   = input.value.trim();
+  if (!txt) return;
+  const li = document.createElement("li");
+  li.textContent = txt;
+  list.appendChild(li);
+  input.value = "";
 }
 
 function rollDice(sides=20) {
