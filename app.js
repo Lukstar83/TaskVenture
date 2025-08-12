@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Immediately hide game interface to prevent flash
     if (gameEl) gameEl.style.display = "none";
     if (wizardEl) wizardEl.style.display = "none";
-
+    
     // Initialize the app after DOM is ready
     initializeApp();
 });
@@ -665,7 +665,7 @@ window.startWalking = function startWalking(duration) {
         // Change prompt every 60 seconds
         if (walkingTimeRemaining % 60 === 0 && promptElement) {
             promptIndex = (promptIndex + 1) % walkingPrompts.length;
-            element.textContent = walkingPrompts[promptIndex];
+            promptElement.textContent = walkingPrompts[promptIndex];
         }
 
         if (walkingTimeRemaining <= 0) {
@@ -713,7 +713,7 @@ function resumeWalking() {
         const totalDuration =
             parseInt(
                 document
-                    .querySelector("#walking-timer-text")
+                    .querySelector(".timer-text")
                     ?.textContent?.split(":")[0] || 10,
             ) * 60;
         const elapsedSeconds = totalDuration - walkingTimeRemaining;
@@ -1774,90 +1774,44 @@ function saveUserData() {
 
 // Update UI elements
 function updateUI() {
-    const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
-    console.log('🔄 updateUI called, profile:', profile);
-    if (!profile) {
-        console.warn('⚠️ No profile found in updateUI');
-        return;
-    }
-
-    const headerAvatar = document.getElementById('header-avatar');
-    if (headerAvatar) {
-        headerAvatar.src = getBaseAvatarImage();
-        headerAvatar.alt = `${profile.race} ${profile.gender}`;
-    }
-
-    // Update avatar page header avatar
-    const avatarHeaderAvatar = document.getElementById('avatar-header');
-    if (avatarHeaderAvatar) {
-        avatarHeaderAvatar.src = getBaseAvatarImage();
-        avatarHeaderAvatar.alt = `${profile.race} ${profile.gender}`;
-    }
-
     // Update character info
-    const characterName = document.getElementById('character-name');
-    const characterRace = document.getElementById('character-race');
-    const characterClass = document.getElementById('character-class');
+    const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
+    const characterName = document.getElementById("character-name");
+    const characterRace = document.getElementById("character-race");
+    const characterClass = document.getElementById("character-class");
 
-    if (characterName) characterName.textContent = profile.name;
-    if (characterRace) characterRace.textContent = profile.race.charAt(0).toUpperCase() + profile.race.slice(1);
-    if (characterClass) characterClass.textContent = profile.class.charAt(0).toUpperCase() + profile.class.slice(1);
+    if (characterName && profile.name) characterName.textContent = profile.name;
+    if (characterRace && profile.race) characterRace.textContent = profile.race;
+    if (characterClass && profile.class)
+        characterClass.textContent = profile.class;
 
-    // Update avatar page character info
-    const avatarCharacterName = document.getElementById('avatar-character-name');
-    const avatarCharacterRace = document.getElementById('avatar-character-race');
-    const avatarCharacterClass = document.getElementById('avatar-character-class');
+    // Update avatar display to reflect any profile changes
+    updateAvatarDisplay();
 
-    if (avatarCharacterName) avatarCharacterName.textContent = profile.name;
-    if (avatarCharacterRace) avatarCharacterRace.textContent = profile.race.charAt(0).toUpperCase() + profile.race.slice(1);
-    if (avatarCharacterClass) avatarCharacterClass.textContent = profile.class.charAt(0).toUpperCase() + profile.class.slice(1);
+    // Update header avatar (ensures data-race is set for scaling)
+    TV_AVATAR.setHeaderAvatar(profile.race, profile.gender);
 
-    // Update level display
-    const levelElement = document.getElementById('user-level');
-    if (levelElement) {
-        levelElement.textContent = user.level;
-    }
+    // Update level and XP with null checks
+    const userLevel = document.getElementById("user-level");
+    const userXP = document.getElementById("user-xp");
+    const userStreak = document.getElementById("user-streak");
+    const cardCount = document.getElementById("card-count");
 
-    // Update avatar page level display
-    const avatarLevelElement = document.getElementById('avatar-user-level');
-    if (avatarLevelElement) {
-        avatarLevelElement.textContent = user.level;
-    }
+    if (userLevel) userLevel.textContent = user.level;
+    if (userXP) userXP.textContent = user.xp;
+    if (userStreak) userStreak.textContent = user.streak;
+    if (cardCount) cardCount.textContent = user.cards.length;
 
-    // Update XP display
-    const xpElement = document.getElementById('user-xp');
-    const xpFill = document.getElementById('xp-fill');
-    const xpNextLevel = document.getElementById('xp-next-level');
+    // Update XP bar
+    const xpForCurrentLevel = getXPForLevel(user.level);
+    const xpForNextLevel = getXPForLevel(user.level + 1);
+    const xpProgress = (user.xp / xpForNextLevel) * 100;
 
-    if (xpElement) {
-        xpElement.textContent = user.xp;
-    }
+    const xpFill = document.getElementById("xp-fill");
+    const xpNextLevel = document.getElementById("xp-next-level");
 
-    // Update avatar page XP display
-    const avatarXpElement = document.getElementById('avatar-user-xp');
-    const avatarXpFill = document.getElementById('avatar-xp-fill');
-    const avatarXpNextLevel = document.getElementById('avatar-xp-next-level');
-
-    if (avatarXpElement) {
-        avatarXpElement.textContent = user.xp;
-    }
-
-    if (xpNextLevel || avatarXpNextLevel) {
-        const nextLevelXP = Math.pow((user.level), 2) * 100;
-        if (xpNextLevel) xpNextLevel.textContent = nextLevelXP;
-        if (avatarXpNextLevel) avatarXpNextLevel.textContent = nextLevelXP;
-    }
-
-    if (xpFill || avatarXpFill) {
-        const currentLevelXP = Math.pow((user.level - 1), 2) * 100;
-        const nextLevelXP = Math.pow((user.level), 2) * 100;
-        const xpInCurrentLevel = user.xp - currentLevelXP;
-        const xpNeededForLevel = nextLevelXP - currentLevelXP;
-        const percentage = Math.max(0, Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100));
-        if (xpFill) xpFill.style.width = `${percentage}%`;
-        if (avatarXpFill) avatarXpFill.style.width = `${percentage}%`;
-    }
-
+    if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
+    if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
 
     // Update currency display - convert total coins to different denominations
     const totalCoins = user.coins || 0;
@@ -1867,26 +1821,15 @@ function updateUI() {
     const silver = Math.floor((totalCoins % 100) / 10);
     const copper = totalCoins % 10;
 
-    const platinumElement = document.getElementById('platinum-coins');
-    const goldElement = document.getElementById('gold-coins');
-    const silverElement = document.getElementById('silver-coins');
-    const copperElement = document.getElementById('copper-coins');
+    const platinumElement = document.getElementById("platinum-coins");
+    const goldElement = document.getElementById("gold-coins");
+    const silverElement = document.getElementById("silver-coins");
+    const copperElement = document.getElementById("copper-coins");
 
     if (platinumElement) platinumElement.textContent = platinum;
     if (goldElement) goldElement.textContent = gold;
     if (silverElement) silverElement.textContent = silver;
     if (copperElement) copperElement.textContent = copper;
-
-    // Update avatar page currency
-    const avatarPlatinumElement = document.getElementById('avatar-platinum-coins');
-    const avatarGoldElement = document.getElementById('avatar-gold-coins');
-    const avatarSilverElement = document.getElementById('avatar-silver-coins');
-    const avatarCopperElement = document.getElementById('avatar-copper-coins');
-
-    if (avatarPlatinumElement) avatarPlatinumElement.textContent = platinum;
-    if (avatarGoldElement) avatarGoldElement.textContent = gold;
-    if (avatarSilverElement) avatarSilverElement.textContent = silver;
-    if (avatarCopperElement) avatarCopperElement.textContent = copper;
 
     // Check for level up with new system
     if (checkLevelUp(user)) {
@@ -2032,7 +1975,7 @@ function completeTask(taskId) {
     setTimeout(() => {
         fireConfetti();
     }, 100);
-
+    
     setTimeout(() => {
         playSuccessChime();
     }, 200);
@@ -2179,7 +2122,7 @@ function showCardDetails(card) {
                 </div>
                 <div class="card-details-info">
                     <div class="detail-item">
-                        <strong>Rarity:</strong>
+                        <strong>Rarity:</strong> 
                         <span class="rarity-badge ${card.rarity.toLowerCase()}">${card.rarity}</span>
                     </div>
                     <div class="detail-item">
@@ -2275,47 +2218,16 @@ function initializeAvatarCustomization() {
     }
 
     // Load saved avatar state
-    const armorSelect = document.getElementById("armor-select");
-    const weaponSelect = document.getElementById("weapon-select");
-    const capeSelect = document.getElementById("cape-select");
-    
-    if (armorSelect && user.avatar) armorSelect.value = user.avatar.armor;
-    if (weaponSelect && user.avatar) weaponSelect.value = user.avatar.weapon;
-    if (capeSelect && user.avatar) capeSelect.value = user.avatar.cape;
+    document.getElementById("armor-select").value = user.avatar.armor;
+    document.getElementById("weapon-select").value = user.avatar.weapon;
+    document.getElementById("cape-select").value = user.avatar.cape;
 
     updateAvatarDisplay();
 
     // Add event listeners for avatar customization
-    if (armorSelect) {
-        armorSelect.addEventListener("change", function() {
-            if (user.avatar) {
-                user.avatar.armor = this.value;
-                updateAvatarDisplay();
-                saveUserData();
-            }
-        });
-    }
-    
-    if (weaponSelect) {
-        weaponSelect.addEventListener("change", function() {
-            if (user.avatar) {
-                user.avatar.weapon = this.value;
-                updateAvatarDisplay();
-                saveUserData();
-            }
-        });
-    }
-    
-    if (capeSelect) {
-        capeSelect.addEventListener("change", function() {
-            if (user.avatar) {
-                user.avatar.cape = this.value;
-                updateAvatarDisplay();
-                saveUserData();
-            }
-        });
-    }
-}tion () {
+    document
+        .getElementById("armor-select")
+        .addEventListener("change", function () {
             user.avatar.armor = this.value;
             updateAvatarDisplay();
             saveUserData();
@@ -2974,14 +2886,14 @@ function playSuccessChime() {
     try {
         console.log("🔊 Playing success chime");
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-
+        
         if (!AudioCtx) {
             console.log("Web Audio not supported");
             return;
         }
 
         const ctx = new AudioCtx();
-
+        
         // Resume audio context if suspended (required for user interaction)
         if (ctx.state === 'suspended') {
             ctx.resume().then(() => {
@@ -3013,7 +2925,7 @@ function playSuccessChime() {
             beep(659.25, 0.12, 0.12, "triangle"); // E5
             beep(783.99, 0.24, 0.16, "triangle"); // G5
         }
-
+        
     } catch (error) {
         console.log("Audio context error:", error.message);
     }

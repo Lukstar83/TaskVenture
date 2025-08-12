@@ -453,25 +453,14 @@ body {
 }
 
 #header-avatar-container[data-race="dragonborn"] img { max-height: 90vw; }
-#header-avatar-container[data-race="half-orc"] img { max-height: 86vw; }
-#header-avatar-container[data-race="tiefling"] img { max-height: 81vw; }
-#header-avatar-container[data-race="half-elf"] img { max-height: 80vw; }
-#header-avatar-container[data-race="human"] img { max-height: 79vw; }
-#header-avatar-container[data-race="elf"] img { max-height: 76vw; }
-#header-avatar-container[data-race="dwarf"] img { max-height: 62vw; }
-#header-avatar-container[data-race="gnome"] img { max-height: 54vw; }
-#header-avatar-container[data-race="halfling"] img { max-height: 52vw; }
-
-/* Avatar page header sizing - same as main page */
-#avatar-header-container[data-race="dragonborn"] img { max-height: 90vw; }
-#avatar-header-container[data-race="half-orc"] img { max-height: 86vw; }
-#avatar-header-container[data-race="tiefling"] img { max-height: 81vw; }
-#avatar-header-container[data-race="half-elf"] img { max-height: 80vw; }
-#avatar-header-container[data-race="human"] img { max-height: 79vw; }
-#avatar-header-container[data-race="elf"] img { max-height: 76vw; }
-#avatar-header-container[data-race="dwarf"] img { max-height: 62vw; }
-#avatar-header-container[data-race="gnome"] img { max-height: 54vw; }
-#avatar-header-container[data-race="halfling"] img { max-height: 52vw; }
+#header-avatar-container[data-race="half-orc"]   img { max-height: 86vw; }
+#header-avatar-container[data-race="tiefling"]   img { max-height: 81vw; }
+#header-avatar-container[data-race="half-elf"]   img { max-height: 80vw; }
+#header-avatar-container[data-race="human"]      img { max-height: 79vw; }
+#header-avatar-container[data-race="elf"]        img { max-height: 76vw; }
+#header-avatar-container[data-race="dwarf"]      img { max-height: 62vw; }
+#header-avatar-container[data-race="gnome"]      img { max-height: 54vw; }
+#header-avatar-container[data-race="halfling"]   img { max-height: 52vw; }
 
 .stats-container {
   display: flex;
