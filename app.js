@@ -1578,7 +1578,7 @@ window.skipWellnessCheckIn = function skipWellnessCheckIn() {
 document.addEventListener("DOMContentLoaded", () => {
     const hasProfile = localStorage.getItem("tv_profile");
 
-    // Ensure proper initial state
+    // Ensure initial visibility is set immediately to prevent flash
     if (splashEl) {
         splashEl.classList.remove("hidden");
         splashEl.style.display = "flex";
@@ -2057,9 +2057,29 @@ function showPage(pageId, navElement) {
         .forEach((n) => n.classList.remove("active"));
     navElement.classList.add("active");
 
-    // 4) If it’s the Avatar tab, re-apply saved gear
-    if (pageId === "avatar-page" && typeof updateAvatarDisplay === "function") {
-        updateAvatarDisplay();
+    // 4) If it's the Avatar tab, re-apply saved gear and remove any headers
+    if (pageId === "avatar-page") {
+        if (typeof updateAvatarDisplay === "function") {
+            updateAvatarDisplay();
+        }
+
+        // Remove any headers that might have been added
+        setTimeout(() => {
+            const avatarSection = document.querySelector('.avatar-section');
+            if (avatarSection) {
+                const allHeaders = avatarSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                allHeaders.forEach(header => {
+                    if (header.textContent && (
+                        header.textContent.includes('Customize') || 
+                        header.textContent.includes('Adventurer') ||
+                        header.textContent.includes('Avatar')
+                    )) {
+                        header.remove();
+                        console.log('Removed header:', header.textContent);
+                    }
+                });
+            }
+        }, 100);
     }
 }
 
@@ -2839,7 +2859,6 @@ function fireConfetti(bursts = 180) {
             _confettiCtx.save();
             _confettiCtx.translate(p.x, p.y);
             _confettiCtx.rotate(p.angle);
-            _confettiCtx.fillStyle = p.color;
             _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
             _confettiCtx.restore();
         });
