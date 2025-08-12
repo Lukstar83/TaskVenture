@@ -1620,12 +1620,8 @@ function updateUI() {
     // Update avatar display to reflect any profile changes
     updateAvatarDisplay();
 
-    // Update header avatar
-    const headerAvatar = document.getElementById('header-avatar');
-    if (headerAvatar) {
-        headerAvatar.src = getBaseAvatarImage();
-        headerAvatar.alt = `${profile.race} ${profile.gender}`;
-    }
+    // Update header avatar (ensures data-race is set for scaling)
+    TV_AVATAR.setHeaderAvatar(profile.race, profile.gender);
 
     // Update level and XP with null checks
     const userLevel = document.getElementById('user-level');
@@ -2043,60 +2039,197 @@ function initializeAvatarCustomization() {
     });
 }
 
-// Get dynamic base avatar based on race and gender
-function getBaseAvatarImage() {
-    const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-    
-    if (profile.race && profile.gender) {
-        // Map gender to the naming convention used in your files
-        const genderMap = {
-            'Male': 'Male',
-            'Female': 'Female', 
-            'Non-binary': 'Enby'
-        };
-        
-        const mappedGender = genderMap[profile.gender] || 'Male';
-        const imageName = `${profile.race} ${mappedGender}.png`;
-        return `images/Avatar bases/${imageName}`;
+const TV_AVATAR = (() => {
+  const BASE_DIR = 'images/Avatar bases';
+  const FALLBACK = 'images/base_avatar.png';
+
+  const RACE_DISPLAY = {
+    'dragonborn': 'Dragonborn',
+    'dwarf': 'Dwarf',
+    'elf': 'Elf',
+    'gnome': 'Gnome',
+    'half-elf': 'Half-Elf',
+    'half orc': 'Half-Orc', // tolerate a space variant
+    'half-orc': 'Half-Orc',
+    'halfling': 'Halfling',
+    'human': 'Human',
+    'tiefling': 'Tiefling'
+  };
+  const GENDER_TITLE = {
+    'male': 'Male',
+    'female': 'Female',
+    'non-binary': 'Enby',
+    'enby': 'Enby'
+  };
+
+  function readProfile() {
+    try { return JSON.parse(localStorage.getItem('tv_profile') || '{}'); }
+    catch { return {}; }
+  }
+  function saveProfile(next) {
+    const current = readProfile();
+    const merged = { ...current, ...next };
+    localStorage.setItem('tv_profile', JSON.stringify(merged));
+    return merged;
+  }
+  function buildAvatarSrc(race, gender) {
+    const rk = String(race||'').trim().toLowerCase();
+    const gk = String(gender||'').trim().toLowerCase();
+    const rd = RACE_DISPLAY[rk], gt = GENDER_TITLE[gk];
+    if (!rd || !gt) return FALLBACK;
+    const fileName = `${rd} ${gt}.png`;
+    const encodedDir  = BASE_DIR.replace(/ /g, '%20');
+    const encodedFile = encodeURIComponent(fileName);
+    return `${encodedDir}/${encodedFile}`;
+  }
+  function getBaseAvatarImage() {
+    const p = readProfile();
+    return buildAvatarSrc(p.race, p.gender);
+  }
+  function setHeaderAvatar(race, gender) {
+    const wrap = document.getElementById('header-avatar-container');
+    const img  = document.getElementById('header-avatar');
+    if (!wrap || !img) return console.warn('[Avatar] Header elements missing.');
+
+    const src = buildAvatarSrc(race, gender);
+    const rk = String(race||'').trim().toLowerCase();
+    const gk = String(gender||'').trim().toLowerCase();
+
+    wrap.dataset.race   = RACE_DISPLAY[rk] ? rk : '';
+    wrap.dataset.gender = GENDER_TITLE[gk] ? gk : '';
+
+    const raceText   = RACE_DISPLAY[rk] || 'Adventurer';
+    const genderText = GENDER_TITLE[gk] || '';
+    img.alt = genderText ? `${raceText} ${genderText} avatar` : `${raceText} avatar`;
+
+    const test = new Image();
+    test.onload  = () => { img.src = src; };
+    test.onerror = () => { img.src = FALLBACK; };
+    test.src = src;
+  }
+  function applyHeaderFromProfile() {
+    const p = readProfile();
+    if (p.race && p.gender) setHeaderAvatar(p.race, p.gender);
+    else {
+      const wrap = document.getElementById('header-avatar-container');
+      const img  = document.getElementById('header-avatar');
+      if (wrap) { wrap.dataset.race = ''; wrap.dataset.gender = ''; }
+      if (img)  { img.src = FALLBACK; img.alt = 'Default avatar'; }
     }
-    
-    // Fallback to default base avatar
-    return "images/base_avatar.png";
+  }
+  function setProfileAndHeader(race, gender) {
+    const rk = String(race||'').trim().toLowerCase();
+    const gk = String(gender||'').trim().toLowerCase();
+    const next = {};
+    if (RACE_DISPLAY[rk]) next.race = rk;
+    if (GENDER_TITLE[gk]) next.gender = gk;
+    const saved = saveProfile(next);
+    setHeaderAvatar(saved.race, saved.gender);
+  }
+
+  return { buildAvatarSrc, getBaseAvatarImage, setHeaderAvatar, applyHeaderFromProfile, setProfileAndHeader };
+})();
+
+// Expose avatar helpers globally
+window.setHeaderAvatar        = TV_AVATAR.setHeaderAvatar;
+window.applyHeaderFromProfile = TV_AVATAR.applyHeaderFromProfile;
+window.setProfileAndHeader    = TV_AVATAR.setProfileAndHeader;
+window.getBaseAvatarImage     = TV_AVATAR.getBaseAvatarImage;
+
+/* ---------- Avatar Customization (Avatar page layered assets) ---------- */
+function initializeAvatarCustomization() {
+  const baseAvatar = document.getElementById('avatar-base');
+  if (baseAvatar) {
+    baseAvatar.src = getBaseAvatarImage();
+    baseAvatar.style.display = 'block';
+    baseAvatar.onerror = function() { this.src = 'images/base_avatar.png'; };
+  }
+
+  const armorSel  = document.getElementById('armor-select');
+  const weaponSel = document.getElementById('weapon-select');
+  const capeSel   = document.getElementById('cape-select');
+
+  if (armorSel)  armorSel.value  = user.avatar.armor;
+  if (weaponSel) weaponSel.value = user.avatar.weapon;
+  if (capeSel)   capeSel.value   = user.avatar.cape;
+
+  updateAvatarDisplay();
+
+  armorSel?.addEventListener('change', function(){ user.avatar.armor = this.value; updateAvatarDisplay(); saveUserData(); });
+  weaponSel?.addEventListener('change', function(){ user.avatar.weapon = this.value; updateAvatarDisplay(); saveUserData(); });
+  capeSel?.addEventListener('change', function(){ user.avatar.cape = this.value; updateAvatarDisplay(); saveUserData(); });
 }
 
-// Update avatar display
 function updateAvatarDisplay() {
-    const baseImg = document.getElementById("avatar-base");
-    const armorImg = document.getElementById("avatar-armor");
-    const weaponImg = document.getElementById("avatar-weapon");
-    const capeImg = document.getElementById("avatar-cape");
+  const baseImg   = document.getElementById("avatar-base");
+  const armorImg  = document.getElementById("avatar-armor");
+  const weaponImg = document.getElementById("avatar-weapon");
+  const capeImg   = document.getElementById("avatar-cape");
 
-    // Update base avatar based on race and gender
-    if (baseImg) {
-        baseImg.src = getBaseAvatarImage();
-    }
+  if (baseImg) baseImg.src = getBaseAvatarImage();
 
-    if (user.avatar.armor) {
-        armorImg.src = user.avatar.armor;
-        armorImg.style.display = "block";
-    } else {
-        armorImg.style.display = "none";
-    }
-
-    if (user.avatar.weapon) {
-        weaponImg.src = user.avatar.weapon;
-        weaponImg.style.display = "block";
-    } else {
-        weaponImg.style.display = "none";
-    }
-
-    if (user.avatar.cape) {
-        capeImg.src = user.avatar.cape;
-        capeImg.style.display = "block";
-    } else {
-        capeImg.style.display = "none";
-    }
+  if (armorImg) {
+    if (user.avatar.armor) { armorImg.src = user.avatar.armor; armorImg.style.display = "block"; }
+    else                   { armorImg.style.display = "none"; }
+  }
+  if (weaponImg) {
+    if (user.avatar.weapon) { weaponImg.src = user.avatar.weapon; weaponImg.style.display = "block"; }
+    else                    { weaponImg.style.display = "none"; }
+  }
+  if (capeImg) {
+    if (user.avatar.cape) { capeImg.src = user.avatar.cape; capeImg.style.display = "block"; }
+    else                  { capeImg.style.display = "none"; }
+  }
 }
+
+function setupHeaderAvatarLayout() {
+  const header = document.querySelector('header.header');
+  const stats  = document.querySelector('.stats-container');
+  // the big panel on the Tasks page
+  const panel  = document.querySelector('#tasks-page .task-section');
+
+  if (!header) return;
+
+  const apply = () => {
+    const h = header.getBoundingClientRect();
+    const s = stats?.getBoundingClientRect();
+    const p = panel?.getBoundingClientRect();
+
+    const safeTop    = s ? Math.max(0, s.bottom - h.top + 6) : 6;
+    const safeBottom = p ? Math.max(0, h.bottom - p.top + 6) : 6;
+
+    header.style.setProperty('--safe-top',    safeTop + 'px');
+    header.style.setProperty('--safe-bottom', safeBottom + 'px');
+  };
+
+  apply();
+  window.addEventListener('resize', apply);
+  if (window.ResizeObserver && stats) new ResizeObserver(apply).observe(stats);
+  if (window.ResizeObserver && panel) new ResizeObserver(apply).observe(panel);
+}
+
+// Call it when the app shows the game UI
+document.addEventListener('DOMContentLoaded', () => {
+  // If you already call enterApp(), also call this after you show the game interface:
+  setupHeaderAvatarLayout();
+});
+
+// Also call after page switches (so it picks the active panel’s top)
+// If you have a showPage function, add:
+const _origShowPage = window.showPage;
+window.showPage = function(pageId, nav) {
+  _origShowPage?.call(this, pageId, nav);
+  // Wait a tick for layout to settle
+  setTimeout(setupHeaderAvatarLayout, 0);
+};
+
+// And after updateUI (stats bar can change size)
+const _origUpdateUI = window.updateUI;
+window.updateUI = function() {
+  _origUpdateUI?.call(this);
+  setTimeout(setupHeaderAvatarLayout, 0);
+};
+
 
 // Allow Enter key to add tasks and set up button handler
 document.addEventListener('DOMContentLoaded', function() {
@@ -2243,6 +2376,9 @@ window.debugTaskInput = function() {
       } else {
         console.warn("⚠️ No profile found!");
       }
+        
+        // Compute avatar safe area once the UI is visible
+        setupHeaderAvatarLayout();
 
       // Load full game state
       loadUserData();
