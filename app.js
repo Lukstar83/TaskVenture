@@ -2275,16 +2275,47 @@ function initializeAvatarCustomization() {
     }
 
     // Load saved avatar state
-    document.getElementById("armor-select").value = user.avatar.armor;
-    document.getElementById("weapon-select").value = user.avatar.weapon;
-    document.getElementById("cape-select").value = user.avatar.cape;
+    const armorSelect = document.getElementById("armor-select");
+    const weaponSelect = document.getElementById("weapon-select");
+    const capeSelect = document.getElementById("cape-select");
+    
+    if (armorSelect && user.avatar) armorSelect.value = user.avatar.armor;
+    if (weaponSelect && user.avatar) weaponSelect.value = user.avatar.weapon;
+    if (capeSelect && user.avatar) capeSelect.value = user.avatar.cape;
 
     updateAvatarDisplay();
 
     // Add event listeners for avatar customization
-    document
-        .getElementById("armor-select")
-        .addEventListener("change", function () {
+    if (armorSelect) {
+        armorSelect.addEventListener("change", function() {
+            if (user.avatar) {
+                user.avatar.armor = this.value;
+                updateAvatarDisplay();
+                saveUserData();
+            }
+        });
+    }
+    
+    if (weaponSelect) {
+        weaponSelect.addEventListener("change", function() {
+            if (user.avatar) {
+                user.avatar.weapon = this.value;
+                updateAvatarDisplay();
+                saveUserData();
+            }
+        });
+    }
+    
+    if (capeSelect) {
+        capeSelect.addEventListener("change", function() {
+            if (user.avatar) {
+                user.avatar.cape = this.value;
+                updateAvatarDisplay();
+                saveUserData();
+            }
+        });
+    }
+}tion () {
             user.avatar.armor = this.value;
             updateAvatarDisplay();
             saveUserData();
