@@ -1800,6 +1800,10 @@ function completeTask(taskId) {
     // Remove completed task
     user.tasks.splice(taskIndex, 1);
 
+    // 🎉 Reward feedback
+    fireConfetti();
+    playSuccessChime();
+
     // Show reward modal
     showRewardModal(task.text, xpGained, card);
 
@@ -1848,12 +1852,17 @@ function renderTasks() {
     user.tasks.forEach(task => {
         const taskItem = document.createElement('li');
         taskItem.className = 'task-item';
+        taskItem.dataset.id = String(task.id);
+        taskItem.setAttribute('draggable', 'true');
         taskItem.innerHTML = `
             <span class="task-text">${task.text}</span>
             <button class="complete-btn" onclick="completeTask(${task.id})">Complete Quest</button>
         `;
         taskList.appendChild(taskItem);
     });
+
+    // Enable drag and drop reordering
+    enableDragReorder(taskList);
 }
 
 // Page navigation
@@ -2396,6 +2405,208 @@ window.debugTaskInput = function() {
         showWellnessCheckIn();
       }, 2000);
     }
+
+// ---- Drag & Drop Reorder ----
+function persistTaskOrderFromDOM(listEl) {
+  const ids = Array.from(listEl.children).map(li => li.dataset.id);
+  // Reorder user.tasks to match the DOM order
+  const reorderedTasks = [];
+  ids.forEach(id => {
+    const task = user.tasks.find(t => String(t.id) === id);
+    if (task) reorderedTasks.push(task);
+  });
+  user.tasks = reorderedTasks;
+  saveUserData();
+}
+
+function enableDragReorder(listEl) {
+  if (!listEl) return;
+
+  let draggingEl = null;
+  let dropMarker = document.createElement('li');
+  dropMarker.className = 'task-item drop-marker';
+  dropMarker.style.height = '0';
+
+  listEl.addEventListener('dragstart', (e) => {
+    const li = e.target.closest('.task-item');
+    if (!li) return;
+    draggingEl = li;
+    li.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', li.dataset.id || '');
+  });
+
+  listEl.addEventListener('dragend', () => {
+    if (draggingEl) draggingEl.classList.remove('dragging');
+    draggingEl = null;
+    dropMarker.remove();
+    persistTaskOrderFromDOM(listEl);
+  });
+
+  listEl.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const after = getDragAfterElement(listEl, e.clientY);
+    if (!after) {
+      listEl.appendChild(dropMarker);
+    } else {
+      listEl.insertBefore(dropMarker, after);
+    }
+  });
+
+  listEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (!draggingEl) return;
+    const after = getDragAfterElement(listEl, e.clientY);
+    if (!after) {
+      listEl.appendChild(draggingEl);
+    } else {
+      listEl.insertBefore(draggingEl, after);
+    }
+    persistTaskOrderFromDOM(listEl);
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const items = [...container.querySelectorAll('.task-item:not(.dragging):not(.drop-marker)')];
+  let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+  for (const child of items) {
+    const box = child.getBoundingClientRect();
+    const offset = y - (box.top + box.height / 2);
+    if (offset < 0 && offset > closest.offset) {
+      closest = { offset, element: child };
+    }
+  }
+  return closest.element;
+}
+
+// ---- Confetti ----
+let _confettiCanvas, _confettiCtx, _confettiRAF;
+
+function fireConfetti(bursts = 180) {
+  if (!_confettiCanvas) {
+    _confettiCanvas = document.getElementById('confetti-canvas');
+    if (!_confettiCanvas) return;
+    _confettiCtx = _confettiCanvas.getContext('2d');
+    const resize = () => {
+      _confettiCanvas.width = window.innerWidth;
+      _confettiCanvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+  }
+
+  const particles = [];
+  const colors = ['#ffd166', '#06d6a0', '#118ab2', '#ef476f', '#8338ec', '#d4af37'];
+  const cx = _confettiCanvas.width / 2;
+  const cy = _confettiCanvas.height / 3;
+
+  for (let i = 0; i < bursts; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 4 + Math.random() * 6;
+    particles.push({
+      x: cx, y: cy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 6,
+      g: 0.25 + Math.random() * 0.2,
+      size: 2 + Math.random() * 3,
+      life: 60 + Math.random() * 40,
+      color: colors[(Math.random() * colors.length) | 0],
+      spin: (Math.random() - 0.5) * 0.2,
+      angle: Math.random() * Math.PI
+    });
+  }
+
+  cancelAnimationFrame(_confettiRAF);
+  const draw = () => {
+    _confettiCtx.clearRect(0, 0, _confettiCanvas.width, _confettiCanvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.g;
+      p.angle += p.spin;
+      p.life--;
+      _confettiCtx.save();
+      _confettiCtx.translate(p.x, p.y);
+      _confettiCtx.rotate(p.angle);
+      _confettiCtx.fillStyle = p.color;
+      _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
+      _confettiCtx.restore();
+    });
+    for (let i = particles.length - 1; i >= 0; i--) {
+      if (particles[i].life <= 0 || particles[i].y > _confettiCanvas.height + 20) {
+        particles.splice(i, 1);
+      }
+    }
+    if (particles.length) {
+      _confettiRAF = requestAnimationFrame(draw);
+    } else {
+      _confettiCtx.clearRect(0, 0, _confettiCanvas.width, _confettiCanvas.height);
+    }
+  };
+  draw();
+}
+
+// ---- Success Chime (Web Audio) ----
+function playSuccessChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    function beep(freq, start, dur=0.12, type='sine') {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, now + start);
+      o.connect(g);
+      g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, now + start);
+      g.gain.exponentialRampToValueAtTime(0.15, now + start + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+      o.start(now + start);
+      o.stop(now + start + dur + 0.05);
+    }
+
+    // Simple ascending triad
+    beep(523.25, 0.00, 0.12, 'triangle'); // C5
+    beep(659.25, 0.12, 0.12, 'triangle'); // E5
+    beep(783.99, 0.24, 0.16, 'triangle'); // G5
+  } catch (error) {
+    console.log('Audio context not available for success chime');
+  }
+}
+
+// ---- PWA: register service worker ----
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('TaskVenture SW registered:', reg))
+    .catch(console.error);
+}
+
+// ---- PWA: Add to Home Screen prompt ----
+let _deferredPrompt = null;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  if (installBtn) installBtn.hidden = false;
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!_deferredPrompt) return;
+    installBtn.disabled = true;
+    _deferredPrompt.prompt();
+    const { outcome } = await _deferredPrompt.userChoice;
+    _deferredPrompt = null;
+    installBtn.hidden = true;
+    installBtn.disabled = false;
+    if (outcome === 'accepted') {
+      showSelfCareMessage("📱 TaskVenture installed! You can now access it from your home screen.", 0);
+    }
+  });
+}
 
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');

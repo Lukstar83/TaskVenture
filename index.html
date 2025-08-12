@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="manifest" href="/manifest.json">
   <title>Task Venture</title>
   <link href="styles.css" rel="stylesheet" />
   <link href="sheet.css"    rel="stylesheet" />
@@ -419,7 +421,9 @@
             </div>
             <div class="setting-item">
               <button id="export-data-btn" class="btn-secondary">Export Save Data</button>
-              <p class="setting-description">Download your game data as a backup file.</p>
+              <button id="import-data-btn">Import Save Data</button>
+              <input type="file" id="import-file-input" accept=".json" style="display: none;">
+              <button id="install-btn" hidden>📱 Install App</button>
             </div>
           </div>
         </div>

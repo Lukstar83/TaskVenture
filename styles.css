@@ -2026,7 +2026,7 @@ margin-top: 1.5rem;
 }
 
 .stress-fill {
-  background: linear-gradient(90deg, #22c55e 0%, #fbbf24 50%, #ef4444 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #22c55e 50%, #ef4444 100%);
 }
 
 .energy-fill {
@@ -2724,4 +2724,54 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+}
+
+/* Drag & drop visual cues */
+#task-list { list-style: none; padding: 0; margin: 0; }
+.task-item { cursor: move; user-select: none; transition: opacity 0.2s ease; }
+.task-item.dragging { opacity: 0.5; transform: rotate(3deg); }
+.task-item.drop-marker { 
+  border-top: 3px dashed var(--primary-gold); 
+  height: 2px !important;
+  padding: 0 !important;
+  margin: 4px 0 !important;
+}
+
+/* Confetti canvas */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* PWA install button */
+#install-btn {
+  background: linear-gradient(135deg, var(--primary-gold) 0%, #f1c40f 100%);
+  color: var(--text-dark);
+  border: 2px solid var(--primary-gold);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#install-btn:hover {
+  background: linear-gradient(135deg, #f1c40f 0%, var(--primary-gold) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .wellness-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .self-care-grid {
+    grid-template-columns: 1fr;
+  }
 }
