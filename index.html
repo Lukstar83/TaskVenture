@@ -482,6 +482,45 @@
 
   </div> <!-- end game-interface -->
 
+  <!-- Immediate header removal script -->
+  <script>
+    // Run immediately to prevent header flash
+    function removeProblematicHeaders() {
+      const observer = new MutationObserver(() => {
+        document.querySelectorAll('*').forEach(el => {
+          const text = el.textContent || '';
+          if (text.trim() === 'Customize Your Adventurer' || 
+              text.trim() === 'Customize Your Avatar' ||
+              (text.includes('Customize') && text.includes('Adventurer'))) {
+            el.style.display = 'none';
+            el.remove();
+          }
+        });
+      });
+      
+      observer.observe(document.body, { childList: true, subtree: true });
+      
+      // Also run periodically
+      setInterval(() => {
+        document.querySelectorAll('*').forEach(el => {
+          const text = el.textContent || '';
+          if (text.trim() === 'Customize Your Adventurer' || 
+              text.trim() === 'Customize Your Avatar' ||
+              (text.includes('Customize') && text.includes('Adventurer'))) {
+            el.style.display = 'none';
+            el.remove();
+          }
+        });
+      }, 100);
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', removeProblematicHeaders);
+    } else {
+      removeProblematicHeaders();
+    }
+  </script>
+  
   <script src="app.js"   defer></script>
   <script src="wizard.js" defer></script>
   <script src="nav.js"   defer></script>

@@ -2063,47 +2063,93 @@ function showPage(pageId, navElement) {
             updateAvatarDisplay();
         }
 
-        // Aggressive header removal - run multiple times to catch dynamic content
+        // Super aggressive header removal with mutation observer
         const removeHeaders = () => {
-            const avatarPage = document.getElementById('avatar-page');
-            const avatarSection = document.querySelector('.avatar-section');
-            
-            [avatarPage, avatarSection, document.body].forEach(container => {
-                if (container) {
-                    // Remove any headers with problematic text
-                    const allHeaders = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                    allHeaders.forEach(header => {
-                        const text = header.textContent || '';
-                        if (text.includes('Customize') || 
-                            text.includes('Adventurer') ||
-                            text.includes('Avatar') ||
-                            text.includes('Your Avatar') ||
-                            text.includes('Character Avatar')) {
-                            header.remove();
-                            console.log('Removed header:', text);
-                        }
-                    });
-                    
-                    // Also remove any divs or spans that might contain the text
-                    const allElements = container.querySelectorAll('div, span, p');
-                    allElements.forEach(el => {
-                        const text = el.textContent || '';
-                        if (text.trim() === 'Customize Your Adventurer' || 
-                            text.trim() === 'Customize Your Avatar' ||
-                            text.trim() === 'Avatar Customization') {
+            // Check entire document for the problematic text
+            const walker = document.createTreeWalker(
+                document.body,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            const textNodesToRemove = [];
+            let node;
+            while (node = walker.nextNode()) {
+                const text = node.textContent.trim();
+                if (text === 'Customize Your Adventurer' || 
+                    text === 'Customize Your Avatar' ||
+                    text === 'Avatar Customization' ||
+                    text.includes('Customize') && text.includes('Adventurer')) {
+                    textNodesToRemove.push(node.parentElement);
+                }
+            }
+
+            // Remove elements containing the problematic text
+            textNodesToRemove.forEach(element => {
+                if (element && element.parentNode) {
+                    console.log('Removing element with text:', element.textContent);
+                    element.parentNode.removeChild(element);
+                }
+            });
+
+            // Also check all elements with specific selectors
+            const selectorsToCheck = [
+                'h1, h2, h3, h4, h5, h6',
+                '.avatar-section *',
+                '#avatar-page *',
+                '[data-title]',
+                '.title',
+                '.header-text',
+                '.section-title'
+            ];
+
+            selectorsToCheck.forEach(selector => {
+                try {
+                    document.querySelectorAll(selector).forEach(el => {
+                        const text = el.textContent || el.getAttribute('data-title') || '';
+                        if (text.includes('Customize') && (text.includes('Adventurer') || text.includes('Avatar'))) {
+                            console.log('Removing via selector:', text);
                             el.remove();
-                            console.log('Removed element:', text);
                         }
                     });
+                } catch (e) {
+                    // Ignore selector errors
                 }
             });
         };
 
-        // Run immediately and with delays to catch any dynamically added content
+        // Set up mutation observer to catch dynamically added content
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            const text = node.textContent || '';
+                            if (text.includes('Customize') && text.includes('Adventurer')) {
+                                console.log('Observer removing:', text);
+                                node.remove();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        // Start observing
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Run removal multiple times
         removeHeaders();
+        setTimeout(removeHeaders, 10);
         setTimeout(removeHeaders, 50);
         setTimeout(removeHeaders, 150);
         setTimeout(removeHeaders, 300);
+        setTimeout(removeHeaders, 500);
+        setTimeout(removeHeaders, 1000);
     }
 }
 

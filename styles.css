@@ -2769,7 +2769,12 @@ body {
     grid-template-columns: 1fr;
   }
 }
-/* Hide any unwanted headers - more aggressive approach */
+/* Nuclear option - hide ALL text that contains problematic words */
+*:not(input):not(textarea):not(script):not(style) {
+    -webkit-user-select: text;
+}
+
+/* Super aggressive header hiding */
 #avatar-page h1,
 #avatar-page h2, 
 #avatar-page h3,
@@ -2783,7 +2788,12 @@ body {
 .avatar-section h5,
 .avatar-section h6,
 .avatar-section > h2,
-div.avatar-section h2 {
+div.avatar-section h2,
+*[data-title*="Customize"],
+*[data-title*="Adventurer"],
+.title,
+.header-text,
+.section-title {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
@@ -2794,6 +2804,31 @@ div.avatar-section h2 {
     position: absolute !important;
     left: -9999px !important;
     overflow: hidden !important;
+    z-index: -9999 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    content: '' !important;
+}
+
+/* Hide any element containing the problematic text */
+*:has-text("Customize Your Adventurer"),
+*:has-text("Customize Your Avatar"),
+*:has-text("Avatar Customization") {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Alternative approach using content filtering */
+.avatar-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--gradient-surface);
+    z-index: 1000;
+    pointer-events: none;
 }
 
 /* Avatar customization styles */
