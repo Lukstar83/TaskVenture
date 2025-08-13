@@ -508,12 +508,14 @@ body {
   text-transform: uppercase;
   font-size: .8rem;
   color: #b8860b;
+  align-self: flex-start;
 }
 
 .level-number {
   font-size: 2.5rem;
   color: #b8860b;
   font-weight: bold;
+  line-height: 1;
 }
 
 .name-column .character-name {
@@ -584,7 +586,7 @@ body {
     }
 
     .xp-bar-container {
-      flex: 1;
+      flex: 0.6;
       position: relative;
     }
 
@@ -606,13 +608,13 @@ body {
 
     .xp-text {
       position: absolute;
-      bottom: -18px;
+      bottom: -8px;
       right: 0;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--text-gold);
       font-weight: 600;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 0.1rem 0.3rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.2rem 0.4rem;
       border-radius: 3px;
       border: 1px solid rgba(212, 175, 55, 0.3);
     }
