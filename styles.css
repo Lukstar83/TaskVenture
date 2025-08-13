@@ -989,6 +989,10 @@ body {
       margin-top: 1.5rem;
     }
 
+    .selector-group:nth-child(4) {
+      margin-bottom: 2rem;
+    }
+
     .selector-group label {
       color: var(--text-gold);
       font-weight: 600;
