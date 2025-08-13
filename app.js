@@ -2429,18 +2429,31 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    const armorImg = document.getElementById("avatar-armor");
+    // Update customization page armor
+    const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
 
-    if (armorImg) {
+    if (customArmorImg) {
         if (user.avatar.armor) {
-            armorImg.src = user.avatar.armor;
-            armorImg.style.display = "block";
+            customArmorImg.src = user.avatar.armor;
+            customArmorImg.style.display = "block";
         } else {
-            armorImg.style.display = "none";
+            customArmorImg.style.display = "none";
         }
     }
+    
+    // Update header armor overlay
+    const headerArmorImg = document.querySelector("#header-avatar-container #avatar-armor");
+    if (headerArmorImg) {
+        if (user.avatar.armor) {
+            headerArmorImg.src = user.avatar.armor;
+            headerArmorImg.style.display = "block";
+        } else {
+            headerArmorImg.style.display = "none";
+        }
+    }
+
     if (weaponImg) {
         if (user.avatar.weapon) {
             weaponImg.src = user.avatar.weapon;

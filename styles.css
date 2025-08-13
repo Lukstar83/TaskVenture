@@ -1008,14 +1008,49 @@ body {
       cursor: pointer;
     }
 
-#avatar-armor {
+/* Header avatar armor overlay */
+#header-avatar-container #avatar-armor {
   position: absolute;
-  top: 42%;
+  top: 50%;
   left: 50%;
-  z-index: 7;
-  height: 34%;
-  width: auto;     
+  z-index: 10;
   transform: translate(-50%, -50%);
+  width: auto;
+  pointer-events: none;
+}
+
+/* Race-specific scaling for header armor */
+#header-avatar-container[data-race="dragonborn"] #avatar-armor { 
+  height: 75%;
+}
+#header-avatar-container[data-race="half-orc"] #avatar-armor { 
+  height: 72%;
+}
+#header-avatar-container[data-race="tiefling"] #avatar-armor { 
+  height: 68%;
+}
+#header-avatar-container[data-race="half-elf"] #avatar-armor { 
+  height: 67%;
+}
+#header-avatar-container[data-race="human"] #avatar-armor { 
+  height: 66%;
+}
+#header-avatar-container[data-race="elf"] #avatar-armor { 
+  height: 63%;
+}
+#header-avatar-container[data-race="dwarf"] #avatar-armor { 
+  height: 50%;
+}
+#header-avatar-container[data-race="gnome"] #avatar-armor { 
+  height: 43%;
+}
+#header-avatar-container[data-race="halfling"] #avatar-armor { 
+  height: 41%;
+}
+
+/* Default header armor sizing */
+#header-avatar-container #avatar-armor { 
+  height: 62%;
 }
 
     /* Dice Section - Premium Design */
