@@ -53,15 +53,15 @@
 
   // Racial skill proficiencies
   const RACIAL_SKILLS = {
-    'Human': [], // Variant human gets choice, but standard human gets none
-    'Elf': ['Perception'],
-    'Half-Elf': [], // Gets 2 skills of choice
-    'Dwarf': [], // Mountain dwarf gets tool proficiencies, not skills
+    'Human': [], // Standard human gets +1 to all abilities and extra skill, variant gets feat
+    'Elf': ['Perception'], // Keen Senses trait
+    'Half-Elf': [], // Gets 2 skills of choice (Skill Versatility)
+    'Dwarf': [], // Gets tool proficiencies and combat training, not skills
     'Halfling': [], // No automatic skill proficiencies
     'Dragonborn': [], // No automatic skill proficiencies
-    'Gnome': [], // Forest gnome gets minor illusion, rock gnome gets tinker tools
-    'Half-Orc': ['Intimidation'],
-    'Tiefling': ['Deception']
+    'Gnome': [], // Forest gnome gets minor illusion cantrip, rock gnome gets tinker tools
+    'Half-Orc': ['Intimidation'], // Menacing trait
+    'Tiefling': [] // No automatic skill proficiencies, gets spells from Infernal Legacy
   };
 
   // Racial traits data
@@ -78,6 +78,76 @@
       { 
         name: 'Damage Resistance', 
         description: 'You have resistance to the damage type associated with your draconic ancestry.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Draconic.' 
+      }
+    ],
+    'Dwarf': [
+      { 
+        name: 'Darkvision', 
+        description: 'Accustomed to life underground, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Dwarven Resilience', 
+        description: 'You have advantage on saving throws against poison, and you have resistance against poison damage.' 
+      },
+      { 
+        name: 'Dwarven Combat Training', 
+        description: 'You have proficiency with battleaxes, handaxes, light hammers, and warhammers.' 
+      },
+      { 
+        name: 'Tool Proficiency', 
+        description: 'You gain proficiency with the artisan\'s tools of your choice: smith\'s tools, brewer\'s supplies, or mason\'s tools.' 
+      },
+      { 
+        name: 'Stonecunning', 
+        description: 'Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Dwarvish.' 
+      }
+    ],
+    'Elf': [
+      { 
+        name: 'Darkvision', 
+        description: 'Accustomed to twilit forests and the night sky, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Keen Senses', 
+        description: 'You have proficiency in the Perception skill.' 
+      },
+      { 
+        name: 'Fey Ancestry', 
+        description: 'You have advantage on saving throws against being charmed, and magic can\'t put you to sleep.' 
+      },
+      { 
+        name: 'Trance', 
+        description: 'Elves don\'t need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day. (The Common word for such meditation is "trance.") While meditating, you can dream after a fashion; such dreams are actually mental exercises that have become reflexive through years of practice. After resting in this way, you gain the same benefit that a human does from 8 hours of sleep.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Elvish.' 
+      }
+    ],
+    'Halfling': [
+      { 
+        name: 'Lucky', 
+        description: 'When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll.' 
+      },
+      { 
+        name: 'Brave', 
+        description: 'You have advantage on saving throws against being frightened.' 
+      },
+      { 
+        name: 'Halfling Nimbleness', 
+        description: 'You can move through the space of any creature that is of a size larger than yours.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Halfling.' 
       }
     ],
     'Human': [
@@ -88,9 +158,84 @@
       { 
         name: 'Extra Skill', 
         description: 'You gain proficiency in one skill of your choice.' 
+      },
+      { 
+        name: 'Versatility', 
+        description: 'Humans are the most adaptable and ambitious people among the common races. They have widely varying tastes, morals, and customs in the many different lands where they have settled.' 
       }
     ],
-    'Elf': [
+    'Gnome': [
+      { 
+        name: 'Darkvision', 
+        description: 'Accustomed to life underground, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Gnome Cunning', 
+        description: 'You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Gnomish.' 
+      }
+    ],
+    'Half-Elf': [
+      { 
+        name: 'Darkvision', 
+        description: 'Thanks to your elf blood, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Fey Ancestry', 
+        description: 'You have advantage on saving throws against being charmed, and magic can\'t put you to sleep.' 
+      },
+      { 
+        name: 'Skill Versatility', 
+        description: 'You gain proficiency in two skills of your choice.' 
+      },
+      { 
+        name: 'Extra Language', 
+        description: 'You can speak, read, and write Common, Elvish, and one extra language of your choice.' 
+      }
+    ],
+    'Half-Orc': [
+      { 
+        name: 'Darkvision', 
+        description: 'Thanks to your orc blood, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Menacing', 
+        description: 'You gain proficiency in the Intimidation skill.' 
+      },
+      { 
+        name: 'Relentless Endurance', 
+        description: 'When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You can\'t use this feature again until you finish a long rest.' 
+      },
+      { 
+        name: 'Savage Attacks', 
+        description: 'When you score a critical hit with a melee weapon attack, you can roll one of the weapon\'s damage dice one additional time and add it to the extra damage of the critical hit.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Orc.' 
+      }
+    ],
+    'Tiefling': [
+      { 
+        name: 'Darkvision', 
+        description: 'Thanks to your infernal heritage, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can\'t discern color in darkness, only shades of gray.' 
+      },
+      { 
+        name: 'Hellish Resistance', 
+        description: 'You have resistance to fire damage.' 
+      },
+      { 
+        name: 'Infernal Legacy', 
+        description: 'You know the thaumaturgy cantrip. When you reach 3rd level, you can cast the hellish rebuke spell as a 2nd-level spell once with this trait and regain the ability to do so when you finish a long rest. When you reach 5th level, you can cast the darkness spell once with this trait and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for these spells.' 
+      },
+      { 
+        name: 'Languages', 
+        description: 'You can speak, read, and write Common and Infernal.' 
+      }
+    ]
       { 
         name: 'Darkvision', 
         description: 'You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light.' 
