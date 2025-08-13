@@ -691,7 +691,7 @@ body {
       text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
     }
 
-    /* Task Management - Premium Design */
+    /* Task Management */
     .task-input-container {
       display: flex;
       gap: 1rem;
@@ -806,9 +806,7 @@ body {
       box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
     }
 
-    
-
-    /* Avatar Customization - Premium Design */
+    /* Avatar Customization */
     .avatar-section {
       position: relative;
       width: 100vw;
@@ -994,7 +992,7 @@ body {
   height: 32%;
 }
 
-    /* Dice Section - Premium Design */
+    /* Dice Section */
 .dice-section h2 {
   margin-top: 1.5rem;
 }
@@ -1086,7 +1084,7 @@ body {
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
-    /* Bottom Navigation - Premium Design */
+    /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -1560,7 +1558,7 @@ body {
       to { opacity: 1; transform: scale(1); }
     }
 
-    /* Settings Section - Premium Design */
+    /* Settings Section */
     .settings-section {
       position: relative;
       width: 100vw;
