@@ -950,7 +950,7 @@ body {
 
 /* Race-specific scaling for header armor - Reduced by ~50% for proper fit and centered */
 #header-avatar-container[data-race="dragonborn"] #avatar-armor { 
-  transform: translate(-50%, -50%) scale(0.61, 0.53) translateY(-1.5%);
+  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(-1.5%);
 }
 #header-avatar-container[data-race="half-orc"] #avatar-armor { 
   transform: translate(-50%, -50%) scale(0.53, 0.53);
