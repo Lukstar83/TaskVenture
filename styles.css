@@ -1017,33 +1017,33 @@ body {
   height: 40%;
 }
 #header-avatar-container[data-race="half-orc"] #avatar-armor { 
-  height: 62%;
+  height: 38%;
 }
 #header-avatar-container[data-race="tiefling"] #avatar-armor { 
-  height: 58%;
+  height: 36%;
 }
 #header-avatar-container[data-race="half-elf"] #avatar-armor { 
-  height: 57%;
+  height: 35%;
 }
 #header-avatar-container[data-race="human"] #avatar-armor { 
-  height: 56%;
+  height: 34%;
 }
 #header-avatar-container[data-race="elf"] #avatar-armor { 
-  height: 53%;
-}
-#header-avatar-container[data-race="dwarf"] #avatar-armor { 
-  height: 40%;
-}
-#header-avatar-container[data-race="gnome"] #avatar-armor { 
   height: 33%;
 }
+#header-avatar-container[data-race="dwarf"] #avatar-armor { 
+  height: 25%;
+}
+#header-avatar-container[data-race="gnome"] #avatar-armor { 
+  height: 20%;
+}
 #header-avatar-container[data-race="halfling"] #avatar-armor { 
-  height: 31%;
+  height: 19%;
 }
 
 /* Default header armor sizing */
 #header-avatar-container #avatar-armor { 
-  height: 52%;
+  height: 32%;
 }
 
     /* Dice Section - Premium Design */
