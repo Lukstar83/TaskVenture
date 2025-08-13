@@ -374,14 +374,126 @@
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+
+/* Extra Small devices (phones, 576px and down) */
+@media (max-width: 575.98px) {
   .char-sheet-header {
-    padding: 1rem 0.5rem 0.5rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .profile-avatar-container {
+    width: 80px;
+    height: 80px;
+    border-width: 2px;
+  }
+  
+  .char-sheet-header .character-details h2 {
+    font-size: 1.4rem;
+  }
+  
+  .char-sheet-header .character-details p {
+    font-size: 0.9rem;
+  }
+  
+  .tab-button {
+    min-width: 80px;
+    padding: 0.75rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .tab-content {
+    padding: 0.75rem;
+  }
+  
+  .tab-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tab-section h3 {
+    font-size: 1.2rem;
+  }
+  
+  .combat-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .combat-stat {
+    padding: 0.75rem;
+  }
+  
+  .stats-table th,
+  .stats-table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .stat-input,
+  .mod-input {
+    width: 45px;
+    padding: 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .skill-item {
+    padding: 0.5rem;
+  }
+  
+  .features-list {
+    gap: 0.75rem;
+  }
+  
+  .feature-item {
+    padding: 0.75rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .char-sheet-header {
+    padding: 1rem 0.75rem;
   }
   
   .profile-avatar-container {
     width: 100px;
     height: 100px;
+    border-width: 3px;
+  }
+  
+  .char-sheet-header .character-details h2 {
+    font-size: 1.6rem;
+  }
+  
+  .tab-button {
+    min-width: 100px;
+    padding: 0.875rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .combat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  
+  .skills-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .char-sheet-header {
+    padding: 1rem 0.5rem 0.5rem;
+  }
+  
+  .profile-avatar-container {
+    width: 120px;
+    height: 120px;
   }
   
   .char-sheet-header .character-details h2 {
@@ -397,6 +509,71 @@
   }
   
   .skills-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .char-sheet {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  
+  .combat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  
+  .skills-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .char-sheet {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  
+  .combat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .skills-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* Orientation-specific adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .char-sheet-header {
+    flex-direction: row;
+    text-align: left;
+    padding: 1rem;
+  }
+  
+  .profile-avatar-container {
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (pointer: coarse) {
+  .tab-button {
+    min-height: 48px;
+    padding: 1rem 0.75rem;
+  }
+  
+  .stat-input,
+  .mod-input {
+    min-height: 44px;
+    min-width: 60px;
+  }
+  
+  .skill-item {
+    min-height: 48px;
+    padding: 1rem;
   }
 }
