@@ -22,7 +22,90 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the app after DOM is ready
     initializeApp();
+
+    // Setup wellness notification listeners
+    setupWellnessNotificationListeners();
 });
+
+// Setup wellness notification event listeners
+function setupWellnessNotificationListeners() {
+    const notificationsToggle = document.getElementById('notifications-toggle');
+    const notificationDetails = document.getElementById('notification-details');
+    const frequencySelect = document.getElementById('notification-frequency');
+    const quietStartInput = document.getElementById('quiet-start');
+    const quietEndInput = document.getElementById('quiet-end');
+
+    // Activity notification toggles
+    const activityToggles = {
+        'notify-hydrate': 'hydrate',
+        'notify-breathe': 'breathe',
+        'notify-rest': 'rest',
+        'notify-walk': 'walk',
+        'notify-meditate': 'meditate',
+        'notify-journal': 'journal'
+    };
+
+    if (notificationsToggle) {
+        // Load saved state
+        notificationsToggle.checked = notificationSettings.enabled;
+        if (notificationDetails) {
+            notificationDetails.style.display = notificationSettings.enabled ? 'block' : 'none';
+        }
+
+        notificationsToggle.addEventListener('change', function() {
+            if (notificationDetails) {
+                notificationDetails.style.display = this.checked ? 'block' : 'none';
+            }
+            toggleNotifications(this.checked);
+        });
+    }
+
+    if (frequencySelect) {
+        frequencySelect.value = notificationSettings.frequency;
+        frequencySelect.addEventListener('change', function() {
+            notificationSettings.frequency = parseInt(this.value);
+            saveNotificationSettings();
+            if (notificationSettings.enabled) {
+                scheduleSelfCareNotifications();
+            }
+        });
+    }
+
+    if (quietStartInput) {
+        const startHour = String(notificationSettings.quietHours.start).padStart(2, '0');
+        quietStartInput.value = `${startHour}:00`;
+        quietStartInput.addEventListener('change', function() {
+            notificationSettings.quietHours.start = parseInt(this.value.split(':')[0]);
+            saveNotificationSettings();
+        });
+    }
+
+    if (quietEndInput) {
+        const endHour = String(notificationSettings.quietHours.end).padStart(2, '0');
+        quietEndInput.value = `${endHour}:00`;
+        quietEndInput.addEventListener('change', function() {
+            notificationSettings.quietHours.end = parseInt(this.value.split(':')[0]);
+            saveNotificationSettings();
+        });
+    }
+
+    // Setup activity toggles
+    Object.keys(activityToggles).forEach(toggleId => {
+        const toggle = document.getElementById(toggleId);
+        const activityKey = activityToggles[toggleId];
+        
+        if (toggle) {
+            toggle.checked = notificationSettings.activities[activityKey];
+            toggle.addEventListener('change', function() {
+                notificationSettings.activities[activityKey] = this.checked;
+                saveNotificationSettings();
+                if (notificationSettings.enabled) {
+                    scheduleSelfCareNotifications();
+                }
+            });
+        }
+    });
+}
 
 // auto-launch wizard on fresh load if no profile
 
@@ -2727,6 +2810,9 @@ function enterApp() {
     // Initialize notifications
     initializeNotifications();
 
+    // Setup wellness notification listeners (in case they weren't set up already)
+    setupWellnessNotificationListeners();
+
     // Show streak modal first, then wellness check-in
     setTimeout(() => {
         showStreakModal();
@@ -2735,6 +2821,24 @@ function enterApp() {
     setTimeout(() => {
         showWellnessCheckIn();
     }, 2000);
+
+    // Setup manual wellness buttons
+    const manualCheckinBtn = document.getElementById('manual-checkin-btn');
+    const manualStreakBtn = document.getElementById('manual-streak-btn');
+
+    if (manualCheckinBtn) {
+        manualCheckinBtn.addEventListener('click', () => {
+            localStorage.removeItem('lastWellnessCheckIn'); // Allow re-checking
+            showWellnessCheckIn();
+        });
+    }
+
+    if (manualStreakBtn) {
+        manualStreakBtn.addEventListener('click', () => {
+            localStorage.removeItem('lastStreakView'); // Allow re-viewing
+            showStreakModal();
+        });
+    }
 }
 
 // ---- Drag & Drop Reorder ----
