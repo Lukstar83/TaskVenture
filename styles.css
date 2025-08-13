@@ -985,9 +985,9 @@ body {
       padding: 1rem;
     }
 
-.selector-group 1 {
-  padding-top: 1rem;
-}
+    .selector-group:first-child {
+      margin-top: 1.5rem;
+    }
 
     .selector-group label {
       color: var(--text-gold);
