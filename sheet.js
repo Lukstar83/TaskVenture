@@ -1,3 +1,4 @@
+
 // sheet.js
 (function(){
   // 1) Load and parse the tv_profile from localStorage
@@ -11,6 +12,47 @@
       return null;
     }
   }
+
+  // Skills data
+  const SKILLS = {
+    'Acrobatics': 'DEX',
+    'Animal Handling': 'WIS',
+    'Arcana': 'INT',
+    'Athletics': 'STR',
+    'Deception': 'CHA',
+    'History': 'INT',
+    'Insight': 'WIS',
+    'Intimidation': 'CHA',
+    'Investigation': 'INT',
+    'Medicine': 'WIS',
+    'Nature': 'INT',
+    'Perception': 'WIS',
+    'Performance': 'CHA',
+    'Persuasion': 'CHA',
+    'Religion': 'INT',
+    'Sleight of Hand': 'DEX',
+    'Stealth': 'DEX',
+    'Survival': 'WIS'
+  };
+
+  // Class features data
+  const CLASS_FEATURES = {
+    'Fighter': [
+      { name: 'Fighting Style', description: 'You adopt a particular style of fighting as your specialty.' },
+      { name: 'Second Wind', description: 'You have a limited well of stamina that you can draw on to protect yourself from harm.' },
+      { name: 'Action Surge', description: 'You can push yourself beyond your normal limits for a moment.' }
+    ],
+    'Wizard': [
+      { name: 'Spellcasting', description: 'As a student of arcane magic, you have a spellbook containing spells.' },
+      { name: 'Arcane Recovery', description: 'You have learned to regain some of your magical energy by studying your spellbook.' }
+    ],
+    'Rogue': [
+      { name: 'Expertise', description: 'You can double your proficiency bonus for certain skill checks.' },
+      { name: 'Sneak Attack', description: 'You know how to strike subtly and exploit a foe\'s distraction.' },
+      { name: 'Thieves\' Cant', description: 'You learned thieves\' cant, a secret mix of dialect, jargon, and code.' }
+    ]
+    // Add more classes as needed
+  };
 
   // 2) Build and inject the HTML
   function renderSheet() {
@@ -44,11 +86,9 @@
 
     // Class-based AC adjustments
     if (cls === 'Barbarian' && !window.user?.avatar?.armor) {
-      // Unarmored Defense: 10 + DEX + CON
       const conMod = Math.floor((abilityScores.CON - 10) / 2);
       baseAC = 10 + dexMod + conMod;
     } else if (cls === 'Monk' && !window.user?.avatar?.armor) {
-      // Unarmored Defense: 10 + DEX + WIS
       const wisMod = Math.floor((abilityScores.WIS - 10) / 2);
       baseAC = 10 + dexMod + wisMod;
     }
@@ -63,7 +103,7 @@
 
     const totalAC = baseAC + armorBonus;
 
-    // Calculate Max HP (class hit die + CON modifier per level)
+    // Calculate Max HP
     const hitDice = {
       'Barbarian': 12, 'Fighter': 10, 'Paladin': 10, 'Ranger': 10,
       'Bard': 8, 'Cleric': 8, 'Druid': 8, 'Monk': 8, 'Rogue': 8, 'Warlock': 8,
@@ -81,14 +121,14 @@
     };
 
     const spellcastingAbility = spellcastingClasses[cls];
-    let spellStats = '';
+    let spellStatsContent = '';
 
     if (spellcastingAbility) {
       const spellMod = Math.floor((abilityScores[spellcastingAbility] - 10) / 2);
       const spellAttackBonus = proficiencyBonus + spellMod;
       const spellSaveDC = 8 + proficiencyBonus + spellMod;
 
-      spellStats = `
+      spellStatsContent = `
         <div class="spell-stats">
           <h4>Spellcasting</h4>
           <p><strong>Casting Ability:</strong> ${spellcastingAbility} (${spellMod >= 0 ? '+' : ''}${spellMod})</p>
@@ -96,20 +136,46 @@
           <p><strong>Spell Save DC:</strong> ${spellSaveDC}</p>
         </div>
       `;
+    } else {
+      spellStatsContent = `
+        <div class="tab-section">
+          <h3>No Spellcasting</h3>
+          <p>This class does not have spellcasting abilities.</p>
+        </div>
+      `;
     }
-
-    // Build stat list with modifier calculation
-    const statList = Object.entries(abilityScores).map(([stat, val]) => {
-      const mod = Math.floor((val - 10) / 2);
-      const modDisplay = mod >= 0 ? `+${mod}` : mod;
-      return `<li><strong>${stat.toUpperCase()}:</strong> ${val} (<em>${modDisplay}</em>)</li>`;
-    }).join("");
 
     // Check if stat editing is enabled
     const editingEnabled = localStorage.getItem('editStatsEnabled') === 'true';
 
-    // Get the character's avatar image using the same system as other pages
+    // Get the character's avatar image
     const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : 'images/base_avatar.png';
+
+    // Generate skills content
+    const skillsContent = Object.entries(SKILLS).map(([skillName, ability]) => {
+      const abilityMod = Math.floor((abilityScores[ability] - 10) / 2);
+      const skillMod = abilityMod; // Basic skill modifier without proficiency for now
+      const modDisplay = skillMod >= 0 ? `+${skillMod}` : skillMod;
+      
+      return `
+        <div class="skill-item">
+          <span class="skill-name">${skillName} (${ability})</span>
+          <span class="skill-modifier">${modDisplay}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Generate class features content
+    const classFeatures = CLASS_FEATURES[cls] || [
+      { name: 'Class Features', description: 'Features for this class will be added in future updates.' }
+    ];
+    
+    const featuresContent = classFeatures.map(feature => `
+      <div class="feature-item">
+        <div class="feature-name">${feature.name}</div>
+        <div class="feature-description">${feature.description}</div>
+      </div>
+    `).join('');
 
     // Inject the sheet HTML
     container.innerHTML = `
@@ -120,68 +186,129 @@
           </div>
           <div class="character-details">
             <h2>${name}</h2>
-            <p><strong>Race:</strong> ${race}</p>
-            <p><strong>Gender:</strong> ${gender}</p>
-            <p><strong>Class:</strong> ${cls}</p>
+            <p><strong>Race:</strong> ${race} | <strong>Class:</strong> ${cls}</p>
+            <p><strong>Gender:</strong> ${gender} | <strong>Level:</strong> ${level}</p>
           </div>
         </div>
 
-        <div class="combat-stats">
-          <h3>Combat Stats</h3>
-          <div class="combat-grid">
-            <div class="combat-stat">
-              <strong>Armor Class:</strong> ${totalAC}
+        <div class="sheet-tabs">
+          <button class="tab-button active" onclick="switchTab(event, 'features-tab')">Features</button>
+          <button class="tab-button" onclick="switchTab(event, 'combat-tab')">Combat</button>
+          <button class="tab-button" onclick="switchTab(event, 'abilities-tab')">Abilities</button>
+          <button class="tab-button" onclick="switchTab(event, 'skills-tab')">Skills</button>
+          <button class="tab-button" onclick="switchTab(event, 'spells-tab')">Spells</button>
+        </div>
+
+        <div id="features-tab" class="tab-content active">
+          <div class="tab-section">
+            <h3>${race} Racial Traits</h3>
+            <div class="features-list">
+              <div class="feature-item">
+                <div class="feature-name">Racial Features</div>
+                <div class="feature-description">Your ${race} heritage grants you special abilities and traits that set you apart from other races.</div>
+              </div>
             </div>
-            <div class="combat-stat">
-              <strong>Max Hit Points:</strong> ${maxHP}
-            </div>
-            <div class="combat-stat">
-              <strong>Proficiency Bonus:</strong> +${proficiencyBonus}
-            </div>
-            <div class="combat-stat">
-              <strong>Level:</strong> ${level}
+          </div>
+          
+          <div class="tab-section">
+            <h3>${cls} Class Features</h3>
+            <div class="features-list">
+              ${featuresContent}
             </div>
           </div>
         </div>
 
-        ${spellStats}
+        <div id="combat-tab" class="tab-content">
+          <div class="tab-section">
+            <h3>Combat Statistics</h3>
+            <div class="combat-grid">
+              <div class="combat-stat">
+                <strong>Armor Class</strong>
+                ${totalAC}
+              </div>
+              <div class="combat-stat">
+                <strong>Hit Points</strong>
+                ${maxHP}
+              </div>
+              <div class="combat-stat">
+                <strong>Hit Dice</strong>
+                1d${hitDie}
+              </div>
+              <div class="combat-stat">
+                <strong>Proficiency Bonus</strong>
+                +${proficiencyBonus}
+              </div>
+              <div class="combat-stat">
+                <strong>Initiative</strong>
+                ${dexMod >= 0 ? '+' : ''}${dexMod}
+              </div>
+              <div class="combat-stat">
+                <strong>Speed</strong>
+                30 ft
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <div class="ability-scores-section">
-          <h3>Ability Scores</h3>
-          <table class="stats-table">
-            <thead>
-             <tr><th>Ability</th><th>Score</th><th>Modifier</th></tr>
-            </thead>
-            <tbody>
+        <div id="abilities-tab" class="tab-content">
+          <div class="tab-section">
+            <h3>Ability Scores</h3>
+            <table class="stats-table">
+              <thead>
+                <tr><th>Ability</th><th>Score</th><th>Modifier</th></tr>
+              </thead>
+              <tbody>
+                ${Object.entries(abilityScores).map(([stat, val]) => {
+                  const mod = Math.floor((val - 10) / 2);
+                  const modDisplay = mod >= 0 ? `+${mod}` : mod;
+                  const scoreContent = editingEnabled
+                    ? `<input type="number" class="stat-input" data-stat="${stat}" value="${val}" min="1" max="30">`
+                    : val;
+                  const modContent = editingEnabled
+                    ? `<input type="number" class="mod-input" data-stat="${stat}" value="${mod}" min="-10" max="10">`
+                    : modDisplay;
+                  return `<tr><td>${stat.toUpperCase()}</td><td>${scoreContent}</td><td>${modContent}</td></tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-    ${Object.entries(abilityScores).map(([stat, val]) => {
-      const mod = Math.floor((val - 10) / 2);
-      const modDisplay = mod >= 0 ? `+${mod}` : mod;
-      const scoreContent = editingEnabled
-        ? `<input type="number" class="stat-input" data-stat="${stat}" value="${val}" min="1" max="30">`
-        : val;
-      const modContent = editingEnabled
-        ? `<input type="number" class="mod-input" data-stat="${stat}" value="${mod}" min="-10" max="10">`
-        : modDisplay;
-      return `<tr><td>${stat.toUpperCase()}</td><td>${scoreContent}</td><td>${modContent}</td></tr>`;
-    }).join("")}
-            </tbody>
-          </table>
+        <div id="skills-tab" class="tab-content">
+          <div class="tab-section">
+            <h3>Skills</h3>
+            <div class="skills-grid">
+              ${skillsContent}
+            </div>
+          </div>
+        </div>
+
+        <div id="spells-tab" class="tab-content">
+          ${spellStatsContent}
         </div>
       </div>
     `;
-
-    // Set the top of the avatar image to be roughly inline with the top of the circle
-    const avatarElement = container.querySelector('.profile-avatar');
-    if (avatarElement) {
-      avatarElement.style.objectPosition = '0px -20px'; // Adjust this value as needed for visual alignment
-    }
 
     // Add event listeners for editable inputs if editing is enabled
     if (editingEnabled) {
       addStatEditListeners();
     }
   }
+
+  // Tab switching function
+  window.switchTab = function(evt, tabName) {
+    // Hide all tab content
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => button.classList.remove('active'));
+
+    // Show selected tab content and mark button as active
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  };
 
   // Add event listeners for stat editing
   function addStatEditListeners() {
@@ -224,8 +351,6 @@
     if (type === 'score') {
       profile.scores[stat] = value;
     } else if (type === 'modifier') {
-      // Assuming 'profile' might not have a 'modifiers' object initially
-      // It's safer to check or initialize it.
       if (!profile.modifiers) {
         profile.modifiers = {};
       }
