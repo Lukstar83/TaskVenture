@@ -2652,9 +2652,10 @@ body {
 @media (max-width: 768px) {
   /* Header and avatar adjustments */
   .character-avatar img {
-    bottom: 8vw;
+    bottom: 6vw;
+    transform: translateX(-50%) scale(0.9);
   }
-  
+
   /* Currency section mobile layout */
   .currency-column .currency-section {
     justify-content: center;
@@ -2794,7 +2795,9 @@ body {
 }
 
 .wellness-management {
-    margin: 2rem 0;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .wellness-actions {
