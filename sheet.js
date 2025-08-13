@@ -64,6 +64,52 @@
     'Tiefling': ['Deception']
   };
 
+  // Racial traits data
+  const RACIAL_TRAITS = {
+    'Dragonborn': [
+      { 
+        name: 'Draconic Ancestry', 
+        description: 'You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type.' 
+      },
+      { 
+        name: 'Breath Weapon', 
+        description: 'You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation. When you use your breath weapon, each creature in the area of the exhalation must make a saving throw, the type of which is determined by your draconic ancestry. The DC for this saving throw equals 8 + your Constitution modifier + your proficiency bonus. A creature takes 2d6 damage on a failed save, and half as much damage on a successful one. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level. After you use your breath weapon, you can\'t use it again until you complete a short or long rest.' 
+      },
+      { 
+        name: 'Damage Resistance', 
+        description: 'You have resistance to the damage type associated with your draconic ancestry.' 
+      }
+    ],
+    'Human': [
+      { 
+        name: 'Extra Language', 
+        description: 'You can speak, read, and write one extra language of your choice.' 
+      },
+      { 
+        name: 'Extra Skill', 
+        description: 'You gain proficiency in one skill of your choice.' 
+      }
+    ],
+    'Elf': [
+      { 
+        name: 'Darkvision', 
+        description: 'You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light.' 
+      },
+      { 
+        name: 'Keen Senses', 
+        description: 'You have proficiency in the Perception skill.' 
+      },
+      { 
+        name: 'Fey Ancestry', 
+        description: 'You have advantage on saving throws against being charmed, and magic can\'t put you to sleep.' 
+      },
+      { 
+        name: 'Trance', 
+        description: 'Elves don\'t need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day.' 
+      }
+    ]
+  };
+
   // Determine skill proficiencies
   function getSkillProficiencies(race, cls) {
     const proficiencies = new Set();
@@ -106,9 +152,9 @@
   // Class features data
   const CLASS_FEATURES = {
     'Fighter': [
-      { name: 'Fighting Style', description: 'You adopt a particular style of fighting as your specialty.' },
-      { name: 'Second Wind', description: 'You have a limited well of stamina that you can draw on to protect yourself from harm.' },
-      { name: 'Action Surge', description: 'You can push yourself beyond your normal limits for a moment.' }
+      { name: 'Fighting Style', description: 'At 1st level, you adopt a particular style of fighting as your specialty. Choose one of the following options: Archery, Defense, Dueling, Great Weapon Fighting, Protection, or Two-Weapon Fighting.' },
+      { name: 'Second Wind', description: 'You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again.' },
+      { name: 'Action Surge', description: 'Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action. Once you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.' }
     ],
     'Wizard': [
       { name: 'Spellcasting', description: 'As a student of arcane magic, you have a spellbook containing spells.' },
@@ -251,6 +297,18 @@
       </div>
     `).join('');
 
+    // Generate racial traits content
+    const racialTraits = RACIAL_TRAITS[race] || [
+      { name: 'Racial Traits', description: 'Racial traits for this race will be added in future updates.' }
+    ];
+    
+    const racialTraitsContent = racialTraits.map(trait => `
+      <div class="feature-item">
+        <div class="feature-name">${trait.name}</div>
+        <div class="feature-description">${trait.description}</div>
+      </div>
+    `).join('');
+
     // Inject the sheet HTML
     container.innerHTML = `
       <div class="char-sheet">
@@ -277,10 +335,7 @@
           <div class="tab-section">
             <h3>${race} Racial Traits</h3>
             <div class="features-list">
-              <div class="feature-item">
-                <div class="feature-name">Racial Features</div>
-                <div class="feature-description">Your ${race} heritage grants you special abilities and traits that set you apart from other races.</div>
-              </div>
+              ${racialTraitsContent}
             </div>
           </div>
           
