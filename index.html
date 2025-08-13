@@ -79,23 +79,43 @@
 
     <!-- Stats Container -->
     <div class="stats-container">
-        <!-- Character Info Section -->
-        <div class="character-info">
-          <div class="left-group">
-            <div class="char-column level-column">
-              <div class="level-label">Level</div>
-              <div class="level-number" id="user-level">1</div>
+        <!-- Main Content Section -->
+        <div class="main-content-section">
+          <div class="left-content">
+            <!-- Character Info Section -->
+            <div class="character-info">
+              <div class="left-group">
+                <div class="char-column level-column">
+                  <div class="level-label">Level</div>
+                  <div class="level-number" id="user-level">1</div>
+                </div>
+                <div class="char-column name-column">
+                  <div class="character-name" id="character-name">Adventurer</div>
+                </div>
+                <div class="char-column details-column">
+                  <div class="character-details" id="character-details">
+                    <span id="character-race">Human</span> •
+                    <span id="character-class">Fighter</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="char-column name-column">
-              <div class="character-name" id="character-name">Adventurer</div>
-            </div>
-            <div class="char-column details-column">
-              <div class="character-details" id="character-details">
-                <span id="character-race">Human</span> •
-                <span id="character-class">Fighter</span>
+
+            <!-- XP Section -->
+            <div class="xp-section">
+              <div class="xp-label">XP</div>
+              <div class="xp-bar-container">
+                <div class="xp-bar">
+                  <div class="xp-fill" id="xp-fill"></div>
+                </div>
+                <div class="xp-text">
+                  <span id="user-xp">0</span> / <span id="xp-next-level">100</span>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Currency Column -->
           <div class="char-column currency-column">
             <div class="currency-section">
               <div class="currency-item">
@@ -114,19 +134,6 @@
                 <span class="currency-amount" id="platinum-coins">0</span>
                 <span class="currency-type">pp</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- XP Section -->
-        <div class="xp-section">
-          <div class="xp-label">XP</div>
-          <div class="xp-bar-container">
-            <div class="xp-bar">
-              <div class="xp-fill" id="xp-fill"></div>
-            </div>
-            <div class="xp-text">
-              <span id="user-xp">0</span> / <span id="xp-next-level">100</span>
             </div>
           </div>
         </div>
