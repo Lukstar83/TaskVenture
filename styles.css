@@ -491,7 +491,7 @@ body {
 .level-column {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: flex-start;
   font-style: italic;
   flex-shrink: 0;
   gap: 0.5rem;
