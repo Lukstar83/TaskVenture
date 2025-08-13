@@ -556,7 +556,7 @@ body {
 .currency-column .currency-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: 1rem .5rem;
   text-align: right;
 }
 
@@ -578,7 +578,6 @@ body {
 
     .currency-type {
       font-weight: 400;
-      color: var(--text-muted);
       line-height: 1;
     }
 
@@ -619,7 +618,7 @@ body {
 
     .xp-text {
       position: absolute;
-      bottom: -8px;
+      bottom: -12px;
       right: 0;
       color: var(--text-gold);
       font-weight: 600;
@@ -628,7 +627,7 @@ body {
 
 #user-xp {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.5rem;
 }
 
     /* Streak Section */
