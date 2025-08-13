@@ -490,7 +490,8 @@ body {
 
 .level-column {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   font-style: italic;
   flex-shrink: 0;
 }
@@ -503,15 +504,16 @@ body {
 }
 
 .level-label {
-  margin-top: 0.5rem;
   text-transform: uppercase;
   font-size: .8rem;
   color: #b8860b;
+  margin-bottom: 0.25rem;
 }
 
 .level-number {
   font-size: 2.5rem;
   color: #b8860b;
+  font-weight: bold;
 }
 
 .name-column .character-name {
@@ -543,7 +545,7 @@ body {
 }
 
 .currency-item {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-family: "Roboto", sans-serif;
   display: flex;
   flex-direction: row;
@@ -554,12 +556,12 @@ body {
     .currency-amount {
       color: var(--text-gold);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.25rem;
       line-height: 1;
     }
 
     .currency-type {
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 400;
       color: var(--text-muted);
       line-height: 1;
