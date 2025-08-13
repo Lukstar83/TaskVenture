@@ -2596,14 +2596,21 @@ function updateAvatarDisplay() {
         if (user.avatar.boots) {
             if (user.avatar.boots === "steel") {
                 bootsImg.src = "attached_assets/Steel_boots.png";
+                console.log("Loading steel boots from:", bootsImg.src);
             } else {
                 bootsImg.src = `images/boots/${user.avatar.boots}_boots.png`;
             }
             bootsImg.style.display = "block";
+            bootsImg.onerror = function() {
+                console.error("Failed to load boots image:", this.src);
+            };
+            bootsImg.onload = function() {
+                console.log("Successfully loaded boots image:", this.src);
+            };
         } else {
             bootsImg.style.display = "none";
         }
-    }
+    }</old_str>
 }
 
 function setupHeaderAvatarLayout() {
