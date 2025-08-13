@@ -43,14 +43,14 @@
   transform: translateX(-50%);
 }
 
-.character-details {
+.char-sheet-header .character-details {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.character-details h2 {
+.char-sheet-header .character-details h2 {
   margin: 0;
   color: var(--text-gold);
   font-family: "Cinzel Decorative", serif;
@@ -59,14 +59,14 @@
   text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
 }
 
-.character-details p {
+.char-sheet-header .character-details p {
   margin: 0.25rem 0;
   color: var(--text-light);
   font-weight: 600;
   font-size: 1.1rem;
 }
 
-.character-details strong {
+.char-sheet-header .character-details strong {
   color: var(--primary-gold);
 }
 
