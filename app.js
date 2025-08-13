@@ -2198,6 +2198,24 @@ window.showCardDetails = showCardDetails;
 window.closeCardDetails = closeCardDetails;
 window.deleteCardFromModal = deleteCardFromModal;
 
+// Hamburger menu functionality
+window.toggleHamburgerMenu = function toggleHamburgerMenu() {
+    const dropdown = document.getElementById('hamburger-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
+};
+
+// Close hamburger menu when clicking outside
+document.addEventListener('click', function(e) {
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const dropdown = document.getElementById('hamburger-dropdown');
+    
+    if (hamburgerMenu && dropdown && !hamburgerMenu.contains(e.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+
 // Show level up message
 function showLevelUpMessage() {
     alert(`🎉 Level Up! You are now level ${user.level}!`);
