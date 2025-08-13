@@ -114,15 +114,17 @@
     // Inject the sheet HTML
     container.innerHTML = `
       <div class="char-sheet">
-        <div id="char-sheet-header">
+        <div class="char-sheet-header">
           <div class="profile-avatar-container">
             <img src="${avatarSrc}" alt="Character Avatar" class="profile-avatar">
           </div>
-          <h2>${name}</h2>
+          <div class="character-details">
+            <h2>${name}</h2>
+            <p><strong>Race:</strong> ${race}</p>
+            <p><strong>Gender:</strong> ${gender}</p>
+            <p><strong>Class:</strong> ${cls}</p>
+          </div>
         </div>
-        <p><strong>Race:</strong> ${race}</p>
-        <p><strong>Gender:</strong> ${gender}</p>
-        <p><strong>Class:</strong> ${cls}</p>
 
         <div class="combat-stats">
           <h3>Combat Stats</h3>
@@ -144,12 +146,13 @@
 
         ${spellStats}
 
-        <h3>Ability Scores</h3>
+        <div class="ability-scores-section">
+          <h3>Ability Scores</h3>
           <table class="stats-table">
             <thead>
-             <tr><th>Stat</th><th>Score</th><th>Modifier</th></tr>
+             <tr><th>Ability</th><th>Score</th><th>Modifier</th></tr>
             </thead>
-         <tbody>
+            <tbody>
 
     ${Object.entries(abilityScores).map(([stat, val]) => {
       const mod = Math.floor((val - 10) / 2);
@@ -162,8 +165,9 @@
         : modDisplay;
       return `<tr><td>${stat.toUpperCase()}</td><td>${scoreContent}</td><td>${modContent}</td></tr>`;
     }).join("")}
-  </tbody>
-</table>
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
 
