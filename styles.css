@@ -540,6 +540,7 @@ body {
 .details-column .character-details {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 0.25rem;
   font-size: 0.95rem;
   margin-top: -0.75rem;
