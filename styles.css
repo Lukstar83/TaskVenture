@@ -1014,7 +1014,7 @@ body {
 
 /* Race-specific scaling for header armor */
 #header-avatar-container[data-race="dragonborn"] #avatar-armor { 
-  height: 65%;
+  height: 40%;
 }
 #header-avatar-container[data-race="half-orc"] #avatar-armor { 
   height: 62%;
