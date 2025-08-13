@@ -1593,7 +1593,7 @@ window.skipWellnessCheckIn = function skipWellnessCheckIn() {
 function initializeApp() {
     const hasProfile = localStorage.getItem("tv_profile");
 
-    // Ensure proper initial state
+    // Ensure initial state
     if (splashEl) {
         splashEl.classList.remove("hidden");
         splashEl.style.display = "flex";
@@ -1695,6 +1695,7 @@ if (!window.user) {
         lastActiveDate: null,
         avatar: {
             armor: "",
+            boots: "",
             weapon: "",
             cape: "",
         },
@@ -2390,7 +2391,7 @@ function initializeAvatarCustomization() {
     // Set up base avatar for customization page
     const baseAvatar = document.getElementById("avatar-base-customization");
     const container = document.getElementById("avatar-customization-container");
-    
+
     if (baseAvatar && container) {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
         if (profile.race && profile.gender) {
@@ -2442,7 +2443,7 @@ function updateAvatarDisplay() {
             customArmorImg.style.display = "none";
         }
     }
-    
+
     // Update header armor overlay
     const headerArmorImg = document.querySelector("#header-avatar-container #avatar-armor");
     if (headerArmorImg) {
@@ -2873,7 +2874,6 @@ function fireConfetti(bursts = 180) {
             _confettiCtx.save();
             _confettiCtx.translate(p.x, p.y);
             _confettiCtx.rotate(p.angle);
-            _confettiCtx.fillStyle = p.color;
             _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
             _confettiCtx.restore();
         });
