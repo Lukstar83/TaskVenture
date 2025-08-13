@@ -579,12 +579,12 @@ body {
 
     .xp-label {
       font-size: 0.8rem;
-      margin-bottom: 1rem;
       font-weight: 500;
+      flex-shrink: 0;
     }
 
     .xp-bar-container {
-      width: 80%;
+      flex: 1;
       position: relative;
     }
 
@@ -606,9 +606,9 @@ body {
 
     .xp-text {
       position: absolute;
-      top: -8px;
+      bottom: -18px;
       right: 0;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       color: var(--text-gold);
       font-weight: 600;
       background: rgba(0, 0, 0, 0.6);

@@ -1809,9 +1809,12 @@ function updateUI() {
 
     const xpFill = document.getElementById("xp-fill");
     const xpNextLevel = document.getElementById("xp-next-level");
+    const xpText = document.getElementById("xp-text"); // Added reference for the XP text
 
     if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
     if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
+    // Update XP text display to show only numbers without 'until next level' text
+    if (xpText) xpText.textContent = `${user.xp} / ${xpForNextLevel}`;
 
     // Update currency display - convert total coins to different denominations
     const totalCoins = user.coins || 0;
