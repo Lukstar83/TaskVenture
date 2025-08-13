@@ -414,14 +414,13 @@ body {
   box-shadow: var(--shadow-glow);
 }
 
-
-/* Game Interface - Premium Redesign */
-
+/* Game Interface */
     .game-interface {
       scrollbar-width: none;
       max-width: 100vw;
       margin: 0;
       padding: 0;
+      scrollbar-width: none;
     }
 
 .game-interface::-webkit-scrollbar {
@@ -447,7 +446,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  bottom: 7.5vw;
+  bottom: 8vw;
   height: auto;
   width: auto;
   object-fit: contain;
@@ -488,15 +487,9 @@ body {
   max-width: 100%;
 }
 
-.char-column {
-  display: flex;
-  align-items: flex-start;;
-}
-
 .level-column {
   display: flex;
   align-items: flex-start;
-  gap: 0.1rem;
   font-style: italic;
 }
 
@@ -855,18 +848,8 @@ body {
     .avatar-container {
       position: relative;
       width: auto;
-      height: 400px;
-      margin: 2rem;
-    }
-
-    #avatar-base {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: auto;
-      height: 95%;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(6px -5px 6px rgb(30, 30, 30));
+      height: auto;
+      margin: 1rem;
     }
 
     .layered-item img {

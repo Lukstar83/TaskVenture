@@ -506,17 +506,15 @@ window.stopMeditation = function stopMeditation() {
 
         if (timeSpent >= 60) {
             // At least 1 minute
-            const minutes = Math.floor(timeSpent / 60);
-            const mindfulnessGain = Math.min(
+            wellnessStats.mindfulness = Math.min(
                 100,
                 wellnessStats.mindfulness + Math.floor(timeSpent / 60) * 2,
             );
-            const stressReduction = Math.max(
+            wellnessStats.stress = Math.max(
                 0,
                 wellnessStats.stress - Math.floor(timeSpent / 60),
             );
             user.xp += Math.floor(timeSpent / 60);
-
             updateWellness("self_care");
             updateUI();
             showSelfCareMessage(
@@ -715,7 +713,7 @@ function resumeWalking() {
         const totalDuration =
             parseInt(
                 document
-                    .querySelector("#walking-timer-text")
+                    .querySelector(".timer-text")
                     ?.textContent?.split(":")[0] || 10,
             ) * 60;
         const elapsedSeconds = totalDuration - walkingTimeRemaining;
@@ -1767,7 +1765,7 @@ window.loadUserData = function loadUserData() {
 
     // Initialize wellness system
     loadWellnessData();
-}
+};
 
 // Save user data to localStorage
 function saveUserData() {
@@ -2386,14 +2384,7 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    const baseAvatar = document.getElementById("avatar-base");
-    if (baseAvatar) {
-        baseAvatar.src = getBaseAvatarImage();
-        baseAvatar.style.display = "block";
-        baseAvatar.onerror = function () {
-            this.src = "images/base_avatar.png";
-        };
-    }
+    // No need to handle avatar-base anymore since we're using header-avatar
 
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
@@ -2423,12 +2414,10 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    const baseImg = document.getElementById("avatar-base");
+    // No need to update avatar-base since we're using header-avatar now
     const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
-
-    if (baseImg) baseImg.src = getBaseAvatarImage();
 
     if (armorImg) {
         if (user.avatar.armor) {
@@ -2857,6 +2846,7 @@ function fireConfetti(bursts = 180) {
             _confettiCtx.save();
             _confettiCtx.translate(p.x, p.y);
             _confettiCtx.rotate(p.angle);
+            _confettiCtx.fillStyle = p.color;
             _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
             _confettiCtx.restore();
         });
@@ -2933,10 +2923,40 @@ function playSuccessChime() {
 }
 
 // ---- PWA: register service worker ----
-// Removed service worker registration
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((reg) => console.log("TaskVenture SW registered:", reg))
+        .catch(console.error);
+}
 
 // ---- PWA: Add to Home Screen prompt ----
-// Removed add to home screen prompt code
+let _deferredPrompt = null;
+const installBtn = document.getElementById("install-btn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    if (installBtn) installBtn.hidden = false;
+});
+
+if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+        if (!_deferredPrompt) return;
+        installBtn.disabled = true;
+        _deferredPrompt.prompt();
+        const { outcome } = await _deferredPrompt.userChoice;
+        _deferredPrompt = null;
+        installBtn.hidden = true;
+        installBtn.disabled = false;
+        if (outcome === "accepted") {
+            showSelfCareMessage(
+                "📱 TaskVenture installed! You can now access it from your home screen.",
+                0,
+            );
+        }
+    });
+}
 
 window.addEventListener("load", () => {
     const splash = document.getElementById("splash-screen");
