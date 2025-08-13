@@ -940,11 +940,7 @@ body {
 #header-avatar-container #avatar-armor {
   position: absolute;
   top: 50%;
-  left: 50%;
   z-index: 10;
-  transform: translate(-50%, -50%);
-  width: auto;
-  pointer-events: none;
 }
 
 /* Race-specific scaling for header armor - Matching avatar customization */
@@ -1139,17 +1135,7 @@ body {
     /* Card Collection */
     .card-section {
       position: relative;
-      width: 100vw;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 15px;
-      z-index: 5;
-      background: var(--gradient-surface);
-      backdrop-filter: blur(20px);
-      border-top: 3px solid var(--primary-gold);
-      border-radius: 24px 24px 0 0;
-      padding: 2rem 1.5rem 2rem;
-      box-shadow: var(--shadow-premium);
+      padding: 1rem 1.5rem 2rem;
     }
 
     .card-stats {
@@ -1167,7 +1153,6 @@ body {
       max-height: 400px;
       padding: 1rem;
       margin: 0 0.5rem;
-      overflow-y: auto;
     }
 
     .collection-grid::-webkit-scrollbar {
@@ -1187,7 +1172,6 @@ body {
 /* Cards */
 .card {
     background: var(--surface-glass);
-    backdrop-filter: blur(15px);
     border-radius: 16px;
     padding: 1.5rem;
     text-align: center;
@@ -2664,72 +2648,28 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Mobile responsive design */
+/* Mobile optimizations */
 @media (max-width: 768px) {
   /* Header and avatar adjustments */
   .character-avatar img {
-    bottom: 6vw;
+    bottom: 8vw;
   }
-
-  /* Character info layout for mobile */
-  .character-info {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-
-  .left-group {
-    justify-content: center;
-    flex-direction: row;
-    gap: 1.5rem;
-  }
-
-  .level-column {
-    align-items: center;
-  }
-
-  .name-column .character-name {
-    font-size: 1.1rem;
-    margin-top: 0;
-  }
-
-  .details-column .character-details {
-    font-size: 0.85rem;
-    margin-top: 0;
-  }
-
+  
   /* Currency section mobile layout */
-  .currency-column {
-    width: 100%;
-    order: 3;
-  }
-
   .currency-column .currency-section {
-    display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem .5rem;
     text-align: center;
   }
 
   .currency-item {
-    flex-direction: column;
     align-items: center;
     gap: 0.1rem;
-    min-width: 60px;
-  }
-
-  .currency-amount {
-    font-size: 1.1rem;
-  }
-
-  .currency-type {
-    font-size: 0.8rem;
   }
 
   /* XP section mobile adjustments */
   .xp-section {
-    margin-top: 0.75rem;
-    gap: 0.25rem;
+    gap: 0.5rem;
     font-size: 0.85rem;
   }
 
@@ -2737,134 +2677,6 @@ body {
     font-size: 0.75rem;
   }
 
-  /* Task section mobile improvements */
-  .task-section {
-    padding: 1rem;
-    margin-top: -15px;
-  }
-
-  .task-section h2 {
-    font-size: 1.5rem;
-    padding: 0.5rem;
-  }
-
-  .task-input-container {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  #add-task-btn {
-    padding: 0.875rem 1.25rem;
-    font-size: 0.95rem;
-  }
-
-  .task-item {
-    padding: 1rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .task-text {
-    margin-right: 0;
-    width: 100%;
-  }
-
-  .complete-btn {
-    align-self: stretch;
-    text-align: center;
-  }
-
-  /* Navigation improvements */
-  .bottom-nav {
-    padding: 0.5rem;
-  }
-
-  .nav-icon {
-    width: 50px;
-    height: 50px;
-  }
-
-  .nav-label {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
-  }
-
-  /* Card collection mobile layout */
-  .collection-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1rem;
-    max-height: 350px;
-    padding: 0.75rem;
-  }
-
-  .card {
-    padding: 1.25rem;
-  }
-
-  .card-name {
-    font-size: 1rem;
-  }
-
-  .card-effect {
-    font-size: 0.8rem;
-  }
-
-  /* Avatar section mobile improvements */
-  .avatar-section {
-    padding: 1rem;
-    margin-top: -15px;
-  }
-
-  .gear-selectors {
-    gap: 1rem;
-  }
-
-  .selector-group {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .selector-group label {
-    min-width: auto;
-    text-align: center;
-  }
-
-  .selector-group select {
-    max-width: none;
-  }
-
-  /* Dice section mobile improvements */
-  .dice-section {
-    padding: 1rem;
-  }
-
-  .dice-display {
-    width: 280px;
-    height: 200px;
-    font-size: 3rem;
-  }
-
-  #roll-dice-btn {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-  }
-
-  /* Modal improvements for mobile */
-  .card-details-content {
-    max-width: 300px;
-    width: 95%;
-    padding: 1.25rem;
-  }
-
-  .modal-content {
-    max-width: 320px;
-    width: 95%;
-    padding: 1.5rem;
-  }
-
-  /* Wellness page mobile adjustments */
   .wellness-stats {
     grid-template-columns: 1fr 1fr;
   }
@@ -2872,104 +2684,8 @@ body {
   .self-care-grid {
     grid-template-columns: 1fr;
   }
-
-  .wellness-section {
-    padding: 1.5rem 1rem 4rem;
-  }
-
-  /* Settings mobile improvements */
-  .settings-section {
-    padding: 0.5rem;
-  }
-
-  .settings-group {
-    padding: 1rem;
-  }
-
-  .setting-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .setting-item label {
-    text-align: center;
-    min-width: auto;
-  }
-
-  .setting-item input[type="range"] {
-    max-width: none;
-    margin: 0;
-  }
-
-  .setting-item span {
-    text-align: center;
-    min-width: auto;
-  }
-
-  /* Hamburger menu mobile positioning */
-  .hamburger-menu {
-    top: 1.5rem;
-    left: 1rem;
-  }
-
-  /* Wizard mobile improvements */
-  .option-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .option-card {
-    padding: 1rem;
-  }
 }
 
-/* Extra small screens */
-@media (max-width: 480px) {
-  .character-info {
-    gap: 0.25rem;
-  }
-
-  .left-group {
-    gap: 1rem;
-  }
-
-  .level-number {
-    font-size: 2rem;
-  }
-
-  .name-column .character-name {
-    font-size: 1rem;
-  }
-
-  .details-column .character-details {
-    font-size: 0.8rem;
-  }
-
-  .currency-item {
-    min-width: 50px;
-  }
-
-  .currency-amount {
-    font-size: 1rem;
-  }
-
-  .task-section h2,
-  .card-section h2,
-  .dice-section h2 {
-    font-size: 1.4rem;
-  }
-
-  .collection-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  }
-
-  .dice-display {
-    width: 250px;
-    height: 180px;
-    font-size: 2.5rem;
-  }
-}
 /* Hamburger Menu Styles */
 .hamburger-menu {
     position: absolute;
