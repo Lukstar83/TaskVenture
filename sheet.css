@@ -6,6 +6,48 @@
   padding: 1rem;
 }
 
+.char-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--surface-glass);
+  border-radius: 12px;
+  border: 1px solid var(--accent-gold);
+}
+
+.profile-avatar {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-gold);
+  overflow: hidden;
+  position: relative;
+  background: var(--background-dark);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center top;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.character-details {
+  flex: 1;
+}
+
+.character-details h2 {
+  margin-top: 0;
+  color: var(--text-gold);
+}
+
 .combat-stats {
   margin: 1.5rem 0;
   padding: 1rem;
