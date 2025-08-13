@@ -108,21 +108,23 @@
     // Check if stat editing is enabled
     const editingEnabled = localStorage.getItem('editStatsEnabled') === 'true';
 
-    // Get the character's avatar image
+    // Get the character's avatar image using the same system as other pages
     const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : '';
 
     // Inject the sheet HTML
     container.innerHTML = `
       <div class="char-sheet">
         <div class="char-sheet-header">
-          <div class="profile-avatar">
+          <div class="profile-avatar" data-race="${race.toLowerCase().replace(' ', '-')}" data-gender="${gender.toLowerCase()}">
             <img src="${avatarSrc}" alt="${name}'s avatar" onerror="this.src='images/base_avatar.png'">
           </div>
           <div class="profile-info">
             <h2>${name}</h2>
-            <p><strong>Race:</strong> ${race}</p>
-            <p><strong>Gender:</strong> ${gender}</p>
-            <p><strong>Class:</strong> ${cls}</p>
+            <div class="profile-details">
+              <span class="detail-badge race-badge">${race}</span>
+              <span class="detail-badge gender-badge">${gender}</span>
+              <span class="detail-badge class-badge">${cls}</span>
+            </div>
           </div>
         </div>
 
