@@ -470,7 +470,7 @@
     container.innerHTML = `
       <div class="char-sheet">
         <div class="char-sheet-header">
-          <div class="profile-avatar-container">
+          <div class="profile-avatar-container" data-race="${race.toLowerCase()}">
             <img src="${avatarSrc}" alt="Character Avatar" class="profile-avatar">
           </div>
           <div class="character-details">
