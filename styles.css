@@ -463,6 +463,21 @@ body {
 #header-avatar-container[data-race="gnome"]      img { max-height: 54vw; }
 #header-avatar-container[data-race="halfling"]   img { max-height: 52vw; }
 
+.stats-container {
+  display: flex;
+  position: absolute;
+  top: 10px;
+  border-radius: 0 0 20px 20px;
+  z-index: 11;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1rem 1.5rem 1rem;
+  width: 100%;
+  height: auto;
+  background: var(--surface-glass);
+  backdrop-filter: blur(8px);
+}
+
 /* Main Content Section */
 .main-content-section {
   display: flex;
@@ -476,21 +491,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-.stats-container {
-  display: flex;
-  position: absolute;
-  top: 10px;
-  border-radius: 0 0 20px 20px;
-  z-index: 11;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  width: 100%;
-  height: auto;
-  background: var(--surface-glass);
-  backdrop-filter: blur(8px);
 }
 
 /* Character Info Section */
@@ -520,13 +520,13 @@ body {
 .level-label {
   text-transform: uppercase;
   font-size: .8rem;
-  font-weight: bold;
   color: #b8860b;
 }
 
 .level-number {
   font-size: 2.5rem;
   color: #b8860b;
+  font-weight: bold;
   line-height: .75;
 }
 
@@ -548,8 +548,13 @@ body {
 /* Currency Section */
 .currency-column {
   flex-shrink: 0;
+  padding: 0.75rem;
+  border-radius: 10px;
   width: auto;
   height: 100%;
+  background: var(--surface-glass);
+  display: flex;
+  align-items: center;
 }
 
 .currency-column .currency-section {
@@ -576,6 +581,7 @@ body {
     }
 
     .currency-type {
+      font-size: 0.9rem;
       font-weight: 400;
       color: var(--text-muted);
       line-height: 1;
@@ -597,7 +603,7 @@ body {
     }
 
     .xp-bar-container {
-      flex: 1;
+      flex: 0.85;
       position: relative;
     }
 
@@ -624,11 +630,6 @@ body {
       font-weight: 600;
       filter: drop-shadow(0 1px 1px rgb(0, 0, 0, 1));;
     }
-
-#user-xp {
-  font-weight: 600;
-  font-size: 1rem;
-}
 
     /* Streak Section */
     .streak-section {
@@ -890,85 +891,20 @@ body {
 
     .avatar-container {
       position: relative;
-      width: 300px;
-      height: 400px;
-      margin: 1rem auto;
-      background: var(--surface-glass);
-      border: var(--glass-border);
-      border-radius: 16px;
-      overflow: hidden;
+      width: auto;
+      height: auto;
+      margin: 1rem;
     }
 
-    .layered-item {
+    .layered-item img {
       position: absolute;
-      top: 0;
+      top: 10%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
+      height: 90%;
       width: auto;
       object-fit: contain;
       pointer-events: none;
-      z-index: 1;
-    }
-
-    .base-avatar {
-      height: 100%;
-      z-index: 1;
-    }
-
-    .armor-layer {
-      z-index: 2;
-    }
-
-    .weapon-layer {
-      z-index: 3;
-    }
-
-    .cape-layer {
-      z-index: 0;
-    }
-
-    /* Race-specific scaling for armor */
-    #avatar-customization-container[data-race="dragonborn"] .armor-layer { 
-      height: 90%;
-      top: 5%;
-    }
-    #avatar-customization-container[data-race="half-orc"] .armor-layer { 
-      height: 86%;
-      top: 7%;
-    }
-    #avatar-customization-container[data-race="tiefling"] .armor-layer { 
-      height: 81%;
-      top: 9%;
-    }
-    #avatar-customization-container[data-race="half-elf"] .armor-layer { 
-      height: 80%;
-      top: 10%;
-    }
-    #avatar-customization-container[data-race="human"] .armor-layer { 
-      height: 79%;
-      top: 10%;
-    }
-    #avatar-customization-container[data-race="elf"] .armor-layer { 
-      height: 76%;
-      top: 12%;
-    }
-    #avatar-customization-container[data-race="dwarf"] .armor-layer { 
-      height: 62%;
-      top: 19%;
-    }
-    #avatar-customization-container[data-race="gnome"] .armor-layer { 
-      height: 54%;
-      top: 23%;
-    }
-    #avatar-customization-container[data-race="halfling"] .armor-layer { 
-      height: 52%;
-      top: 24%;
-    }
-
-    /* Default armor sizing for unknown races */
-    #avatar-customization-container .armor-layer { 
-      height: 75%;
-      top: 12%;
     }
 
     .gear-selectors {
@@ -1008,49 +944,14 @@ body {
       cursor: pointer;
     }
 
-/* Header avatar armor overlay */
-#header-avatar-container #avatar-armor {
+#avatar-armor {
   position: absolute;
-  top: 50%;
+  top: 42%;
   left: 50%;
-  z-index: 10;
+  z-index: 7;
+  height: 34%;
+  width: auto;     
   transform: translate(-50%, -50%);
-  width: auto;
-  pointer-events: none;
-}
-
-/* Race-specific scaling for header armor */
-#header-avatar-container[data-race="dragonborn"] #avatar-armor { 
-  height: 75%;
-}
-#header-avatar-container[data-race="half-orc"] #avatar-armor { 
-  height: 72%;
-}
-#header-avatar-container[data-race="tiefling"] #avatar-armor { 
-  height: 68%;
-}
-#header-avatar-container[data-race="half-elf"] #avatar-armor { 
-  height: 67%;
-}
-#header-avatar-container[data-race="human"] #avatar-armor { 
-  height: 66%;
-}
-#header-avatar-container[data-race="elf"] #avatar-armor { 
-  height: 63%;
-}
-#header-avatar-container[data-race="dwarf"] #avatar-armor { 
-  height: 50%;
-}
-#header-avatar-container[data-race="gnome"] #avatar-armor { 
-  height: 43%;
-}
-#header-avatar-container[data-race="halfling"] #avatar-armor { 
-  height: 41%;
-}
-
-/* Default header armor sizing */
-#header-avatar-container #avatar-armor { 
-  height: 62%;
 }
 
     /* Dice Section - Premium Design */

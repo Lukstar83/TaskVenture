@@ -2387,19 +2387,7 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    // Set up base avatar for customization page
-    const baseAvatar = document.getElementById("avatar-base-customization");
-    const container = document.getElementById("avatar-customization-container");
-    
-    if (baseAvatar && container) {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        if (profile.race && profile.gender) {
-            baseAvatar.src = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
-            container.dataset.race = profile.race.toLowerCase();
-        } else {
-            baseAvatar.src = "images/base_avatar.png";
-        }
-    }
+    // No need to handle avatar-base anymore since we're using header-avatar
 
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
@@ -2429,31 +2417,19 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    // Update customization page armor
-    const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
+    // No need to update avatar-base since we're using header-avatar now
+    const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
 
-    if (customArmorImg) {
+    if (armorImg) {
         if (user.avatar.armor) {
-            customArmorImg.src = user.avatar.armor;
-            customArmorImg.style.display = "block";
+            armorImg.src = user.avatar.armor;
+            armorImg.style.display = "block";
         } else {
-            customArmorImg.style.display = "none";
+            armorImg.style.display = "none";
         }
     }
-    
-    // Update header armor overlay
-    const headerArmorImg = document.querySelector("#header-avatar-container #avatar-armor");
-    if (headerArmorImg) {
-        if (user.avatar.armor) {
-            headerArmorImg.src = user.avatar.armor;
-            headerArmorImg.style.display = "block";
-        } else {
-            headerArmorImg.style.display = "none";
-        }
-    }
-
     if (weaponImg) {
         if (user.avatar.weapon) {
             weaponImg.src = user.avatar.weapon;
