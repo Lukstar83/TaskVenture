@@ -407,8 +407,37 @@
     // Check if stat editing is enabled
     const editingEnabled = localStorage.getItem('editStatsEnabled') === 'true';
 
-    // Get the character's avatar image
-    const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : 'images/base_avatar.png';
+    // Get the character's avatar image using the same system as the header
+    let avatarSrc = 'images/base_avatar.png'; // fallback
+    
+    // Use the same avatar building logic as in app.js
+    if (race && gender) {
+      const raceDisplay = {
+        'dragonborn': 'Dragonborn',
+        'dwarf': 'Dwarf', 
+        'elf': 'Elf',
+        'gnome': 'Gnome',
+        'half-elf': 'Half-Elf',
+        'half-orc': 'Half-Orc',
+        'halfling': 'Halfling',
+        'human': 'Human',
+        'tiefling': 'Tiefling'
+      };
+      
+      const genderDisplay = {
+        'male': 'Male',
+        'female': 'Female', 
+        'non-binary': 'Enby'
+      };
+      
+      const raceKey = race.toLowerCase();
+      const genderKey = gender.toLowerCase();
+      
+      if (raceDisplay[raceKey] && genderDisplay[genderKey]) {
+        const fileName = `${raceDisplay[raceKey]} ${genderDisplay[genderKey]}.png`;
+        avatarSrc = `images/Avatar bases/${fileName}`;
+      }
+    }
 
     // Generate skills content
     const proficientSkills = getSkillProficiencies(race, cls);
