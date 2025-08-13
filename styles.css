@@ -860,7 +860,7 @@ body {
 
     /* Race-specific scaling for armor - Properly scaled and positioned for each race */
     #avatar-customization-container[data-race="dragonborn"] .armor-layer { 
-      transform: translateX(-50%) scale(0.61, 0.53) translateY(-1.5%);
+      transform: translateX(-50%) scale(0.52, 0.5) translateY(-1.5%);
     }
     #avatar-customization-container[data-race="half-orc"] .armor-layer { 
       transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
