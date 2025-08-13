@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Immediately hide game interface to prevent flash
     if (gameEl) gameEl.style.display = "none";
     if (wizardEl) wizardEl.style.display = "none";
-    
+
     // Initialize the app after DOM is ready
     initializeApp();
 });
@@ -506,15 +506,17 @@ window.stopMeditation = function stopMeditation() {
 
         if (timeSpent >= 60) {
             // At least 1 minute
-            wellnessStats.mindfulness = Math.min(
+            const minutes = Math.floor(timeSpent / 60);
+            const mindfulnessGain = Math.min(
                 100,
                 wellnessStats.mindfulness + Math.floor(timeSpent / 60) * 2,
             );
-            wellnessStats.stress = Math.max(
+            const stressReduction = Math.max(
                 0,
                 wellnessStats.stress - Math.floor(timeSpent / 60),
             );
             user.xp += Math.floor(timeSpent / 60);
+
             updateWellness("self_care");
             updateUI();
             showSelfCareMessage(
@@ -713,7 +715,7 @@ function resumeWalking() {
         const totalDuration =
             parseInt(
                 document
-                    .querySelector(".timer-text")
+                    .querySelector("#walking-timer-text")
                     ?.textContent?.split(":")[0] || 10,
             ) * 60;
         const elapsedSeconds = totalDuration - walkingTimeRemaining;
@@ -1765,7 +1767,7 @@ window.loadUserData = function loadUserData() {
 
     // Initialize wellness system
     loadWellnessData();
-};
+}
 
 // Save user data to localStorage
 function saveUserData() {
@@ -1975,7 +1977,7 @@ function completeTask(taskId) {
     setTimeout(() => {
         fireConfetti();
     }, 100);
-    
+
     setTimeout(() => {
         playSuccessChime();
     }, 200);
@@ -2855,7 +2857,6 @@ function fireConfetti(bursts = 180) {
             _confettiCtx.save();
             _confettiCtx.translate(p.x, p.y);
             _confettiCtx.rotate(p.angle);
-            _confettiCtx.fillStyle = p.color;
             _confettiCtx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
             _confettiCtx.restore();
         });
@@ -2886,14 +2887,14 @@ function playSuccessChime() {
     try {
         console.log("🔊 Playing success chime");
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        
+
         if (!AudioCtx) {
             console.log("Web Audio not supported");
             return;
         }
 
         const ctx = new AudioCtx();
-        
+
         // Resume audio context if suspended (required for user interaction)
         if (ctx.state === 'suspended') {
             ctx.resume().then(() => {
@@ -2925,47 +2926,17 @@ function playSuccessChime() {
             beep(659.25, 0.12, 0.12, "triangle"); // E5
             beep(783.99, 0.24, 0.16, "triangle"); // G5
         }
-        
+
     } catch (error) {
         console.log("Audio context error:", error.message);
     }
 }
 
 // ---- PWA: register service worker ----
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((reg) => console.log("TaskVenture SW registered:", reg))
-        .catch(console.error);
-}
+// Removed service worker registration
 
 // ---- PWA: Add to Home Screen prompt ----
-let _deferredPrompt = null;
-const installBtn = document.getElementById("install-btn");
-
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    _deferredPrompt = e;
-    if (installBtn) installBtn.hidden = false;
-});
-
-if (installBtn) {
-    installBtn.addEventListener("click", async () => {
-        if (!_deferredPrompt) return;
-        installBtn.disabled = true;
-        _deferredPrompt.prompt();
-        const { outcome } = await _deferredPrompt.userChoice;
-        _deferredPrompt = null;
-        installBtn.hidden = true;
-        installBtn.disabled = false;
-        if (outcome === "accepted") {
-            showSelfCareMessage(
-                "📱 TaskVenture installed! You can now access it from your home screen.",
-                0,
-            );
-        }
-    });
-}
+// Removed add to home screen prompt code
 
 window.addEventListener("load", () => {
     const splash = document.getElementById("splash-screen");
