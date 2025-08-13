@@ -806,8 +806,7 @@ body {
       box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
     }
 
-    /* Character Sheet - Premium Design */
-
+    /* Character Sheet */
     .char-sheet {
       text-align: center;
       color: var(--text-light);
