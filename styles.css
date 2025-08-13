@@ -855,8 +855,8 @@ body {
     .avatar-container {
       position: relative;
       width: auto;
-      height: auto;
-      margin: 1rem;
+      height: 400px;
+      margin: 2rem;
     }
 
     .layered-item img {

@@ -6,154 +6,41 @@
   padding: 1rem;
 }
 
-.char-sheet-header {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: var(--gradient-surface);
-  border-radius: 20px;
-  border: 2px solid var(--primary-gold);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(15px);
-}
-
-.profile-avatar {
-  flex-shrink: 0;
-  position: relative;
-}
-
-.profile-avatar img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid var(--primary-gold);
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.profile-avatar img:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
-}
-
-.profile-info {
-  flex: 1;
-}
-
-.profile-info h2 {
-  margin: 0 0 1rem 0;
-  color: var(--text-gold);
-  font-size: 2.2rem;
-  font-weight: 800;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
-}
-
-.profile-details {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.detail-badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.race-badge {
-  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-  color: #2c3e50;
-}
-
-.gender-badge {
-  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
-  color: white;
-}
-
-.class-badge {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
-}
-
 .combat-stats {
   margin: 1.5rem 0;
-  padding: 1.5rem;
-  background: var(--gradient-surface);
-  border-radius: 16px;
-  border: 2px solid var(--primary-gold);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.combat-stats h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--text-gold);
-  font-size: 1.5rem;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  background: var(--surface-glass);
+  border-radius: 12px;
+  border: 1px solid var(--accent-gold);
 }
 
 .combat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .combat-stat {
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
-  border-radius: 12px;
+  padding: 0.75rem;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
   text-align: center;
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.combat-stat:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
-  border-color: var(--primary-gold);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .spell-stats {
   margin: 1.5rem 0;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
-  border-radius: 16px;
-  border: 2px solid var(--primary-blue);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+  padding: 1rem;
+  background: var(--surface-glass);
+  border-radius: 12px;
+  border: 1px solid var(--primary-blue);
 }
 
 .spell-stats h4 {
-  margin: 0 0 1rem 0;
-  color: var(--primary-blue);
-  font-size: 1.3rem;
+  margin-top: 0;
+  color: var(--text-gold);
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.spell-stats p {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 8px;
-  border-left: 3px solid var(--primary-blue);
 }
 
 .spell-stats p {

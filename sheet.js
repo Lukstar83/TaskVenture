@@ -108,25 +108,13 @@
     // Check if stat editing is enabled
     const editingEnabled = localStorage.getItem('editStatsEnabled') === 'true';
 
-    // Get the character's avatar image using the same system as other pages
-    const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : 'images/base_avatar.png';
-
     // Inject the sheet HTML
     container.innerHTML = `
       <div class="char-sheet">
-        <div class="char-sheet-header">
-          <div class="profile-avatar" data-race="${race.toLowerCase().replace(' ', '-')}" data-gender="${gender.toLowerCase()}">
-            <img src="${avatarSrc}" alt="${name}'s avatar" onerror="this.src='images/base_avatar.png'">
-          </div>
-          <div class="profile-info">
-            <h2>${name}</h2>
-            <div class="profile-details">
-              <span class="detail-badge race-badge">${race}</span>
-              <span class="detail-badge gender-badge">${gender}</span>
-              <span class="detail-badge class-badge">${cls}</span>
-            </div>
-          </div>
-        </div>
+        <h2>${name}</h2>
+        <p><strong>Race:</strong> ${race}</p>
+        <p><strong>Gender:</strong> ${gender}</p>
+        <p><strong>Class:</strong> ${cls}</p>
 
         <div class="combat-stats">
           <h3>Combat Stats</h3>
@@ -228,8 +216,6 @@
 
     localStorage.setItem('tv_profile', JSON.stringify(profile));
   }
-
-  
 
   // 3) Expose for app.js and auto‐render on load
   window.renderSheet = renderSheet;
