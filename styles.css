@@ -482,15 +482,24 @@ body {
 .character-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem 1rem;
-  justify-content: flex-start;
+  gap: 0.5rem;
+  justify-content: space-between;
   max-width: 100%;
+  width: 100%;
 }
 
 .level-column {
   display: flex;
   align-items: flex-start;
   font-style: italic;
+  flex-shrink: 0;
+}
+
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
 }
 
 .level-label {
@@ -521,13 +530,17 @@ body {
 }
 
 /* Currency Section */
+.currency-column {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .currency-column .currency-section {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   text-align: right;
   gap: 1rem;
-  margin-left: 40%;
 }
 
 .currency-item {
