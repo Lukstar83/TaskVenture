@@ -497,7 +497,7 @@ body {
 .character-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   justify-content: flex-start;
   max-width: 100%;
   width: 100%;
@@ -2047,7 +2047,11 @@ margin-top: 1.5rem;
 }
 
 .wellness-section {
-  position: absolute;
+  padding: 2rem 2rem 5rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 .wellness-section h2{
@@ -2813,9 +2817,11 @@ body {
 
 /* Wellness Page Styles */
 .wellness-section {
-    padding: 2rem;
+    padding: 2rem 2rem 5rem 2rem;
     max-width: 800px;
     margin: 0 auto;
+    min-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
 .wellness-intro {
