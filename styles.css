@@ -466,7 +466,7 @@ body {
 .stats-container {
   display: flex;
   position: absolute;
-  top: 2vw;
+  top: 10px;
   border-radius: 0 0 20px 20px;
   z-index: 11;
   flex-direction: column;
@@ -475,7 +475,7 @@ body {
   width: 100%;
   height: auto;
   background: var(--surface-glass);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
 }
 
 /* Character Info Section */
@@ -493,8 +493,6 @@ body {
   flex-direction: row;
   align-items: flex-start;
   font-style: italic;
-  flex-shrink: 0;
-  gap: 0.5rem;
 }
 
 .left-group {
@@ -508,14 +506,13 @@ body {
   text-transform: uppercase;
   font-size: .8rem;
   color: #b8860b;
-  align-self: flex-start;
 }
 
 .level-number {
   font-size: 2.5rem;
   color: #b8860b;
   font-weight: bold;
-  line-height: 1;
+  line-height: .75;
 }
 
 .name-column .character-name {
@@ -537,6 +534,11 @@ body {
 .currency-column {
   margin-left: auto;
   flex-shrink: 0;
+  padding: 0.5rem;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+  background: var(--surface-glass);
 }
 
 .currency-column .currency-section {
@@ -582,25 +584,23 @@ body {
     .xp-label {
       font-size: 0.8rem;
       font-weight: 500;
-      flex-shrink: 0;
     }
 
     .xp-bar-container {
-      flex: 0.6;
+      flex: 0.85;
       position: relative;
     }
 
     .xp-bar {
       height: 12px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgb(234, 179, 8, 0.3);
       border-radius: 6px;
       overflow: hidden;
-      border: 1.5px solid rgba(212, 175, 55, 0.3);
     }
 
     .xp-fill {
       height: 100%;
-      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      background: linear-gradient(90deg, #00ea00 0%, #16a34a 100%);
       border-radius: 5px;
       transition: width 0.5s ease;
       width: 0%;
@@ -610,13 +610,9 @@ body {
       position: absolute;
       bottom: -8px;
       right: 0;
-      font-size: 0.8rem;
       color: var(--text-gold);
       font-weight: 600;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      filter: drop-shadow(0 1px 1px rgb(0, 0, 0, 1));;
     }
 
     /* Streak Section */
