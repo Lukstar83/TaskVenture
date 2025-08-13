@@ -29,17 +29,15 @@
   overflow: hidden;
   position: relative;
   background: var(--background-dark);
-  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
   margin-bottom: 1rem;
 }
 
 .profile-avatar {
-  width: 120%;
+  width: 180%;
   height: auto;
   object-fit: cover;
   object-position: center top;
   position: absolute;
-  top: -5%;
   left: 50%;
   transform: translateX(-50%);
 }
