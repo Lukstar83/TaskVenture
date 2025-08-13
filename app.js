@@ -2552,7 +2552,7 @@ function updateAvatarDisplay() {
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
-    const bootsImg = document.getElementById("avatar-boots");
+    const bootsImg = document.getElementById("avatar-boots"); // Get boots image element
 
     if (customArmorImg) {
         if (user.avatar.armor) {
@@ -2584,13 +2584,14 @@ function updateAvatarDisplay() {
     }
     if (capeImg) {
         if (user.avatar.cape) {
-            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`;
+            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`; // Ensure correct path for capes
             capeImg.style.display = "block";
         } else {
             capeImg.style.display = "none";
         }
     }
 
+    // Update boots
     if (bootsImg) {
         if (user.avatar.boots) {
             if (user.avatar.boots === "steel") {
@@ -2602,7 +2603,7 @@ function updateAvatarDisplay() {
         } else {
             bootsImg.style.display = "none";
         }
-    }</old_str>
+    }
 }
 
 function setupHeaderAvatarLayout() {
