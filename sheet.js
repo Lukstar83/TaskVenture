@@ -229,6 +229,21 @@
     localStorage.setItem('tv_profile', JSON.stringify(profile));
   }
 
+  // Helper function to build the avatar source (should be defined elsewhere or passed in)
+  // For the purpose of this fix, assuming it exists and works as intended.
+  function getBaseAvatarImage() {
+    const p = loadProfile(); // Reload profile to get race and gender
+    if (!p) return 'images/base_avatar.png'; // Fallback if profile not loaded
+    const { race, gender } = p;
+    // This is a placeholder, replace with actual logic if TV_AVATAR is not globally available
+    // or if the structure is different.
+    if (window.TV_AVATAR && typeof window.TV_AVATAR.buildAvatarSrc === 'function') {
+        return window.TV_AVATAR.buildAvatarSrc(race, gender);
+    }
+    // Fallback if TV_AVATAR or buildAvatarSrc is not available
+    return `images/avatars/${race.toLowerCase().replace(' ', '-')}_${gender.toLowerCase()}.png`;
+  }
+
   // 3) Expose for app.js and auto‐render on load
   window.renderSheet = renderSheet;
   document.addEventListener('DOMContentLoaded', renderSheet);
