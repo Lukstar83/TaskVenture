@@ -593,7 +593,7 @@ body {
       background: rgba(0, 0, 0, 0.3);
       border-radius: 6px;
       overflow: hidden;
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      border: 1.5px solid rgba(212, 175, 55, 0.3);
     }
 
     .xp-fill {
