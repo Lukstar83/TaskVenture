@@ -93,7 +93,7 @@ function setupWellnessNotificationListeners() {
     Object.keys(activityToggles).forEach(toggleId => {
         const toggle = document.getElementById(toggleId);
         const activityKey = activityToggles[toggleId];
-        
+
         if (toggle) {
             toggle.checked = notificationSettings.activities[activityKey];
             toggle.addEventListener('change', function() {
@@ -1026,8 +1026,10 @@ function resumeRest() {
         }
     }, 1000);
 
-    if (pauseBtn) pauseBtn.textContent = "Pause";
-    pauseBtn.onclick = pauseRest;
+    if (pauseBtn) {
+        pauseBtn.textContent = "Pause";
+        pauseBtn.onclick = pauseRest;
+    }
 }
 
 // Stop rest early
@@ -1778,9 +1780,9 @@ if (!window.user) {
         lastActiveDate: null,
         avatar: {
             armor: "",
-            boots: "",
             weapon: "",
             cape: "",
+            boots: ""
         },
     };
 }
@@ -1844,6 +1846,7 @@ window.loadUserData = function loadUserData() {
             armor: "",
             weapon: "",
             cape: "",
+            boots: ""
         };
     }
 
@@ -2300,7 +2303,7 @@ window.toggleHamburgerMenu = function toggleHamburgerMenu() {
 document.addEventListener('click', function(e) {
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const dropdown = document.getElementById('hamburger-dropdown');
-    
+
     if (hamburgerMenu && dropdown && !hamburgerMenu.contains(e.target)) {
         dropdown.classList.remove('active');
     }
@@ -2513,10 +2516,12 @@ function initializeAvatarCustomization() {
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
     const capeSel = document.getElementById("cape-select");
+    const bootsSel = document.getElementById("boots-select"); // Added for boots selection
 
     if (armorSel) armorSel.value = user.avatar.armor;
     if (weaponSel) weaponSel.value = user.avatar.weapon;
     if (capeSel) capeSel.value = user.avatar.cape;
+    if (bootsSel) bootsSel.value = user.avatar.boots; // Set boots value
 
     updateAvatarDisplay();
 
@@ -2535,6 +2540,11 @@ function initializeAvatarCustomization() {
         updateAvatarDisplay();
         saveUserData();
     });
+    bootsSel?.addEventListener("change", function () { // Add listener for boots selection
+        user.avatar.boots = this.value;
+        updateAvatarDisplay();
+        saveUserData();
+    });
 }
 
 function updateAvatarDisplay() {
@@ -2542,6 +2552,7 @@ function updateAvatarDisplay() {
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
+    const bootsImg = document.getElementById("avatar-boots"); // Get boots image element
 
     if (customArmorImg) {
         if (user.avatar.armor) {
@@ -2573,10 +2584,24 @@ function updateAvatarDisplay() {
     }
     if (capeImg) {
         if (user.avatar.cape) {
-            capeImg.src = user.avatar.cape;
+            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`; // Ensure correct path for capes
             capeImg.style.display = "block";
         } else {
             capeImg.style.display = "none";
+        }
+    }
+
+    // Update boots
+    if (bootsImg) {
+        if (user.avatar.boots) {
+            if (user.avatar.boots === "steel") {
+                bootsImg.src = "attached_assets/Steel_boots.png";
+            } else {
+                bootsImg.src = `images/boots/${user.avatar.boots}_boots.png`;
+            }
+            bootsImg.style.display = "block";
+        } else {
+            bootsImg.style.display = "none";
         }
     }
 }
