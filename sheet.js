@@ -108,18 +108,10 @@
     // Check if stat editing is enabled
     const editingEnabled = localStorage.getItem('editStatsEnabled') === 'true';
 
-    // Get the character's avatar image using the same system as other pages
-    const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : 'images/base_avatar.png';
-
     // Inject the sheet HTML
     container.innerHTML = `
       <div class="char-sheet">
-        <div id="char-sheet-header">
-          <div class="profile-avatar-container">
-            <img src="${avatarSrc}" alt="Character Avatar" class="profile-avatar">
-          </div>
-          <h2>${name}</h2>
-        </div>
+        <h2>${name}</h2>
         <p><strong>Race:</strong> ${race}</p>
         <p><strong>Gender:</strong> ${gender}</p>
         <p><strong>Class:</strong> ${cls}</p>
@@ -166,12 +158,6 @@
 </table>
       </div>
     `;
-
-    // Set the top of the avatar image to be roughly inline with the top of the circle
-    const avatarElement = container.querySelector('.profile-avatar');
-    if (avatarElement) {
-      avatarElement.style.objectPosition = '0px -20px'; // Adjust this value as needed for visual alignment
-    }
 
     // Add event listeners for editable inputs if editing is enabled
     if (editingEnabled) {

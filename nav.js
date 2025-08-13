@@ -15,11 +15,10 @@ window.showPage = function(pageId, linkEl) {
 
   // 3) Show header and stats only on specific pages
   const showHeaderAndStats = ['tasks-page', 'character-sheet-page', 'avatar-page'].includes(pageId);
-  const showStatsOnly = ['tasks-page', 'character-sheet-page'].includes(pageId);
 
   const headerEl = document.querySelector('header');
   if (headerEl) headerEl.style.display = showHeaderAndStats ? '' : 'none';
 
   const statsEl = document.querySelector('.stats-container');
-  if (statsEl) statsEl.style.display = showStatsOnly ? '' : 'none';
+  if (statsEl) statsEl.style.display = showHeaderAndStats ? '' : 'none';
 };

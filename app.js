@@ -2384,8 +2384,15 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    // No need to handle avatar-base anymore since we're using header-avatar
-    
+    const baseAvatar = document.getElementById("avatar-base");
+    if (baseAvatar) {
+        baseAvatar.src = getBaseAvatarImage();
+        baseAvatar.style.display = "block";
+        baseAvatar.onerror = function () {
+            this.src = "images/base_avatar.png";
+        };
+    }
+
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
     const capeSel = document.getElementById("cape-select");
@@ -2414,10 +2421,12 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    // No need to update avatar-base since we're using header-avatar now
+    const baseImg = document.getElementById("avatar-base");
     const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
+
+    if (baseImg) baseImg.src = getBaseAvatarImage();
 
     if (armorImg) {
         if (user.avatar.armor) {
