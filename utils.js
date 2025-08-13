@@ -1,27 +1,64 @@
-// XP and leveling utilities
+// XP and leveling utilities - D&D 5e inspired progression
 function getXPForLevel(level) {
-    return 100 + 50 * (level - 1); // Level 1 = 100 XP, Level 2 = 150, Level 3 = 200...
+    // D&D-style XP requirements (cumulative totals)
+    const xpTable = [
+        0,     // Level 1 (starting)
+        300,   // Level 2
+        900,   // Level 3
+        2700,  // Level 4
+        6500,  // Level 5
+        14000, // Level 6
+        23000, // Level 7
+        34000, // Level 8
+        48000, // Level 9
+        64000, // Level 10
+        85000, // Level 11
+        100000, // Level 12
+        120000, // Level 13
+        140000, // Level 14
+        165000, // Level 15
+        195000, // Level 16
+        225000, // Level 17
+        265000, // Level 18
+        305000, // Level 19
+        355000  // Level 20
+    ];
+    
+    // For levels beyond 20, continue the progression
+    if (level <= 20) {
+        return xpTable[level - 1] || 0;
+    } else {
+        // Exponential growth for epic levels
+        const baseXP = 355000;
+        const extraLevels = level - 20;
+        return baseXP + (extraLevels * 50000);
+    }
 }
 
 function calculateLevel(xp) {
     let level = 1;
-    let totalXPNeeded = 0;
     
-    while (totalXPNeeded <= xp) {
-        totalXPNeeded += getXPForLevel(level);
-        if (totalXPNeeded <= xp) {
-            level++;
-        }
+    // Find the highest level where XP requirement is met
+    while (level <= 20 && getXPForLevel(level + 1) <= xp) {
+        level++;
+    }
+    
+    // Handle epic levels beyond 20
+    if (level === 20 && xp > getXPForLevel(20)) {
+        const extraXP = xp - getXPForLevel(20);
+        const extraLevels = Math.floor(extraXP / 50000);
+        level += extraLevels;
     }
     
     return level;
 }
 
 function checkLevelUp(user) {
-    const requiredXP = getXPForLevel(user.level);
-    if (user.xp >= requiredXP) {
-        user.level += 1;
-        user.xp -= requiredXP;
+    const currentLevel = user.level || 1;
+    const newLevel = calculateLevel(user.xp);
+    
+    if (newLevel > currentLevel) {
+        user.level = newLevel;
         return true;
     }
     return false;

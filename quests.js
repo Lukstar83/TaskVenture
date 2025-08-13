@@ -469,11 +469,14 @@ class QuestEngine {
             window.user.cards.push(itemCard);
         });
 
-        // Check for level up based on XP using main app formula
-        const newLevel = Math.floor(Math.sqrt(window.user.xp / 100)) + 1;
-        if (newLevel > (window.user.level || 1)) {
-            window.user.level = newLevel;
-            console.log(`Level up! You are now level ${newLevel}`);
+        // Check for level up using D&D-style progression
+        const oldLevel = window.user.level || 1;
+        if (typeof calculateLevel === 'function') {
+            const newLevel = calculateLevel(window.user.xp);
+            if (newLevel > oldLevel) {
+                window.user.level = newLevel;
+                console.log(`Level up! You are now level ${newLevel}`);
+            }
         }
 
         // Save to main app storage system (taskventureData is the primary one)
