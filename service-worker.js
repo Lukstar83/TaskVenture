@@ -49,23 +49,25 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const { request } = e;
 
-  // Cache-first for same-origin GETs
+  // Network-first for same-origin GETs (better for development)
   if (request.method === 'GET' && new URL(request.url).origin === location.origin) {
     e.respondWith((async () => {
       try {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        
+        // Try network first
         const fresh = await fetch(request);
         
-        // Optionally put fresh static assets in cache
+        // Update cache with fresh content for static assets
         if (ASSETS.some(p => request.url.endsWith(p.replace('/', '')))) {
           const cache = await caches.open(CACHE);
           cache.put(request, fresh.clone());
         }
         return fresh;
       } catch (error) {
-        // Offline fallback for navigations
+        // Fall back to cache if network fails (offline support)
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        
+        // Final fallback for navigations
         if (request.mode === 'navigate') {
           const fallback = await caches.match('/index.html');
           if (fallback) return fallback;
