@@ -261,9 +261,31 @@
   background: rgba(212, 175, 55, 0.2);
 }
 
+.skill-item.proficient {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+.skill-item.proficient:hover {
+  background: rgba(212, 175, 55, 0.3);
+}
+
 .skill-name {
   font-weight: 600;
   color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.proficiency-dot {
+  font-size: 0.8rem;
+  color: var(--primary-gold);
+}
+
+.skill-item.proficient .proficiency-dot {
+  color: var(--primary-gold);
+  filter: brightness(1.2);
 }
 
 .skill-modifier {

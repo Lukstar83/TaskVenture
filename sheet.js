@@ -35,6 +35,74 @@
     'Survival': 'WIS'
   };
 
+  // Class skill proficiencies
+  const CLASS_SKILLS = {
+    'Barbarian': ['Animal Handling', 'Athletics', 'Intimidation', 'Nature', 'Perception', 'Survival'],
+    'Bard': ['Deception', 'History', 'Investigation', 'Persuasion', 'Performance', 'Sleight of Hand'],
+    'Cleric': ['History', 'Insight', 'Medicine', 'Persuasion', 'Religion'],
+    'Druid': ['Arcana', 'Animal Handling', 'Insight', 'Medicine', 'Nature', 'Perception', 'Religion', 'Survival'],
+    'Fighter': ['Acrobatics', 'Animal Handling', 'Athletics', 'History', 'Insight', 'Intimidation', 'Perception', 'Survival'],
+    'Monk': ['Acrobatics', 'Athletics', 'History', 'Insight', 'Religion', 'Stealth'],
+    'Paladin': ['Athletics', 'Insight', 'Intimidation', 'Medicine', 'Persuasion', 'Religion'],
+    'Ranger': ['Animal Handling', 'Athletics', 'Insight', 'Investigation', 'Nature', 'Perception', 'Stealth', 'Survival'],
+    'Rogue': ['Acrobatics', 'Athletics', 'Deception', 'Insight', 'Intimidation', 'Investigation', 'Perception', 'Performance', 'Persuasion', 'Sleight of Hand', 'Stealth'],
+    'Sorcerer': ['Arcana', 'Deception', 'Insight', 'Intimidation', 'Persuasion', 'Religion'],
+    'Warlock': ['Arcana', 'Deception', 'History', 'Intimidation', 'Investigation', 'Nature', 'Religion'],
+    'Wizard': ['Arcana', 'History', 'Insight', 'Investigation', 'Medicine', 'Religion']
+  };
+
+  // Racial skill proficiencies
+  const RACIAL_SKILLS = {
+    'Human': [], // Variant human gets choice, but standard human gets none
+    'Elf': ['Perception'],
+    'Half-Elf': [], // Gets 2 skills of choice
+    'Dwarf': [], // Mountain dwarf gets tool proficiencies, not skills
+    'Halfling': [], // No automatic skill proficiencies
+    'Dragonborn': [], // No automatic skill proficiencies
+    'Gnome': [], // Forest gnome gets minor illusion, rock gnome gets tinker tools
+    'Half-Orc': ['Intimidation'],
+    'Tiefling': ['Deception']
+  };
+
+  // Determine skill proficiencies
+  function getSkillProficiencies(race, cls) {
+    const proficiencies = new Set();
+    
+    // Add racial proficiencies
+    const racialSkills = RACIAL_SKILLS[race] || [];
+    racialSkills.forEach(skill => proficiencies.add(skill));
+    
+    // Add class proficiencies (for Fighter, typically choose 2 from the list)
+    const classSkills = CLASS_SKILLS[cls] || [];
+    if (cls === 'Fighter') {
+      // For Fighter, we'll assume they picked Athletics and Intimidation as common choices
+      proficiencies.add('Athletics');
+      proficiencies.add('Intimidation');
+    } else if (cls === 'Rogue') {
+      // Rogue gets 4 skills from their list, let's pick common ones
+      proficiencies.add('Stealth');
+      proficiencies.add('Sleight of Hand');
+      proficiencies.add('Investigation');
+      proficiencies.add('Perception');
+    } else if (cls === 'Ranger') {
+      // Ranger gets 3 skills, let's pick common survival-oriented ones
+      proficiencies.add('Survival');
+      proficiencies.add('Nature');
+      proficiencies.add('Perception');
+    } else if (cls === 'Bard') {
+      // Bard gets 3 skills from their list
+      proficiencies.add('Persuasion');
+      proficiencies.add('Performance');
+      proficiencies.add('Deception');
+    } else {
+      // For other classes, add 2 skills from their available list
+      const availableSkills = classSkills.slice(0, 2);
+      availableSkills.forEach(skill => proficiencies.add(skill));
+    }
+    
+    return Array.from(proficiencies);
+  }
+
   // Class features data
   const CLASS_FEATURES = {
     'Fighter': [
@@ -152,14 +220,20 @@
     const avatarSrc = window.TV_AVATAR ? window.TV_AVATAR.buildAvatarSrc(race, gender) : 'images/base_avatar.png';
 
     // Generate skills content
+    const proficientSkills = getSkillProficiencies(race, cls);
     const skillsContent = Object.entries(SKILLS).map(([skillName, ability]) => {
       const abilityMod = Math.floor((abilityScores[ability] - 10) / 2);
-      const skillMod = abilityMod; // Basic skill modifier without proficiency for now
+      const isProficient = proficientSkills.includes(skillName);
+      const skillMod = isProficient ? abilityMod + proficiencyBonus : abilityMod;
       const modDisplay = skillMod >= 0 ? `+${skillMod}` : skillMod;
+      const proficiencyIcon = isProficient ? '⚫' : '⚪';
       
       return `
-        <div class="skill-item">
-          <span class="skill-name">${skillName} (${ability})</span>
+        <div class="skill-item ${isProficient ? 'proficient' : ''}">
+          <span class="skill-name">
+            <span class="proficiency-dot">${proficiencyIcon}</span>
+            ${skillName} (${ability})
+          </span>
           <span class="skill-modifier">${modDisplay}</span>
         </div>
       `;
