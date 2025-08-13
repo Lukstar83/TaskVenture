@@ -2387,7 +2387,19 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    // No need to handle avatar-base anymore since we're using header-avatar
+    // Set up base avatar for customization page
+    const baseAvatar = document.getElementById("avatar-base-customization");
+    const container = document.getElementById("avatar-customization-container");
+    
+    if (baseAvatar && container) {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        if (profile.race && profile.gender) {
+            baseAvatar.src = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
+            container.dataset.race = profile.race.toLowerCase();
+        } else {
+            baseAvatar.src = "images/base_avatar.png";
+        }
+    }
 
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
@@ -2417,7 +2429,6 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    // No need to update avatar-base since we're using header-avatar now
     const armorImg = document.getElementById("avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
