@@ -858,38 +858,38 @@ body {
       z-index: 0;
     }
 
-    /* Race-specific scaling for armor - Updated to match iron-armor-maker scaling */
+    /* Race-specific scaling for armor - Reduced by ~50% for proper fit */
     #avatar-customization-container[data-race="dragonborn"] .armor-layer { 
-      transform: scale(1.22, 1.05) translateY(-1.5%);
+      transform: scale(0.61, 0.53) translateY(-1.5%);
     }
     #avatar-customization-container[data-race="half-orc"] .armor-layer { 
-      transform: scale(1.05, 1.05);
+      transform: scale(0.53, 0.53);
     }
     #avatar-customization-container[data-race="tiefling"] .armor-layer { 
-      transform: scale(1.00, 1.08) translateY(-1%);
+      transform: scale(0.50, 0.54) translateY(-1%);
     }
     #avatar-customization-container[data-race="half-elf"] .armor-layer { 
-      transform: scale(1.05, 1.05);
+      transform: scale(0.53, 0.53);
     }
     #avatar-customization-container[data-race="human"] .armor-layer { 
-      transform: scale(1.05, 1.05);
+      transform: scale(0.53, 0.53);
     }
     #avatar-customization-container[data-race="elf"] .armor-layer { 
-      transform: scale(1.00, 1.08) translateY(-1%);
+      transform: scale(0.50, 0.54) translateY(-1%);
     }
     #avatar-customization-container[data-race="dwarf"] .armor-layer { 
-      transform: scale(1.18, 0.92) translateY(2%);
+      transform: scale(0.59, 0.46) translateY(2%);
     }
     #avatar-customization-container[data-race="gnome"] .armor-layer { 
-      transform: scale(0.92, 0.88) translateY(3%);
+      transform: scale(0.46, 0.44) translateY(3%);
     }
     #avatar-customization-container[data-race="halfling"] .armor-layer { 
-      transform: scale(0.95, 0.90) translateY(2%);
+      transform: scale(0.48, 0.45) translateY(2%);
     }
 
     /* Default armor sizing for unknown races */
     #avatar-customization-container .armor-layer { 
-      transform: scale(1.00, 1.00);
+      transform: scale(0.50, 0.50);
     }
 
     .gear-selectors {
@@ -948,38 +948,38 @@ body {
   pointer-events: none;
 }
 
-/* Race-specific scaling for header armor - Updated to match iron-armor-maker scaling */
+/* Race-specific scaling for header armor - Reduced by ~50% for proper fit */
 #header-avatar-container[data-race="dragonborn"] #avatar-armor { 
-  transform: scale(1.22, 1.05) translateY(-1.5%);
+  transform: scale(0.61, 0.53) translateY(-1.5%);
 }
 #header-avatar-container[data-race="half-orc"] #avatar-armor { 
-  transform: scale(1.05, 1.05);
+  transform: scale(0.53, 0.53);
 }
 #header-avatar-container[data-race="tiefling"] #avatar-armor { 
-  transform: scale(1.00, 1.08) translateY(-1%);
+  transform: scale(0.50, 0.54) translateY(-1%);
 }
 #header-avatar-container[data-race="half-elf"] #avatar-armor { 
-  transform: scale(1.05, 1.05);
+  transform: scale(0.53, 0.53);
 }
 #header-avatar-container[data-race="human"] #avatar-armor { 
-  transform: scale(1.05, 1.05);
+  transform: scale(0.53, 0.53);
 }
 #header-avatar-container[data-race="elf"] #avatar-armor { 
-  transform: scale(1.00, 1.08) translateY(-1%);
+  transform: scale(0.50, 0.54) translateY(-1%);
 }
 #header-avatar-container[data-race="dwarf"] #avatar-armor { 
-  transform: scale(1.18, 0.92) translateY(2%);
+  transform: scale(0.59, 0.46) translateY(2%);
 }
 #header-avatar-container[data-race="gnome"] #avatar-armor { 
-  transform: scale(0.92, 0.88) translateY(3%);
+  transform: scale(0.46, 0.44) translateY(3%);
 }
 #header-avatar-container[data-race="halfling"] #avatar-armor { 
-  transform: scale(0.95, 0.90) translateY(2%);
+  transform: scale(0.48, 0.45) translateY(2%);
 }
 
 /* Default header armor sizing */
 #header-avatar-container #avatar-armor { 
-  transform: scale(1.00, 1.00);
+  transform: scale(0.50, 0.50);
 }
 
     /* Dice Section */
