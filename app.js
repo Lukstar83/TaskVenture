@@ -2608,6 +2608,14 @@ function updateAvatarDisplay() {
             bootsImg.src = user.avatar.boots;
             bootsImg.style.display = "block";
             console.log("Boots set to:", bootsImg.src);
+            
+            // Add error handling to debug image loading
+            bootsImg.onerror = function() {
+                console.error("Boots image failed to load:", this.src);
+            };
+            bootsImg.onload = function() {
+                console.log("Boots image loaded successfully:", this.src);
+            };
         } else {
             bootsImg.style.display = "none";
         }

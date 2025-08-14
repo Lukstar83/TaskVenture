@@ -947,6 +947,7 @@ body {
 .boots-layer {
   z-index: 2;
   position: absolute;
+  height: 100%;
 }
 
 .weapon-layer {
