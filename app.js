@@ -2599,9 +2599,10 @@ function updateAvatarDisplay() {
             if (user.avatar.boots === "steel") {
                 bootsImg.src = "attached_assets/Steel_boots.png";
             } else {
-                bootsImg.src = `images/boots/${user.avatar.boots}_boots.png`;
+                bootsImg.src = `images/boots/${user.avatar.boots}.png`;
             }
             bootsImg.style.display = "block";
+            console.log("Boots set to:", bootsImg.src);
         } else {
             bootsImg.style.display = "none";
         }
