@@ -93,7 +93,7 @@ function setupWellnessNotificationListeners() {
     Object.keys(activityToggles).forEach(toggleId => {
         const toggle = document.getElementById(toggleId);
         const activityKey = activityToggles[toggleId];
-        
+
         if (toggle) {
             toggle.checked = notificationSettings.activities[activityKey];
             toggle.addEventListener('change', function() {
@@ -1026,8 +1026,10 @@ function resumeRest() {
         }
     }, 1000);
 
-    if (pauseBtn) pauseBtn.textContent = "Pause";
-    pauseBtn.onclick = pauseRest;
+    if (pauseBtn) {
+        pauseBtn.textContent = "Pause";
+        pauseBtn.onclick = pauseRest;
+    }
 }
 
 // Stop rest early
@@ -1778,9 +1780,9 @@ if (!window.user) {
         lastActiveDate: null,
         avatar: {
             armor: "",
-            boots: "",
             weapon: "",
             cape: "",
+            boots: ""
         },
     };
 }
@@ -1844,6 +1846,7 @@ window.loadUserData = function loadUserData() {
             armor: "",
             weapon: "",
             cape: "",
+            boots: ""
         };
     }
 
@@ -1925,8 +1928,10 @@ function updateUI() {
     if (silverElement) silverElement.textContent = silver;
     if (copperElement) copperElement.textContent = copper;
 
-    // Check for level up with new system
-    if (checkLevelUp(user)) {
+    // Check for level up with D&D system
+    const newLevel = calculateLevel(user.xp);
+    if (newLevel > user.level) {
+        user.level = newLevel;
         showLevelUpMessage();
     }
 
@@ -2300,7 +2305,7 @@ window.toggleHamburgerMenu = function toggleHamburgerMenu() {
 document.addEventListener('click', function(e) {
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const dropdown = document.getElementById('hamburger-dropdown');
-    
+
     if (hamburgerMenu && dropdown && !hamburgerMenu.contains(e.target)) {
         dropdown.classList.remove('active');
     }
@@ -2308,7 +2313,7 @@ document.addEventListener('click', function(e) {
 
 // Show level up message
 function showLevelUpMessage() {
-    alert(`🎉 Level Up! You are now level ${user.level}!`);
+    showSelfCareMessage(`🎉 Level Up! You are now level ${user.level}!`, 0);
 }
 
 // Initialize avatar customization
@@ -2513,10 +2518,12 @@ function initializeAvatarCustomization() {
     const armorSel = document.getElementById("armor-select");
     const weaponSel = document.getElementById("weapon-select");
     const capeSel = document.getElementById("cape-select");
+    const bootsSel = document.getElementById("boots-select"); // Added for boots selection
 
     if (armorSel) armorSel.value = user.avatar.armor;
     if (weaponSel) weaponSel.value = user.avatar.weapon;
     if (capeSel) capeSel.value = user.avatar.cape;
+    if (bootsSel) bootsSel.value = user.avatar.boots; // Set boots value
 
     updateAvatarDisplay();
 
@@ -2535,6 +2542,11 @@ function initializeAvatarCustomization() {
         updateAvatarDisplay();
         saveUserData();
     });
+    bootsSel?.addEventListener("change", function () { // Add listener for boots selection
+        user.avatar.boots = this.value;
+        updateAvatarDisplay();
+        saveUserData();
+    });
 }
 
 function updateAvatarDisplay() {
@@ -2542,6 +2554,7 @@ function updateAvatarDisplay() {
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
+    const bootsImg = document.getElementById("avatar-boots"); // Get boots image element
 
     if (customArmorImg) {
         if (user.avatar.armor) {
@@ -2573,10 +2586,21 @@ function updateAvatarDisplay() {
     }
     if (capeImg) {
         if (user.avatar.cape) {
-            capeImg.src = user.avatar.cape;
+            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`; // Ensure correct path for capes
             capeImg.style.display = "block";
         } else {
             capeImg.style.display = "none";
+        }
+    }
+
+    // Update boots (same logic as armor)
+    if (bootsImg) {
+        if (user.avatar.boots) {
+            bootsImg.src = user.avatar.boots;
+            bootsImg.style.display = "block";
+            console.log("Boots set to:", bootsImg.src);
+        } else {
+            bootsImg.style.display = "none";
         }
     }
 }
@@ -3078,13 +3102,7 @@ function playSuccessChime() {
     }
 }
 
-// ---- PWA: register service worker ----
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((reg) => console.log("TaskVenture SW registered:", reg))
-        .catch(console.error);
-}
+
 
 // ---- PWA: Add to Home Screen prompt ----
 let _deferredPrompt = null;
