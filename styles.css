@@ -470,6 +470,7 @@ body {
 
 .header {
   width: 100vw;
+  margin-top: -10px;
   position: relative;
 }
 
@@ -479,14 +480,9 @@ body {
   height: auto;
   z-index: 1;
   object-fit: cover;
-  padding-top: 18%;
+  padding-top: 20%;
   border-bottom: 3px solid var(--primary-gold);
   border-radius: 0 0 20px 20px;
-}
-
-/* Move header up when avatar page is active */
-#avatar-page.active ~ * .header {
-  margin-top: -12vh;
 }
 
 .character-avatar img {
@@ -555,7 +551,7 @@ body {
 .stats-container {
   display: flex;
   position: absolute;
-  top: 0;
+  top: 10px;
   border-bottom: 2px solid var(--primary-gold);
   z-index: 11;
   flex-direction: column;
