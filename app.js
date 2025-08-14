@@ -2501,17 +2501,18 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    // Set up base avatar for customization page
-    const baseAvatar = document.getElementById("avatar-base-customization");
+    // Set up container data attributes for proper scaling
     const container = document.getElementById("avatar-customization-container");
+    const headerAvatar = document.getElementById("header-avatar-container");
 
-    if (baseAvatar && container) {
+    if (container && headerAvatar) {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        if (profile.race && profile.gender) {
-            baseAvatar.src = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
+        if (profile.race) {
             container.dataset.race = profile.race.toLowerCase();
-        } else {
-            baseAvatar.src = "images/base_avatar.png";
+            // Copy the race data from header to customization container
+            if (headerAvatar.dataset.race) {
+                container.dataset.race = headerAvatar.dataset.race;
+            }
         }
     }
 
@@ -2550,6 +2551,14 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
+    // Sync the avatar container background with header avatar
+    const headerAvatar = document.getElementById("header-avatar");
+    const avatarContainer = document.getElementById("avatar-customization-container");
+    
+    if (headerAvatar && avatarContainer) {
+        avatarContainer.style.setProperty('--header-avatar-src', `url(${headerAvatar.src})`);
+    }
+
     // Update customization page armor
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
