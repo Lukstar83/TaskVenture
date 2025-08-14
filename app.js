@@ -2602,21 +2602,7 @@ function updateAvatarDisplay() {
         }
     }
 
-    // Update boots
-    if (bootsImg) {
-        if (user.avatar.boots) {
-            if (user.avatar.boots === "steel") {
-                bootsImg.src = "images/boots/Steel_boots.png";
-            } else {
-                bootsImg.src = `images/boots/${user.avatar.boots}.png`;
-            }
-            bootsImg.style.display = "block";
-            console.log("Boots set to:", bootsImg.src);
-        } else {
-            bootsImg.style.display = "none";
-        }
     }
-}
 
 function setupHeaderAvatarLayout() {
     const header = document.querySelector("header.header");
