@@ -1610,7 +1610,7 @@ class QuestEngine {
             <div class="quest-list">
                 <div class="quest-header-controls">
                     <h2>Available Quests</h2>
-                    <button onclick="questEngine.resetAllQuests()" class="reset-quests-btn">Reset</button>
+                    <button onclick="questEngine.resetAllQuests()" class="reset-quests-btn">🔄</button>
                 </div>
                 <div class="available-quests">
                     ${this.availableQuests.map(quest => `
