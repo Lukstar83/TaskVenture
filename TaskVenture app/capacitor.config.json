@@ -1,0 +1,10 @@
+{
+  "appId": "app.taskventure.mobile",
+  "appName": "TaskVenture",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  }
+}
