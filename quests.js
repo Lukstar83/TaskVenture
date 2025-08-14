@@ -11,6 +11,8 @@ class QuestEngine {
         this.enemyHP = 0;
         this.maxEnemyHP = 0;
         this.pendingRoll = null;
+        this.successfulActions = 0;
+        this.maxSuccessfulActions = 3;
     }
 
     // Generate random quests based on character level
@@ -282,6 +284,10 @@ class QuestEngine {
 
         this.activeQuest = { ...quest };
         this.currentScene = quest.scenes[0];
+        this.successfulActions = 0;
+        this.tempACBonus = 0;
+        this.positionAdvantage = false;
+        this.enemyGrappled = false;
         this.renderQuestInterface();
         return true;
     }
@@ -371,33 +377,122 @@ class QuestEngine {
             localStorage.setItem('tv_user', JSON.stringify(window.user));
         }
 
-        // Progress to next scene or complete quest
+        // Track successful action
+        this.successfulActions++;
+
+        // Show next options after success
         setTimeout(() => {
+            if (this.successfulActions < this.maxSuccessfulActions && this.activeQuest.scenes.length > 1) {
+                this.showNextChoices();
+            } else {
+                // Either max successes reached or no more scenes
+                if (this.activeQuest.scenes.length > 1) {
+                    this.currentScene = this.activeQuest.scenes[1];
+                    this.renderQuestInterface();
+                } else {
+                    this.completeQuest();
+                }
+            }
+        }, 2000);
+    }
+
+    handleFailure(choice) {
+        // Failed action triggers immediate combat if available
+        setTimeout(() => {
+            if (this.activeQuest.scenes.length > 1) {
+                this.currentScene = this.activeQuest.scenes[1];
+                this.renderQuestInterface();
+            } else {
+                // Allow retry if no combat scene
+                const retryDiv = document.getElementById('quest-content') || document.querySelector('.scene-content');
+                if (retryDiv) {
+                    retryDiv.innerHTML += `
+                        <div class="retry-options">
+                            <p>Your approach didn't work as planned. Try a different strategy:</p>
+                            <button onclick="questEngine.renderQuestInterface()">Try Again</button>
+                            <button onclick="questEngine.abandonQuest()">Retreat for Now</button>
+                        </div>
+                    `;
+                }
+            }
+        }, 2000);
+    }
+
+    showNextChoices() {
+        const questContainer = document.getElementById('quest-container');
+        
+        const advantageText = this.successfulActions === 1 ? 
+            "Your success gives you a slight advantage. What's your next move?" :
+            this.successfulActions === 2 ? 
+            "Your continued success puts you in a strong position. Choose wisely:" :
+            "You've achieved maximum advantage! One final decision before the confrontation:";
+
+        const nextOptions = [
+            {
+                text: `Continue with stealth approach (${this.successfulActions + 1}/3 advantages)`,
+                action: 'stealth'
+            },
+            {
+                text: `Gather more intelligence (${this.successfulActions + 1}/3 advantages)`,
+                action: 'intel'
+            },
+            {
+                text: `Set up tactical position (${this.successfulActions + 1}/3 advantages)`,
+                action: 'tactics'
+            },
+            {
+                text: `Proceed to confrontation (${this.successfulActions}/3 advantages)`,
+                action: 'combat'
+            }
+        ];
+
+        questContainer.innerHTML = `
+            <div class="active-quest">
+                <h2>${this.activeQuest.title}</h2>
+                <div class="scene-content">
+                    <p class="scene-text">${advantageText}</p>
+                    <div class="quest-options">
+                        ${nextOptions.map((option, index) => `
+                            <button class="quest-option" onclick="questEngine.handleNextChoice('${option.action}')">
+                                ${option.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <div id="quest-results"></div>
+                <button class="abandon-btn" onclick="questEngine.abandonQuest()">Abandon Quest</button>
+            </div>
+        `;
+    }
+
+    handleNextChoice(action) {
+        if (action === 'combat') {
+            // Proceed to combat with current advantages
             if (this.activeQuest.scenes.length > 1) {
                 this.currentScene = this.activeQuest.scenes[1];
                 this.renderQuestInterface();
             } else {
                 this.completeQuest();
             }
-        }, 2000);
-    }
+        } else {
+            // Generate a skill check for the chosen action
+            const skillChecks = {
+                stealth: { skill: 'DEX', dc: 12, text: 'Continue stealth approach' },
+                intel: { skill: 'INT', dc: 11, text: 'Gather intelligence' },
+                tactics: { skill: 'WIS', dc: 13, text: 'Set up tactical advantage' }
+            };
 
-    handleFailure(choice) {
-        // Allow retry or different approach
-        setTimeout(() => {
-            const retryDiv = document.getElementById('quest-content') || document.querySelector('.scene-content');
-            if (retryDiv) {
-                retryDiv.innerHTML += `
-                    <div class="retry-options">
-                        <p>Your approach didn't work as planned. Try a different strategy:</p>
-                        <button onclick="questEngine.renderQuestInterface()">Try Again</button>
-                        <button onclick="questEngine.abandonQuest()">Retreat for Now</button>
-                    </div>
-                `;
-            } else {
-                console.log('Could not find retry container, quest may need to be restarted');
+            const choice = skillChecks[action];
+            if (choice) {
+                // Disable choice buttons
+                const buttons = document.querySelectorAll('.quest-option');
+                buttons.forEach(btn => btn.disabled = true);
+
+                // Roll for the action
+                const roll = this.rollD20();
+                this.processSkillCheck(choice, roll);
             }
-        }, 2000);
+        }
     }
 
     completeQuest() {
@@ -718,7 +813,10 @@ class QuestEngine {
                 <div class="combat-options">
                     <button onclick="questEngine.initiateCombatAction('attack')">Attack with Weapon</button>
                     <button onclick="questEngine.initiateCombatAction('spell')">Cast Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('defend')">Defend</button>
+                    <button onclick="questEngine.initiateCombatAction('defend')" class="combat-action-defensive">Defend</button>
+                    <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge Attack</button>
+                    <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Attempt Grapple</button>
+                    <button onclick="questEngine.initiateCombatAction('sprint')" class="combat-action-utility">Sprint/Reposition</button>
                     <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
                 </div>
 
@@ -814,6 +912,15 @@ class QuestEngine {
             case 'defend':
                 this.resolveDefend(diceResult);
                 break;
+            case 'dodge':
+                this.resolveDodge(diceResult);
+                break;
+            case 'grapple':
+                this.resolveGrapple(diceResult);
+                break;
+            case 'sprint':
+                this.resolveSprint(diceResult);
+                break;
         }
 
         this.pendingRoll = null;
@@ -861,19 +968,35 @@ class QuestEngine {
 
     resolveAttack(diceRoll) {
         const strModifier = this.getAbilityModifier('STR');
-        const total = diceRoll + strModifier;
+        let total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
         // Show combat log after first roll
         logDiv.classList.add('visible');
 
-        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} = ${total} vs AC ${enemy.ac}</p>`;
+        // Apply quest advantages as attack bonuses
+        const questBonus = this.successfulActions * 2;
+        total += questBonus;
+
+        // Apply position advantage
+        let advantageText = '';
+        if (this.positionAdvantage) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            if (secondRoll > diceRoll) {
+                total = secondRoll + strModifier + questBonus;
+                advantageText = ` (advantage: ${secondRoll})`;
+            }
+            this.positionAdvantage = false;
+        }
+
+        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll}${advantageText} + ${strModifier} + ${questBonus} (quest bonus) = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
-            const damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
+            let damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
+            damage += this.successfulActions; // Bonus damage from quest successes
             this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage.</p>`;
+            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage (including ${this.successfulActions} bonus from quest advantages).</p>`;
 
             if (this.enemyHP <= 0) {
                 logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
@@ -922,11 +1045,67 @@ class QuestEngine {
         logDiv.classList.add('visible');
 
         const healAmount = Math.floor(diceRoll / 4); // Defend gives small heal based on roll
+        const bonusAC = Math.floor(diceRoll / 5); // Also gives temporary AC bonus
 
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
-        logDiv.innerHTML += `<p class="success">You take a defensive stance and recover ${healAmount} HP.</p>`;
+        this.tempACBonus = bonusAC;
+        logDiv.innerHTML += `<p class="success">You take a defensive stance, recover ${healAmount} HP, and gain +${bonusAC} AC until next turn.</p>`;
 
         this.updateHealthBars();
+    }
+
+    resolveDodge(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+
+        const dexModifier = this.getAbilityModifier('DEX');
+        const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3);
+
+        this.tempACBonus = dodgeBonus;
+        logDiv.innerHTML += `<p class="success">You focus on evasion, gaining +${dodgeBonus} AC against the next attack!</p>`;
+    }
+
+    resolveGrapple(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+
+        const strModifier = this.getAbilityModifier('STR');
+        const total = diceRoll + strModifier;
+        const enemy = this.currentScene.enemy;
+
+        logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy defense</p>`;
+
+        if (total >= (enemy.ac - 2)) { // Slightly easier than hitting AC
+            const damage = Math.floor(Math.random() * 4) + 1; // 1d4 restraint damage
+            this.enemyHP = Math.max(0, this.enemyHP - damage);
+            this.enemyGrappled = true;
+            logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained and takes ${damage} damage.</p>`;
+
+            if (this.enemyHP <= 0) {
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by grapple!</strong></p>`;
+                setTimeout(() => this.completeQuest(), 2000);
+                return;
+            }
+        } else {
+            logDiv.innerHTML += `<p class="failure">Grapple attempt failed!</p>`;
+        }
+
+        this.updateHealthBars();
+    }
+
+    resolveSprint(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+
+        const movementBonus = Math.floor(diceRoll / 2);
+        const positionAdvantage = diceRoll >= 15;
+
+        if (positionAdvantage) {
+            this.positionAdvantage = true;
+            logDiv.innerHTML += `<p class="success">Excellent positioning! You gain advantage on your next attack roll!</p>`;
+        } else {
+            logDiv.innerHTML += `<p class="success">You reposition effectively, gaining ${movementBonus} tactical points.</p>`;
+        }
     }
 
     enemyAttack() {
@@ -936,8 +1115,13 @@ class QuestEngine {
         const enemyAttackBonus = 4; // Moderate attack bonus
         const total = attackRoll + enemyAttackBonus;
 
-        // Player AC is based on DEX modifier + 10
-        const playerAC = 10 + this.getAbilityModifier('DEX');
+        // Player AC is based on DEX modifier + 10 + temporary bonuses
+        let playerAC = 10 + this.getAbilityModifier('DEX');
+        if (this.tempACBonus) {
+            playerAC += this.tempACBonus;
+            logDiv.innerHTML += `<p>Your defensive stance grants +${this.tempACBonus} AC this turn.</p>`;
+            this.tempACBonus = 0; // Reset after use
+        }
 
         logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 
@@ -1029,9 +1213,9 @@ class QuestEngine {
 
         questContainer.innerHTML = `
             <div class="quest-list">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div class="quest-header-controls">
                     <h2>Available Quests</h2>
-                    <button onclick="questEngine.resetAllQuests()" style="background: #dc3545; color: white; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer;">Reset All Quests (Testing)</button>
+                    <button onclick="questEngine.resetAllQuests()" class="reset-quests-btn">Reset</button>
                 </div>
                 <div class="available-quests">
                     ${this.availableQuests.map(quest => `
