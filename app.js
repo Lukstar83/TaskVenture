@@ -2597,7 +2597,7 @@ function updateAvatarDisplay() {
     if (bootsImg) {
         if (user.avatar.boots) {
             if (user.avatar.boots === "steel") {
-                bootsImg.src = "attached_assets/Steel_boots.png";
+                bootsImg.src = "images/Steel_boots.png";
             } else {
                 bootsImg.src = `images/boots/${user.avatar.boots}.png`;
             }
