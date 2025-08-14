@@ -1833,7 +1833,7 @@ window.loadUserData = function loadUserData() {
             },
             {
                 id: Date.now() + 6,
-                text: "Customize your adventurer avatar",
+                text: "Customize your avatar",
                 completed: false,
                 createdAt: new Date().toISOString(),
             },
@@ -2318,24 +2318,10 @@ function showLevelUpMessage() {
 
 // Initialize avatar customization
 function initializeAvatarCustomization() {
-    // Ensure base avatar is visible and set to correct image
-    const baseAvatar = document.getElementById("avatar-base");
-    if (baseAvatar) {
-        baseAvatar.src = getBaseAvatarImage();
-        baseAvatar.style.display = "block";
-        baseAvatar.onerror = function () {
-            console.error(
-                "Base avatar image failed to load, falling back to default",
-            );
-            this.src = "images/base_avatar.png";
-        };
-        baseAvatar.onload = function () {
-            console.log("Base avatar image loaded successfully");
-        };
-    }
 
     // Load saved avatar state
     document.getElementById("armor-select").value = user.avatar.armor;
+    document.getElementById("boot-select").value = user.avatar.boot;
     document.getElementById("weapon-select").value = user.avatar.weapon;
     document.getElementById("cape-select").value = user.avatar.cape;
 
@@ -2346,6 +2332,14 @@ function initializeAvatarCustomization() {
         .getElementById("armor-select")
         .addEventListener("change", function () {
             user.avatar.armor = this.value;
+            updateAvatarDisplay();
+            saveUserData();
+        });
+
+    document
+        .getElementById("boot-select")
+        .addEventListener("change", function () {
+            user.avatar.boot = this.value;
             updateAvatarDisplay();
             saveUserData();
         });
@@ -2368,16 +2362,13 @@ function initializeAvatarCustomization() {
 }
 
 const TV_AVATAR = (() => {
-    const BASE_DIR = "images/Avatar bases";
-    const FALLBACK = "images/base_avatar.png";
-
     const RACE_DISPLAY = {
         dragonborn: "Dragonborn",
         dwarf: "Dwarf",
         elf: "Elf",
         gnome: "Gnome",
         "half-elf": "Half-Elf",
-        "half orc": "Half-Orc", // tolerate a space variant
+        "half orc": "Half-Orc",
         "half-orc": "Half-Orc",
         halfling: "Halfling",
         human: "Human",
@@ -2418,9 +2409,7 @@ const TV_AVATAR = (() => {
         const encodedFile = encodeURIComponent(fileName);
         return `${encodedDir}/${encodedFile}`;
     }
-    function getBaseAvatarImage() {
-        const p = readProfile();
-        return buildAvatarSrc(p.race, p.gender);
+
     }
     function setHeaderAvatar(race, gender) {
         const wrap = document.getElementById("header-avatar-container");
@@ -2464,10 +2453,6 @@ const TV_AVATAR = (() => {
                 wrap.dataset.race = "";
                 wrap.dataset.gender = "";
             }
-            if (img) {
-                img.src = FALLBACK;
-                img.alt = "Default avatar";
-            }
         }
     }
     function setProfileAndHeader(race, gender) {
@@ -2499,36 +2484,15 @@ window.applyHeaderFromProfile = TV_AVATAR.applyHeaderFromProfile;
 window.setProfileAndHeader = TV_AVATAR.setProfileAndHeader;
 window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
-/* ---------- Avatar Customization (Avatar page layered assets) ---------- */
-function initializeAvatarCustomization() {
-    // Set up base avatar for customization page
-    const baseAvatar = document.getElementById("avatar-base-customization");
-    const container = document.getElementById("avatar-customization-container");
-
-    if (baseAvatar && container) {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        if (profile.race && profile.gender) {
-            baseAvatar.src = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
-            container.dataset.race = profile.race.toLowerCase();
-        } else {
-            baseAvatar.src = "images/base_avatar.png";
-        }
-    }
-
-    const armorSel = document.getElementById("armor-select");
-    const weaponSel = document.getElementById("weapon-select");
-    const capeSel = document.getElementById("cape-select");
-    const bootsSel = document.getElementById("boots-select"); // Added for boots selection
-
-    if (armorSel) armorSel.value = user.avatar.armor;
-    if (weaponSel) weaponSel.value = user.avatar.weapon;
-    if (capeSel) capeSel.value = user.avatar.cape;
-    if (bootsSel) bootsSel.value = user.avatar.boots; // Set boots value
-
     updateAvatarDisplay();
 
     armorSel?.addEventListener("change", function () {
         user.avatar.armor = this.value;
+        updateAvatarDisplay();
+        saveUserData();
+    });
+    bootsSel?.addEventListener("change", function () {
+        user.avatar.boots = this.value;
         updateAvatarDisplay();
         saveUserData();
     });
@@ -2542,19 +2506,14 @@ function initializeAvatarCustomization() {
         updateAvatarDisplay();
         saveUserData();
     });
-    bootsSel?.addEventListener("change", function () { // Add listener for boots selection
-        user.avatar.boots = this.value;
-        updateAvatarDisplay();
-        saveUserData();
-    });
 }
 
 function updateAvatarDisplay() {
     // Update customization page armor
-    const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
+    const customArmorImg = document.querySelector("avatar-armor");
+    const bootsImg = document.getElementById("avatar-boots");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
-    const bootsImg = document.getElementById("avatar-boots"); // Get boots image element
 
     if (customArmorImg) {
         if (user.avatar.armor) {
@@ -2575,7 +2534,15 @@ function updateAvatarDisplay() {
             headerArmorImg.style.display = "none";
         }
     }
-
+    if (bootsImg) {
+        if (user.avatar.boots) {
+            bootsImg.src = user.avatar.boots;
+            bootsImg.style.display = "block";
+            console.log("Boots set to:", bootsImg.src);
+        } else {
+            bootsImg.style.display = "none";
+        }
+    }
     if (weaponImg) {
         if (user.avatar.weapon) {
             weaponImg.src = user.avatar.weapon;
@@ -2586,21 +2553,10 @@ function updateAvatarDisplay() {
     }
     if (capeImg) {
         if (user.avatar.cape) {
-            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`; // Ensure correct path for capes
+            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`;
             capeImg.style.display = "block";
         } else {
             capeImg.style.display = "none";
-        }
-    }
-
-    // Update boots (same logic as armor)
-    if (bootsImg) {
-        if (user.avatar.boots) {
-            bootsImg.src = user.avatar.boots;
-            bootsImg.style.display = "block";
-            console.log("Boots set to:", bootsImg.src);
-        } else {
-            bootsImg.style.display = "none";
         }
     }
 }

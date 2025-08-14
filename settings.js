@@ -184,6 +184,7 @@ function resetProgress() {
             lastActiveDate: null,
             avatar: {
                 armor: "",
+                boots: "",
                 weapon: "",
                 cape: ""
             }
