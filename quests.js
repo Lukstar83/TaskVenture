@@ -13,6 +13,7 @@ class QuestEngine {
         this.pendingRoll = null;
         this.successfulActions = 0;
         this.maxSuccessfulActions = 3;
+        this.enemyCannotAttack = false;
     }
 
     // Generate random quests based on character level
@@ -1341,8 +1342,8 @@ class QuestEngine {
         if (total > enemyDefense) {
             this.enemyGrappled = true;
             this.playerAdvantage = true;
-            this.enemyDisadvantage = true;
-            logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained. You have advantage on attacks and enemy has disadvantage!</p>`;
+            this.enemyCannotAttack = true;
+            logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained and cannot attack you. You have advantage on all rolls until they break free!</p>`;
         } else {
             logDiv.innerHTML += `<p class="failure">Grapple attempt failed! Enemy breaks free.</p>`;
         }
@@ -1453,6 +1454,40 @@ class QuestEngine {
             }, 500);
             return;
         }
+
+        // Check if enemy is grappled and tries to break free
+        if (this.enemyGrappled) {
+            const breakFreeRoll = Math.floor(Math.random() * 20) + 1 + 3; // Enemy +3 bonus
+            const playerAC = 10 + this.getAbilityModifier('DEX'); // Player's grapple DC
+            
+            logDiv.innerHTML += `<p><strong>${enemy.name} attempts to break free:</strong> ${breakFreeRoll} vs DC ${playerAC}</p>`;
+            
+            if (breakFreeRoll >= playerAC) {
+                this.enemyGrappled = false;
+                this.playerAdvantage = false;
+                this.enemyCannotAttack = false;
+                logDiv.innerHTML += `<p class="failure">${enemy.name} breaks free from the grapple!</p>`;
+                
+                // Now the enemy can attack normally this turn
+                setTimeout(() => this.performEnemyAttack(), 1000);
+            } else {
+                logDiv.innerHTML += `<p class="success">${enemy.name} fails to break free and remains grappled! Cannot attack this turn.</p>`;
+                
+                // Re-enable combat buttons since enemy can't attack
+                setTimeout(() => {
+                    const buttons = document.querySelectorAll('.combat-options button');
+                    buttons.forEach(btn => btn.disabled = false);
+                }, 500);
+            }
+            return;
+        }
+
+        this.performEnemyAttack();
+    }
+
+    performEnemyAttack() {
+        const logDiv = document.getElementById('combat-log');
+        const enemy = this.currentScene.enemy;
         
         let attackRoll = Math.floor(Math.random() * 20) + 1;
         const enemyAttackBonus = 4;
@@ -1487,13 +1522,6 @@ class QuestEngine {
 
         if (total >= playerAC) {
             let damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
-            
-            // Reduce damage if enemy is grappled
-            if (this.enemyGrappled) {
-                damage = Math.floor(damage / 2);
-                logDiv.innerHTML += `<p>Grappled enemy deals reduced damage!</p>`;
-                this.enemyGrappled = false;
-            }
             
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
