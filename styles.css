@@ -470,7 +470,6 @@ body {
 
 .header {
   width: 100vw;
-  margin-top: -10px;
   position: relative;
 }
 
@@ -480,14 +479,23 @@ body {
   height: auto;
   z-index: 1;
   object-fit: cover;
-  padding-top: 20%;
+  top: 12%;
   border-bottom: 3px solid var(--primary-gold);
   border-radius: 0 0 20px 20px;
 }
 
-/* Move header up only on avatar page */
-#avatar-page.active ~ * .header .header-bg {
-  top: -20%;
+/* Default positioning for most pages */
+#tasks-page.active ~ .game-interface .header .header-bg,
+#cards-page.active ~ .game-interface .header .header-bg,
+#dice-page.active ~ .game-interface .header .header-bg,
+#settings-page.active ~ .game-interface .header .header-bg,
+#wellness-page.active ~ .game-interface .header .header-bg {
+  top: 12%;
+}
+
+/* Avatar page keeps header at top */
+#avatar-page.active ~ .game-interface .header .header-bg {
+  top: 0;
 }
 
 .character-avatar img {
