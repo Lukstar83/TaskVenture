@@ -490,7 +490,7 @@ body {
 }
 
 /* Move header down only on tasks page */
-#tasks-page.active ~ .game-interface .header .header-bg {
+body:has(#tasks-page.active) .header .header-bg {
   top: 12%;
 }
 
