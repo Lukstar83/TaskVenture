@@ -2551,13 +2551,7 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    // Sync the avatar container background with header avatar
-    const headerAvatar = document.getElementById("header-avatar");
-    const avatarContainer = document.getElementById("avatar-customization-container");
-    
-    if (headerAvatar && avatarContainer) {
-        avatarContainer.style.setProperty('--header-avatar-src', `url(${headerAvatar.src})`);
-    }
+    // Avatar customization display - no background needed, only layered equipment
 
     // Update customization page armor
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");

@@ -909,13 +909,6 @@ body {
   overflow: hidden;
 }
 
-.avatar-container {
-  background-image: var(--header-avatar-src);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-}
-
 .layered-item {
   position: absolute;
   top: 0;
