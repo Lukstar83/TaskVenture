@@ -1016,8 +1016,6 @@ body {
 /* Default boots sizing for unknown races */
 #avatar-customization-container .boots-layer {
   transform: translateX(-50%) scale(0.50, 0.50) translateY(85%);
-  position: absolute;
-  bottom: 0;
 }
 
 .gear-selectors {
@@ -1112,6 +1110,55 @@ body {
 /* Default header armor sizing */
 #header-avatar-container #avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.50);
+}
+
+/* Header avatar boots overlay */
+#header-avatar-container #avatar-boots {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+}
+
+/* Race-specific scaling for header boots - Matching avatar customization */
+#header-avatar-container[data-race="dragonborn"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(85%);
+}
+
+#header-avatar-container[data-race="half-orc"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+}
+
+#header-avatar-container[data-race="tiefling"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(80%);
+}
+
+#header-avatar-container[data-race="half-elf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+}
+
+#header-avatar-container[data-race="human"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+}
+
+#header-avatar-container[data-race="elf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(80%);
+}
+
+#header-avatar-container[data-race="dwarf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(95%);
+}
+
+#header-avatar-container[data-race="gnome"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(98%);
+}
+
+#header-avatar-container[data-race="halfling"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.48, 0.45) translateY(96%);
+}
+
+/* Default header boots sizing */
+#header-avatar-container #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.50, 0.50) translateY(85%);
 }
 
 /* Dice Section */
