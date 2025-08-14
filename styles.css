@@ -980,6 +980,12 @@ body {
   padding: 1rem 1.5rem;
 }
 
+/* Move avatar page content up when header is hidden */
+#avatar-page.active .avatar-section {
+  margin-top: -20vh;
+  padding-top: 2rem;
+}
+
 .avatar-container {
   display: none;
 }
