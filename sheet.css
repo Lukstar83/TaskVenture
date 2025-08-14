@@ -55,9 +55,9 @@
 }
 
 .profile-avatar-container[data-race="halfling"] .profile-avatar {
-  top: -15%;
+  top: -10%;
   width: 145%;
-  left: 45px;
+  left: 46px;
 }
 
 .char-sheet-header .character-details {

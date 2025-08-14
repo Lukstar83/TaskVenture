@@ -489,7 +489,7 @@ body {
 /* Move header down on tasks and wellness pages */
 body:has(#tasks-page.active) .header .header-bg,
 body:has(#wellness-page.active) .header .header-bg {
-  padding-top: 22%;
+  padding-top: 24%;
 }
 
 .character-avatar img {
@@ -1110,7 +1110,7 @@ body:has(#wellness-page.active) .header .header-bg {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-armor {
-  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(138%);
+  transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(143%);
 }
 
 /* Default header armor sizing */
@@ -1160,7 +1160,7 @@ body:has(#wellness-page.active) .header .header-bg {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(650%);
+  transform: translate(-50%, -50%) scale(0.2, 0.16) translateY(662%);
 
 }
 
@@ -1203,7 +1203,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-armor {
-  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(92%);
+  transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(95%);
 }
 
 /* Avatar page adjustments for header boots positioning */
@@ -1240,7 +1240,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(522%);
+  transform: translate(-50%, -50%) scale(0.2, 0.16) translateY(518%);
 }
 
 /* Dice Section */
