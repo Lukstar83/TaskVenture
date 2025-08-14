@@ -3036,6 +3036,17 @@ body {
     font-size: 0.75rem;
   }
 
+  /* Navigation icons and labels responsive sizing */
+  .nav-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .nav-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
   .wellness-stats {
     grid-template-columns: 1fr 1fr;
   }
