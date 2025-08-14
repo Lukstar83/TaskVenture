@@ -548,7 +548,7 @@ body {
 .stats-container {
   display: flex;
   position: absolute;
-  top: 40px;
+  top: 10px;
   border-radius: 0 0 20px 20px;
   z-index: 11;
   flex-direction: column;

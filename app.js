@@ -1780,9 +1780,9 @@ if (!window.user) {
         lastActiveDate: null,
         avatar: {
             armor: "",
+            boots: "",
             weapon: "",
-            cape: "",
-            boots: ""
+            cape: ""
         },
     };
 }
@@ -1844,9 +1844,9 @@ window.loadUserData = function loadUserData() {
     if (!user.avatar) {
         user.avatar = {
             armor: "",
+            boots: "",
             weapon: "",
-            cape: "",
-            boots: ""
+            cape: ""
         };
     }
 
@@ -2336,6 +2336,7 @@ function initializeAvatarCustomization() {
 
     // Load saved avatar state
     document.getElementById("armor-select").value = user.avatar.armor;
+    document.getElementById("boots-select").value = user.avatar.boots;
     document.getElementById("weapon-select").value = user.avatar.weapon;
     document.getElementById("cape-select").value = user.avatar.cape;
 
@@ -2346,6 +2347,14 @@ function initializeAvatarCustomization() {
         .getElementById("armor-select")
         .addEventListener("change", function () {
             user.avatar.armor = this.value;
+            updateAvatarDisplay();
+            saveUserData();
+        });
+
+    document
+        .getElementById("boots-select")
+        .addEventListener("change", function () {
+            user.avatar.boots = this.value;
             updateAvatarDisplay();
             saveUserData();
         });
