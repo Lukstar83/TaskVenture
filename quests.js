@@ -719,6 +719,7 @@ class QuestEngine {
                     <button onclick="questEngine.initiateCombatAction('attack')">Attack with Weapon</button>
                     <button onclick="questEngine.initiateCombatAction('spell')">Cast Spell</button>
                     <button onclick="questEngine.initiateCombatAction('defend')">Defend</button>
+                    <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
                 </div>
 
                 <!-- Integrated Dice Section -->
@@ -840,11 +841,32 @@ class QuestEngine {
         }
     }
 
+    retreatFromCombat() {
+        const questContainer = document.getElementById('quest-container');
+        questContainer.innerHTML = `
+            <div class="quest-completion" style="background: var(--surface-glass); border-color: #6c757d;">
+                <h2>⚡ Tactical Retreat!</h2>
+                <h3>You wisely chose to withdraw from combat.</h3>
+                <p>Sometimes discretion is the better part of valor. You can return to try this quest again when you're better prepared.</p>
+                <button onclick="questEngine.returnToQuestList()">Return to Quest List</button>
+            </div>
+        `;
+
+        // Reset combat state
+        this.playerHP = this.maxPlayerHP;
+        this.enemyHP = 0;
+        this.activeQuest = null;
+        this.currentScene = null;
+    }
+
     resolveAttack(diceRoll) {
         const strModifier = this.getAbilityModifier('STR');
         const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
+
+        // Show combat log after first roll
+        logDiv.classList.add('visible');
 
         logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll} + ${strModifier} = ${total} vs AC ${enemy.ac}</p>`;
 
@@ -871,6 +893,9 @@ class QuestEngine {
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
 
+        // Show combat log after first roll
+        logDiv.classList.add('visible');
+
         logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${intModifier} = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
@@ -892,6 +917,10 @@ class QuestEngine {
 
     resolveDefend(diceRoll) {
         const logDiv = document.getElementById('combat-log');
+
+        // Show combat log after first roll
+        logDiv.classList.add('visible');
+
         const healAmount = Math.floor(diceRoll / 4); // Defend gives small heal based on roll
 
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
