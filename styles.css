@@ -685,7 +685,7 @@ body {
 
 .xp-text {
   position: absolute;
-  bottom: -12px;
+  bottom: -16px;
   right: 0;
   color: var(--text-gold);
   font-weight: 600;
@@ -696,6 +696,7 @@ body {
 #user-xp {
   font-weight: 600;
   font-size: 1.5rem;
+  color: #00ea00;
 }
 
 /* Streak Section */
@@ -978,11 +979,11 @@ body {
 
 /* Race-specific scaling for boots - positioned low enough to cover feet */
 #avatar-customization-container[data-race="dragonborn"] .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.15) translateY(150%);
+  transform: translateX(-50%) scale(0.15, 0.15) translateY(250%);
 }
 
 #avatar-customization-container[data-race="half-orc"] .boots-layer {
-  transform: translateX(-50%) scale(0.16, 0.16) translateY(145%);
+  transform: translateX(-50%) scale(0.16, 0.16) translateY(275%);
 }
 
 #avatar-customization-container[data-race="tiefling"] .boots-layer {
@@ -1015,7 +1016,7 @@ body {
 
 /* Default boots sizing for unknown races */
 #avatar-customization-container .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.15) translateY(150%);
+  transform: translateX(-50%) scale(0.15, 0.15) translateY(250%);
 }
 
 .gear-selectors {
@@ -1076,7 +1077,7 @@ body {
 }
 
 #header-avatar-container[data-race="half-orc"] #avatar-armor {
-  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
+  transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(-0.5%);
 }
 
 #header-avatar-container[data-race="tiefling"] #avatar-armor {
@@ -1126,7 +1127,7 @@ body {
 }
 
 #header-avatar-container[data-race="half-orc"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(145%);
+  transform: translate(-50%, -50%) scale(0.19, 0.19) translateY(260%);
 }
 
 #header-avatar-container[data-race="tiefling"] #avatar-boots {
