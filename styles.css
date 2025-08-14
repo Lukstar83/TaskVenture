@@ -486,8 +486,9 @@ body {
   box-shadow: var(--shadow-premium);
 }
 
-/* Move header down only on tasks page */
-body:has(#tasks-page.active) .header .header-bg {
+/* Move header down on tasks and wellness pages */
+body:has(#tasks-page.active) .header .header-bg,
+body:has(#wellness-page.active) .header .header-bg {
   padding-top: 22%;
 }
 
