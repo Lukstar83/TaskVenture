@@ -487,6 +487,43 @@
     background: linear-gradient(135deg, #5a2d91 0%, #4c1d82 100%) !important;
 }
 
+#combat-log .inner-container {
+    background: var(--surface-glass);
+    backdrop-filter: blur(15px);
+    border: var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+    margin: 1rem 0;
+    display: none;
+    padding-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#combat-log.visible {
+    display: block;
+}
+
+#combat-log p {
+    margin: 0.75rem 0;
+    color: var(--text-light);
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+#combat-log p.success {
+    color: #22c55e;
+}
+
+#combat-log p.failure {
+    color: #ef4444;
+}
+
+#combat-log p strong {
+    color: #d4af37;
+}
+
 /* Retreat Button - Floating */
 .retreat-btn {
     background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
@@ -553,6 +590,140 @@
 .quest-completion button:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-premium);
+}
+
+/* Integrated Combat Dice Section - Floating */
+.combat-dice-section .outer-container {
+    background: var(--surface-glass);
+    backdrop-filter: blur(15px);
+    border: 2px solid #d4af37;
+    border-radius: 16px;
+    padding: 0 1rem;
+    margin: 1rem 0;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.integrated-dice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.combat-dice-display {
+    width: 100%;
+    background: #1a1a2e;
+    border: 2px solid #d4af37;
+    border-radius: 15px 15p 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.combat-dice-display img {
+    width: auto;
+    height: 60%;
+    object-fit: contain;
+}
+
+.combat-roll-button {
+    background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.combat-roll-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.combat-roll-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.combat-dice-result {
+    color: var(--text-light);
+    font-size: 1rem;
+    text-align: center;
+    min-height: 1.5rem;
+    font-weight: 600;
+}
+
+.rewards {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.rewards h4 {
+    color: #d4af37;
+    margin-bottom: 0.75rem;
+}
+
+.rewards ul {
+    list-style: none;
+    padding: 0;
+}
+
+.rewards li {
+    color: #e0e0e0;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.rewards li:last-child {
+    border-bottom: none;
+}
+
+.quest-completion .rewards {
+    margin-bottom: 1.5rem;
+}
+
+.reward-xp {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.reward-coins {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+.reward-item {
+    color: #8b5cf6;
+    font-weight: bold;
+}
+
+.current-stats {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #22c55e;
+}
+
+.current-stats h4 {
+    color: #d4af37;
+    margin-bottom: 0.75rem;
+}
+
+.current-stats p {
+    color: #e0e0e0;
+    margin: 0.25rem 0;
 }
 
 /* Responsive Design */
