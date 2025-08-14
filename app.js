@@ -2444,7 +2444,6 @@ const TV_AVATAR = (() => {
         const gk = String(gender || "")
             .trim()
             .toLowerCase();
-
         wrap.dataset.race = RACE_DISPLAY[rk] ? rk : "";
         wrap.dataset.gender = GENDER_TITLE[gk] ? gk : "";
 
@@ -2601,8 +2600,17 @@ function updateAvatarDisplay() {
             capeImg.style.display = "none";
         }
     }
-
+    // Update boots display
+    if (bootsImg) {
+        if (user.avatar.boots) {
+            bootsImg.src = user.avatar.boots; // Use the direct path from user.avatar.boots
+            bootsImg.style.display = "block";
+            console.log("Boots set to:", bootsImg.src);
+        } else {
+            bootsImg.style.display = "none";
+        }
     }
+}
 
 function setupHeaderAvatarLayout() {
     const header = document.querySelector("header.header");
