@@ -485,6 +485,11 @@ body {
   border-radius: 0 0 20px 20px;
 }
 
+/* Move header up only on avatar page */
+#avatar-page.active ~ * .header .header-bg {
+  top: -8%;
+}
+
 .character-avatar img {
   position: absolute;
   left: 50%;
