@@ -479,23 +479,14 @@ body {
   height: auto;
   z-index: 1;
   object-fit: cover;
-  top: 12%;
+  padding-top: 18%;
   border-bottom: 3px solid var(--primary-gold);
   border-radius: 0 0 20px 20px;
 }
 
-/* Default positioning for most pages */
-#tasks-page.active ~ .game-interface .header .header-bg,
-#cards-page.active ~ .game-interface .header .header-bg,
-#dice-page.active ~ .game-interface .header .header-bg,
-#settings-page.active ~ .game-interface .header .header-bg,
-#wellness-page.active ~ .game-interface .header .header-bg {
-  top: 12%;
-}
-
 /* Avatar page keeps header at top */
 #avatar-page.active ~ .game-interface .header .header-bg {
-  top: 0;
+  padding-top: -18%;
 }
 
 .character-avatar img {
@@ -564,7 +555,7 @@ body {
 .stats-container {
   display: flex;
   position: absolute;
-  top: 10px;
+  top: 0;
   border-bottom: 2px solid var(--primary-gold);
   z-index: 11;
   flex-direction: column;
