@@ -470,10 +470,12 @@ body {
 
 .header {
   width: 100vw;
-  margin-top: -10px;
   position: relative;
 }
 
+#tasks-page ~* .header-bg {
+  padding-top: 20px; 
+}
 .header-bg {
   position: relative;
   display: block;
@@ -481,7 +483,7 @@ body {
   height: auto;
   z-index: 1;
   object-fit: cover;
-  top: 12%;
+  top: 0%;
 }
 
 .character-avatar img {
@@ -550,12 +552,12 @@ body {
 .stats-container {
   display: flex;
   position: absolute;
-  top: 10px;
+  top: 0px;
   border-radius: 0 0 20px 20px;
   z-index: 11;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   width: 100%;
   height: auto;
   background: var(--surface-glass);
