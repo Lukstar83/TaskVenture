@@ -484,9 +484,9 @@ body {
   border-radius: 0 0 20px 20px;
 }
 
-/* Avatar page keeps header at top */
-#avatar-page.active ~ .game-interface .header .header-bg {
-  padding-top: -18%;
+/* Move header up when avatar page is active */
+#avatar-page.active ~ * .header {
+  margin-top: -12vh;
 }
 
 .character-avatar img {
