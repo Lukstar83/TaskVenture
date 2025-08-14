@@ -398,8 +398,8 @@
 
 .combat-options {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
@@ -434,7 +434,7 @@
 
 .retreat-btn {
     background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-    grid-column: span 3;
+    grid-column: span 4;
     margin-top: 0.5rem;
 }
 
@@ -456,6 +456,14 @@
 
 .combat-action-utility:hover:not(:disabled) {
     background: linear-gradient(135deg, #218838 0%, #155724 100%) !important;
+}
+
+.combat-action-bonus {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%) !important;
+}
+
+.combat-action-bonus:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a2d91 0%, #4c1d82 100%) !important;
 }
 
 #combat-log {

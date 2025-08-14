@@ -345,6 +345,124 @@ class QuestEngine {
         return Math.floor((score - 10) / 2);
     }
 
+    getCharacterWeapons() {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const cls = profile.class;
+        
+        const classWeapons = {
+            'Fighter': {
+                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+                ranged: { name: 'Shortbow', damage: '1d6', ability: 'DEX', type: 'piercing', range: '80/320' }
+            },
+            'Rogue': {
+                melee: { name: 'Shortsword', damage: '1d6', ability: 'DEX', type: 'piercing' },
+                ranged: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            },
+            'Wizard': {
+                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
+                ranged: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            },
+            'Sorcerer': {
+                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
+                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+            },
+            'Cleric': {
+                melee: { name: 'Mace', damage: '1d6', ability: 'STR', type: 'bludgeoning' },
+                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+            },
+            'Barbarian': {
+                melee: { name: 'Greataxe', damage: '1d12', ability: 'STR', type: 'slashing' },
+                ranged: { name: 'Handaxe', damage: '1d6', ability: 'STR', type: 'slashing', range: '20/60' }
+            },
+            'Ranger': {
+                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+                ranged: { name: 'Longbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '150/600' }
+            },
+            'Paladin': {
+                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+                ranged: { name: 'Javelin', damage: '1d6', ability: 'STR', type: 'piercing', range: '30/120' }
+            },
+            'Monk': {
+                melee: { name: 'Unarmed Strike', damage: '1d4', ability: 'DEX', type: 'bludgeoning' },
+                ranged: { name: 'Dart', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            },
+            'Bard': {
+                melee: { name: 'Rapier', damage: '1d8', ability: 'DEX', type: 'piercing' },
+                ranged: { name: 'Shortbow', damage: '1d6', ability: 'DEX', type: 'piercing', range: '80/320' }
+            },
+            'Druid': {
+                melee: { name: 'Scimitar', damage: '1d6', ability: 'DEX', type: 'slashing' },
+                ranged: { name: 'Dart', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            },
+            'Warlock': {
+                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
+                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+            }
+        };
+
+        return classWeapons[cls] || {
+            melee: { name: 'Unarmed Strike', damage: '1', ability: 'STR', type: 'bludgeoning' },
+            ranged: { name: 'Improvised Weapon', damage: '1d4', ability: 'STR', type: 'bludgeoning', range: '20/60' }
+        };
+    }
+
+    getCharacterSpells() {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const cls = profile.class;
+        const level = window.user?.level || 1;
+        
+        const classSpells = {
+            'Wizard': {
+                cantrip_attack: { name: 'Fire Bolt', damage: '1d10', ability: 'INT', type: 'fire', range: '120' },
+                level1_attack: level >= 1 ? { name: 'Magic Missile', damage: '1d4+1', ability: 'INT', type: 'force', auto_hit: true } : null,
+                bonus_spell: null
+            },
+            'Sorcerer': {
+                cantrip_attack: { name: 'Fire Bolt', damage: '1d10', ability: 'CHA', type: 'fire', range: '120' },
+                level1_attack: level >= 1 ? { name: 'Chromatic Orb', damage: '3d8', ability: 'CHA', type: 'elemental', range: '90' } : null,
+                bonus_spell: level >= 3 ? { name: 'Quickened Spell', damage: '1d10', ability: 'CHA', type: 'fire' } : null
+            },
+            'Warlock': {
+                cantrip_attack: { name: 'Eldritch Blast', damage: '1d10', ability: 'CHA', type: 'force', range: '120' },
+                level1_attack: level >= 1 ? { name: 'Hex', damage: '1d6', ability: 'CHA', type: 'necrotic', bonus: true } : null,
+                bonus_spell: null
+            },
+            'Cleric': {
+                cantrip_attack: { name: 'Sacred Flame', damage: '1d8', ability: 'WIS', type: 'radiant', save: 'DEX' },
+                level1_attack: level >= 1 ? { name: 'Guiding Bolt', damage: '4d6', ability: 'WIS', type: 'radiant', range: '120' } : null,
+                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'WIS' } : null
+            },
+            'Druid': {
+                cantrip_attack: { name: 'Produce Flame', damage: '1d8', ability: 'WIS', type: 'fire', range: '30' },
+                level1_attack: level >= 1 ? { name: 'Faerie Fire', damage: 'advantage', ability: 'WIS', type: 'utility', save: 'DEX' } : null,
+                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'WIS' } : null
+            },
+            'Bard': {
+                cantrip_attack: { name: 'Vicious Mockery', damage: '1d4', ability: 'CHA', type: 'psychic', save: 'WIS' },
+                level1_attack: level >= 1 ? { name: 'Dissonant Whispers', damage: '3d6', ability: 'CHA', type: 'psychic', save: 'WIS' } : null,
+                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'CHA' } : null
+            }
+        };
+
+        return classSpells[cls] || { cantrip_attack: null, level1_attack: null, bonus_spell: null };
+    }
+
+    hasClassFeature(feature) {
+        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const cls = profile.class;
+        const level = window.user?.level || 1;
+
+        const classFeatures = {
+            'cunning_action': cls === 'Rogue' && level >= 2,
+            'second_wind': cls === 'Fighter' && level >= 1,
+            'rage': cls === 'Barbarian' && level >= 1,
+            'sneak_attack': cls === 'Rogue' && level >= 1,
+            'channel_divinity': cls === 'Cleric' && level >= 2
+        };
+
+        return classFeatures[feature] || false;
+    }
+
     displayRollResult(choice, roll, modifier, total, success) {
         const resultDiv = document.getElementById('quest-results');
         const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
@@ -811,12 +929,20 @@ class QuestEngine {
                     <p>AC: ${enemy.ac}</p>
                 </div>
                 <div class="combat-options">
-                    <button onclick="questEngine.initiateCombatAction('attack')">Attack with Weapon</button>
-                    <button onclick="questEngine.initiateCombatAction('spell')">Cast Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('defend')" class="combat-action-defensive">Defend</button>
-                    <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge Attack</button>
-                    <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Attempt Grapple</button>
-                    <button onclick="questEngine.initiateCombatAction('sprint')" class="combat-action-utility">Sprint/Reposition</button>
+                    <!-- Actions -->
+                    <button onclick="questEngine.initiateCombatAction('melee_attack')">Melee Attack</button>
+                    <button onclick="questEngine.initiateCombatAction('ranged_attack')">Ranged Attack</button>
+                    <button onclick="questEngine.initiateCombatAction('spell_attack')">Cast Attack Spell</button>
+                    <button onclick="questEngine.initiateCombatAction('dash')" class="combat-action-utility">Dash</button>
+                    <button onclick="questEngine.initiateCombatAction('disengage')" class="combat-action-defensive">Disengage</button>
+                    <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge</button>
+                    <button onclick="questEngine.initiateCombatAction('hide')" class="combat-action-utility">Hide</button>
+                    <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Grapple</button>
+                    <button onclick="questEngine.initiateCombatAction('help')" class="combat-action-utility">Help Action</button>
+                    <!-- Bonus Actions -->
+                    <button onclick="questEngine.initiateCombatAction('bonus_spell')" class="combat-action-bonus">Bonus Action Spell</button>
+                    <button onclick="questEngine.initiateCombatAction('cunning_action')" class="combat-action-bonus">Cunning Action</button>
+                    <button onclick="questEngine.initiateCombatAction('second_wind')" class="combat-action-bonus">Second Wind</button>
                     <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
                 </div>
 
@@ -903,23 +1029,41 @@ class QuestEngine {
         const logDiv = document.getElementById('combat-log');
 
         switch (type) {
-            case 'attack':
-                this.resolveAttack(diceResult);
+            case 'melee_attack':
+                this.resolveMeleeAttack(diceResult);
                 break;
-            case 'spell':
-                this.resolveSpell(diceResult);
+            case 'ranged_attack':
+                this.resolveRangedAttack(diceResult);
                 break;
-            case 'defend':
-                this.resolveDefend(diceResult);
+            case 'spell_attack':
+                this.resolveSpellAttack(diceResult);
+                break;
+            case 'dash':
+                this.resolveDash(diceResult);
+                break;
+            case 'disengage':
+                this.resolveDisengage(diceResult);
                 break;
             case 'dodge':
                 this.resolveDodge(diceResult);
                 break;
+            case 'hide':
+                this.resolveHide(diceResult);
+                break;
             case 'grapple':
                 this.resolveGrapple(diceResult);
                 break;
-            case 'sprint':
-                this.resolveSprint(diceResult);
+            case 'help':
+                this.resolveHelp(diceResult);
+                break;
+            case 'bonus_spell':
+                this.resolveBonusSpell(diceResult);
+                break;
+            case 'cunning_action':
+                this.resolveCunningAction(diceResult);
+                break;
+            case 'second_wind':
+                this.resolveSecondWind(diceResult);
                 break;
         }
 
@@ -942,9 +1086,12 @@ class QuestEngine {
             buttons.forEach(btn => btn.disabled = false);
         }, 500);
 
-        // Enemy attacks after a delay
-        if (this.enemyHP > 0 && this.playerHP > 0) {
+        // Enemy attacks after a delay (unless player used disengage)
+        if (this.enemyHP > 0 && this.playerHP > 0 && !this.playerDisengaged) {
             setTimeout(() => this.enemyAttack(), 1500);
+        } else if (this.playerDisengaged) {
+            logDiv.innerHTML += `<p class="success">You successfully disengage - the enemy cannot make opportunity attacks!</p>`;
+            this.playerDisengaged = false;
         }
     }
 
@@ -966,37 +1113,48 @@ class QuestEngine {
         this.currentScene = null;
     }
 
-    resolveAttack(diceRoll) {
-        const strModifier = this.getAbilityModifier('STR');
-        let total = diceRoll + strModifier;
+    resolveMeleeAttack(diceRoll) {
+        const weapons = this.getCharacterWeapons();
+        const weapon = weapons.melee;
+        const abilityModifier = this.getAbilityModifier(weapon.ability);
+        const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
+        
+        let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
-
-        // Show combat log after first roll
         logDiv.classList.add('visible');
 
-        // Apply quest advantages as attack bonuses
+        // Apply quest advantages and other bonuses
         const questBonus = this.successfulActions * 2;
         total += questBonus;
 
-        // Apply position advantage
+        // Apply advantage/disadvantage
         let advantageText = '';
-        if (this.positionAdvantage) {
+        if (this.playerAdvantage || this.hiddenAdvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
             if (secondRoll > diceRoll) {
-                total = secondRoll + strModifier + questBonus;
+                total = secondRoll + abilityModifier + proficiencyBonus + questBonus;
                 advantageText = ` (advantage: ${secondRoll})`;
             }
-            this.positionAdvantage = false;
+            this.playerAdvantage = false;
+            this.hiddenAdvantage = false;
         }
 
-        logDiv.innerHTML += `<p><strong>Attack Roll:</strong> ${diceRoll}${advantageText} + ${strModifier} + ${questBonus} (quest bonus) = ${total} vs AC ${enemy.ac}</p>`;
+        logDiv.innerHTML += `<p><strong>${weapon.name} Attack:</strong> ${diceRoll}${advantageText} + ${abilityModifier} (${weapon.ability}) + ${proficiencyBonus} (prof) + ${questBonus} (quest) = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
-            let damage = Math.floor(Math.random() * 8) + 1 + strModifier; // 1d8 + STR
-            damage += this.successfulActions; // Bonus damage from quest successes
+            let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
+            
+            // Add sneak attack damage for rogues
+            if (this.hasClassFeature('sneak_attack') && (this.playerAdvantage || this.hiddenAdvantage)) {
+                const sneakDamage = this.rollDice('1d6'); // Simplified sneak attack
+                damage += sneakDamage;
+                logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
+            }
+            
+            damage += this.successfulActions; // Quest bonus damage
             this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} damage (including ${this.successfulActions} bonus from quest advantages).</p>`;
+            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name}.</p>`;
 
             if (this.enemyHP <= 0) {
                 logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
@@ -1004,135 +1162,344 @@ class QuestEngine {
                 return;
             }
         } else {
-            logDiv.innerHTML += `<p class="failure">Attack missed!</p>`;
+            logDiv.innerHTML += `<p class="failure">${weapon.name} attack missed!</p>`;
         }
 
         this.updateHealthBars();
     }
 
-    resolveSpell(diceRoll) {
-        const intModifier = this.getAbilityModifier('INT');
-        const total = diceRoll + intModifier;
+    resolveRangedAttack(diceRoll) {
+        const weapons = this.getCharacterWeapons();
+        const weapon = weapons.ranged;
+        const abilityModifier = this.getAbilityModifier(weapon.ability);
+        const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
+        
+        let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
-
-        // Show combat log after first roll
         logDiv.classList.add('visible');
 
-        logDiv.innerHTML += `<p><strong>Spell Attack Roll:</strong> ${diceRoll} + ${intModifier} = ${total} vs AC ${enemy.ac}</p>`;
+        const questBonus = this.successfulActions * 2;
+        total += questBonus;
+
+        // Apply advantage from height/position
+        let advantageText = '';
+        if (this.playerAdvantage || this.hiddenAdvantage) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            if (secondRoll > diceRoll) {
+                total = secondRoll + abilityModifier + proficiencyBonus + questBonus;
+                advantageText = ` (advantage: ${secondRoll})`;
+            }
+            this.playerAdvantage = false;
+            this.hiddenAdvantage = false;
+        }
+
+        logDiv.innerHTML += `<p><strong>${weapon.name} Attack:</strong> ${diceRoll}${advantageText} + ${abilityModifier} (${weapon.ability}) + ${proficiencyBonus} (prof) = ${total} vs AC ${enemy.ac}</p>`;
 
         if (total >= enemy.ac) {
-            const damage = Math.floor(Math.random() * 10) + 1 + intModifier; // 1d10 + INT
+            let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
+            damage += this.successfulActions;
             this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Spell hits! Dealt ${damage} magical damage.</p>`;
+            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name} (Range: ${weapon.range} ft).</p>`;
 
             if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
                 setTimeout(() => this.completeQuest(), 2000);
                 return;
             }
         } else {
-            logDiv.innerHTML += `<p class="failure">Spell missed!</p>`;
+            logDiv.innerHTML += `<p class="failure">${weapon.name} attack missed!</p>`;
         }
 
         this.updateHealthBars();
     }
 
-    resolveDefend(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
+    resolveSpellAttack(diceRoll) {
+        const spells = this.getCharacterSpells();
+        const spell = spells.cantrip_attack || spells.level1_attack;
+        
+        if (!spell) {
+            const logDiv = document.getElementById('combat-log');
+            logDiv.classList.add('visible');
+            logDiv.innerHTML += `<p class="failure">No attack spells available!</p>`;
+            return;
+        }
 
-        // Show combat log after first roll
+        const abilityModifier = this.getAbilityModifier(spell.ability);
+        const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
+        const enemy = this.currentScene.enemy;
+        const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
 
-        const healAmount = Math.floor(diceRoll / 4); // Defend gives small heal based on roll
-        const bonusAC = Math.floor(diceRoll / 5); // Also gives temporary AC bonus
+        if (spell.auto_hit) {
+            // Magic Missile auto-hits
+            const damage = this.rollWeaponDamage(spell.damage);
+            this.enemyHP = Math.max(0, this.enemyHP - damage);
+            logDiv.innerHTML += `<p class="success">${spell.name} automatically hits! Dealt ${damage} ${spell.type} damage.</p>`;
+        } else if (spell.save) {
+            // Saving throw spell
+            const saveDC = 8 + proficiencyBonus + abilityModifier;
+            const enemySave = Math.floor(Math.random() * 20) + 1 + 2; // Enemy gets +2 to saves
+            logDiv.innerHTML += `<p><strong>${spell.name}:</strong> Enemy ${spell.save} save: ${enemySave} vs DC ${saveDC}</p>`;
+            
+            if (enemySave < saveDC) {
+                const damage = this.rollWeaponDamage(spell.damage);
+                this.enemyHP = Math.max(0, this.enemyHP - damage);
+                logDiv.innerHTML += `<p class="success">Save failed! Dealt ${damage} ${spell.type} damage.</p>`;
+            } else {
+                logDiv.innerHTML += `<p class="failure">Enemy saved! No damage.</p>`;
+            }
+        } else {
+            // Attack roll spell
+            const total = diceRoll + abilityModifier + proficiencyBonus;
+            logDiv.innerHTML += `<p><strong>${spell.name} Spell Attack:</strong> ${diceRoll} + ${abilityModifier} (${spell.ability}) + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
 
-        this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
-        this.tempACBonus = bonusAC;
-        logDiv.innerHTML += `<p class="success">You take a defensive stance, recover ${healAmount} HP, and gain +${bonusAC} AC until next turn.</p>`;
+            if (total >= enemy.ac) {
+                const damage = this.rollWeaponDamage(spell.damage) + abilityModifier;
+                this.enemyHP = Math.max(0, this.enemyHP - damage);
+                logDiv.innerHTML += `<p class="success">${spell.name} hits! Dealt ${damage} ${spell.type} damage.</p>`;
+            } else {
+                logDiv.innerHTML += `<p class="failure">${spell.name} missed!</p>`;
+            }
+        }
+
+        if (this.enemyHP <= 0) {
+            logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
+            setTimeout(() => this.completeQuest(), 2000);
+            return;
+        }
 
         this.updateHealthBars();
+    }
+
+    resolveDash(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        this.playerAdvantage = true;
+        logDiv.innerHTML += `<p class="success">You dash around the battlefield! Gain advantage on your next attack and enemy has disadvantage on their next attack against you!</p>`;
+        this.enemyDisadvantage = true;
+    }
+
+    resolveDisengage(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        const dexModifier = this.getAbilityModifier('DEX');
+        const total = diceRoll + dexModifier;
+        
+        if (total >= 12) {
+            this.playerDisengaged = true;
+            this.playerAdvantage = true;
+            logDiv.innerHTML += `<p class="success">Successfully disengaged! You can move without provoking opportunity attacks and gain advantage on your next action!</p>`;
+        } else {
+            logDiv.innerHTML += `<p class="failure">Failed to disengage properly. Enemy can still make opportunity attacks.</p>`;
+        }
     }
 
     resolveDodge(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-
+        
         const dexModifier = this.getAbilityModifier('DEX');
-        const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3);
-
+        const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3) + 2;
+        
         this.tempACBonus = dodgeBonus;
-        logDiv.innerHTML += `<p class="success">You focus on evasion, gaining +${dodgeBonus} AC against the next attack!</p>`;
+        this.enemyDisadvantage = true;
+        logDiv.innerHTML += `<p class="success">You focus entirely on defense! Gain +${dodgeBonus} AC and enemy has disadvantage on attacks against you!</p>`;
+    }
+
+    resolveHide(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        const dexModifier = this.getAbilityModifier('DEX');
+        const total = diceRoll + dexModifier;
+        
+        if (total >= 15) {
+            this.hiddenAdvantage = true;
+            this.playerAdvantage = true;
+            logDiv.innerHTML += `<p class="success">Successfully hidden! You have advantage on your next attack and the enemy cannot target you directly this turn!</p>`;
+            this.enemyCannotTarget = true;
+        } else {
+            logDiv.innerHTML += `<p class="failure">Failed to hide effectively. You remain visible to the enemy.</p>`;
+        }
     }
 
     resolveGrapple(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-
+        
         const strModifier = this.getAbilityModifier('STR');
         const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
-
-        logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy defense</p>`;
-
-        if (total >= (enemy.ac - 2)) { // Slightly easier than hitting AC
-            const damage = Math.floor(Math.random() * 4) + 1; // 1d4 restraint damage
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
+        
+        logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy Athletics/Acrobatics</p>`;
+        
+        const enemyDefense = Math.floor(Math.random() * 20) + 1 + 3; // Enemy gets +3 to contest
+        
+        if (total > enemyDefense) {
             this.enemyGrappled = true;
-            logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained and takes ${damage} damage.</p>`;
-
-            if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by grapple!</strong></p>`;
-                setTimeout(() => this.completeQuest(), 2000);
-                return;
-            }
+            this.playerAdvantage = true;
+            this.enemyDisadvantage = true;
+            logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained. You have advantage on attacks and enemy has disadvantage!</p>`;
         } else {
-            logDiv.innerHTML += `<p class="failure">Grapple attempt failed!</p>`;
+            logDiv.innerHTML += `<p class="failure">Grapple attempt failed! Enemy breaks free.</p>`;
         }
+    }
 
+    resolveHelp(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        this.playerAdvantage = true;
+        const healAmount = Math.floor(diceRoll / 5) + 1;
+        this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
+        
+        logDiv.innerHTML += `<p class="success">You take a moment to steady yourself! Recover ${healAmount} HP and gain advantage on your next action!</p>`;
         this.updateHealthBars();
     }
 
-    resolveSprint(diceRoll) {
+    resolveBonusSpell(diceRoll) {
+        const spells = this.getCharacterSpells();
+        const spell = spells.bonus_spell;
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-
-        const movementBonus = Math.floor(diceRoll / 2);
-        const positionAdvantage = diceRoll >= 15;
-
-        if (positionAdvantage) {
-            this.positionAdvantage = true;
-            logDiv.innerHTML += `<p class="success">Excellent positioning! You gain advantage on your next attack roll!</p>`;
-        } else {
-            logDiv.innerHTML += `<p class="success">You reposition effectively, gaining ${movementBonus} tactical points.</p>`;
+        
+        if (!spell) {
+            logDiv.innerHTML += `<p class="failure">No bonus action spells available!</p>`;
+            return;
         }
+        
+        if (spell.heal) {
+            const healAmount = this.rollWeaponDamage(spell.heal) + this.getAbilityModifier(spell.ability);
+            this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
+            logDiv.innerHTML += `<p class="success">Cast ${spell.name}! Healed ${healAmount} HP.</p>`;
+            this.updateHealthBars();
+        } else {
+            // Offensive bonus spell
+            const damage = this.rollWeaponDamage(spell.damage);
+            this.enemyHP = Math.max(0, this.enemyHP - damage);
+            logDiv.innerHTML += `<p class="success">Cast ${spell.name} as bonus action! Dealt ${damage} ${spell.type} damage.</p>`;
+            this.updateHealthBars();
+        }
+    }
+
+    resolveCunningAction(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        if (!this.hasClassFeature('cunning_action')) {
+            logDiv.innerHTML += `<p class="failure">Cunning Action not available!</p>`;
+            return;
+        }
+        
+        // Rogue can use cunning action to disengage, dash, or hide as bonus action
+        this.playerAdvantage = true;
+        this.playerDisengaged = true;
+        logDiv.innerHTML += `<p class="success">Cunning Action! You disengage and reposition, gaining advantage on your next action!</p>`;
+    }
+
+    resolveSecondWind(diceRoll) {
+        const logDiv = document.getElementById('combat-log');
+        logDiv.classList.add('visible');
+        
+        if (!this.hasClassFeature('second_wind')) {
+            logDiv.innerHTML += `<p class="failure">Second Wind not available!</p>`;
+            return;
+        }
+        
+        const healAmount = diceRoll + (window.user?.level || 1);
+        this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
+        logDiv.innerHTML += `<p class="success">Second Wind! Regained ${healAmount} hit points!</p>`;
+        this.updateHealthBars();
+    }
+
+    rollWeaponDamage(damageString) {
+        // Parse damage strings like "1d8", "2d6", "1d4+1"
+        const match = damageString.match(/(\d+)d(\d+)(\+\d+)?/);
+        if (!match) {
+            return parseInt(damageString) || 1;
+        }
+        
+        const numDice = parseInt(match[1]);
+        const dieSize = parseInt(match[2]);
+        const bonus = match[3] ? parseInt(match[3]) : 0;
+        
+        let total = bonus;
+        for (let i = 0; i < numDice; i++) {
+            total += Math.floor(Math.random() * dieSize) + 1;
+        }
+        
+        return total;
+    }
+
+    rollDice(diceString) {
+        return this.rollWeaponDamage(diceString);
     }
 
     enemyAttack() {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
-        const attackRoll = Math.floor(Math.random() * 20) + 1;
-        const enemyAttackBonus = 4; // Moderate attack bonus
+        
+        // Check if enemy cannot target player (due to hiding)
+        if (this.enemyCannotTarget) {
+            logDiv.innerHTML += `<p class="success">${enemy.name} cannot find you to attack!</p>`;
+            this.enemyCannotTarget = false;
+            // Re-enable combat buttons
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.combat-options button');
+                buttons.forEach(btn => btn.disabled = false);
+            }, 500);
+            return;
+        }
+        
+        let attackRoll = Math.floor(Math.random() * 20) + 1;
+        const enemyAttackBonus = 4;
+        
+        // Apply disadvantage if enemy has it
+        if (this.enemyDisadvantage) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            attackRoll = Math.min(attackRoll, secondRoll); // Take the lower roll
+            logDiv.innerHTML += `<p>${enemy.name} attacks with disadvantage: ${Math.max(attackRoll, secondRoll)}, ${Math.min(attackRoll, secondRoll)} (taking ${attackRoll})</p>`;
+            this.enemyDisadvantage = false;
+        }
+        
         const total = attackRoll + enemyAttackBonus;
 
-        // Player AC is based on DEX modifier + 10 + temporary bonuses
+        // Calculate player AC with bonuses
         let playerAC = 10 + this.getAbilityModifier('DEX');
+        
+        // Add armor bonus if equipped
+        if (window.user?.avatar?.armor) {
+            if (window.user.avatar.armor.includes('leather')) playerAC += 1;
+            else if (window.user.avatar.armor.includes('chain')) playerAC += 3;
+            else if (window.user.avatar.armor.includes('plate')) playerAC += 6;
+        }
+        
         if (this.tempACBonus) {
             playerAC += this.tempACBonus;
             logDiv.innerHTML += `<p>Your defensive stance grants +${this.tempACBonus} AC this turn.</p>`;
-            this.tempACBonus = 0; // Reset after use
+            this.tempACBonus = 0;
         }
 
         logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 
         if (total >= playerAC) {
-            const damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
+            let damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
+            
+            // Reduce damage if enemy is grappled
+            if (this.enemyGrappled) {
+                damage = Math.floor(damage / 2);
+                logDiv.innerHTML += `<p>Grappled enemy deals reduced damage!</p>`;
+                this.enemyGrappled = false;
+            }
+            
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
 
             if (this.playerHP <= 0) {
                 logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
-                // Disable combat buttons when defeated
                 const buttons = document.querySelectorAll('.combat-options button');
                 buttons.forEach(btn => btn.disabled = true);
                 setTimeout(() => this.handleCombatDefeat(), 2000);
