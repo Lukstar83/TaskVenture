@@ -978,44 +978,44 @@ body {
 
 /* Race-specific scaling for boots - positioned low enough to cover feet */
 #avatar-customization-container[data-race="dragonborn"] .boots-layer {
-  transform: translateX(-50%) scale(0.52, 0.5) translateY(85%);
+  transform: translateX(-50%) scale(0.15, 0.15) translateY(85%);
 }
 
 #avatar-customization-container[data-race="half-orc"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(82%);
+  transform: translateX(-50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #avatar-customization-container[data-race="tiefling"] .boots-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(80%);
+  transform: translateX(-50%) scale(0.15, 0.16) translateY(80%);
 }
 
 #avatar-customization-container[data-race="half-elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(82%);
+  transform: translateX(-50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #avatar-customization-container[data-race="human"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(82%);
+  transform: translateX(-50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #avatar-customization-container[data-race="elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(80%);
+  transform: translateX(-50%) scale(0.15, 0.16) translateY(80%);
 }
 
 #avatar-customization-container[data-race="dwarf"] .boots-layer {
-  transform: translateX(-50%) scale(0.59, 0.46) translateY(95%);
+  transform: translateX(-50%) scale(0.18, 0.14) translateY(95%);
 }
 
 #avatar-customization-container[data-race="gnome"] .boots-layer {
-  transform: translateX(-50%) scale(0.46, 0.44) translateY(98%);
+  transform: translateX(-50%) scale(0.14, 0.13) translateY(98%);
 }
 
 #avatar-customization-container[data-race="halfling"] .boots-layer {
-  transform: translateX(-50%) scale(0.48, 0.45) translateY(96%);
+  transform: translateX(-50%) scale(0.14, 0.14) translateY(96%);
 }
 
 /* Default boots sizing for unknown races */
 #avatar-customization-container .boots-layer {
-  transform: translateX(-50%) scale(0.50, 0.50) translateY(85%);
+  transform: translateX(-50%) scale(0.15, 0.15) translateY(85%);
 }
 
 .gear-selectors {
@@ -1122,44 +1122,44 @@ body {
 
 /* Race-specific scaling for header boots - Matching avatar customization */
 #header-avatar-container[data-race="dragonborn"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(85%);
+  transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(85%);
 }
 
 #header-avatar-container[data-race="half-orc"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #header-avatar-container[data-race="tiefling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(80%);
+  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(80%);
 }
 
 #header-avatar-container[data-race="half-elf"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #header-avatar-container[data-race="human"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(82%);
+  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(82%);
 }
 
 #header-avatar-container[data-race="elf"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(80%);
+  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(80%);
 }
 
 #header-avatar-container[data-race="dwarf"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(95%);
+  transform: translate(-50%, -50%) scale(0.18, 0.14) translateY(95%);
 }
 
 #header-avatar-container[data-race="gnome"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(98%);
+  transform: translate(-50%, -50%) scale(0.14, 0.13) translateY(98%);
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.48, 0.45) translateY(96%);
+  transform: translate(-50%, -50%) scale(0.14, 0.14) translateY(96%);
 }
 
 /* Default header boots sizing */
 #header-avatar-container #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.50, 0.50) translateY(85%);
+  transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(85%);
 }
 
 /* Dice Section */
