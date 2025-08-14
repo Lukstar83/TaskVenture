@@ -1168,6 +1168,80 @@ body:has(#tasks-page.active) .header .header-bg {
   transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(150%);
 }
 
+/* Avatar page adjustments for header armor positioning */
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="dragonborn"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(20.5%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="half-orc"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(21.5%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="tiefling"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="half-elf"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="human"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="elf"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="dwarf"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(30%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="gnome"] #avatar-armor {
+  transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(34%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="halfling"] #avatar-armor {
+  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(160%);
+}
+
+/* Avatar page adjustments for header boots positioning */
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="dragonborn"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(172%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="half-orc"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.19, 0.19) translateY(282%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="tiefling"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(162%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="half-elf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(167%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="human"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(167%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="elf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(162%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="dwarf"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.18, 0.14) translateY(182%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="gnome"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.14, 0.13) translateY(192%);
+}
+
+#avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="halfling"] #avatar-boots {
+  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(672%);
+}
+
 /* Dice Section */
 .dice-section h2 {
   margin-top: 1.5rem;
