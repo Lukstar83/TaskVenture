@@ -473,10 +473,6 @@ body {
   position: relative;
 }
 
-#tasks-page ~* .header-bg {
-  top: 20px; 
-}
-
 .header-bg {
   position: relative;
   display: block;
@@ -487,11 +483,12 @@ body {
   top: 0;
   border-bottom: 3px solid var(--primary-gold);
   border-radius: 0 0 20px 20px;
+  box-shadow: var(--shadow-premium);
 }
 
 /* Move header down only on tasks page */
 body:has(#tasks-page.active) .header .header-bg {
-  top: 12%;
+  padding-top: 22%;
 }
 
 .character-avatar img {
@@ -499,7 +496,7 @@ body:has(#tasks-page.active) .header .header-bg {
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  bottom: 8vw;
+  bottom: 2vw;
   height: auto;
   width: auto;
   object-fit: contain;
@@ -561,7 +558,6 @@ body:has(#tasks-page.active) .header .header-bg {
   display: flex;
   position: absolute;
   top: 0px;
-  border-radius: 0 0 20px 20px;
   z-index: 11;
   flex-direction: column;
   align-items: center;
@@ -570,6 +566,8 @@ body:has(#tasks-page.active) .header .header-bg {
   height: auto;
   background: var(--surface-glass);
   backdrop-filter: blur(8px);
+  border-bottom: 3px solid var(--primary-gold);
+  box-shadow: var(--shadow-premium);
 }
 
 /* Character Info Section */
@@ -758,14 +756,8 @@ body:has(#tasks-page.active) .header .header-bg {
   width: 100vw;
   left: 50%;
   transform: translateX(-50%);
-  top: -25px;
   z-index: 5;
-  background: var(--gradient-surface);
-  backdrop-filter: blur(20px);
-  border-top: 3px solid var(--primary-gold);
-  border-radius: 24px 24px 0 0;
   padding: 1rem 1.5rem;
-  box-shadow: var(--shadow-premium);
 }
 
 .task-section h2,
@@ -991,14 +983,8 @@ body:has(#tasks-page.active) .header .header-bg {
   width: 100vw;
   left: 50%;
   transform: translateX(-50%);
-  top: -25px;
   z-index: 5;
-  background: var(--gradient-surface);
-  backdrop-filter: blur(20px);
-  border-top: 3px solid var(--primary-gold);
-  border-radius: 24px 24px 0 0;
   padding: 1rem 1.5rem;
-  box-shadow: var(--shadow-premium);
 }
 
 .avatar-container {
@@ -1123,7 +1109,7 @@ body:has(#tasks-page.active) .header .header-bg {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-armor {
-  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(105%);
+  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(138%);
 }
 
 /* Default header armor sizing */
@@ -1173,7 +1159,7 @@ body:has(#tasks-page.active) .header .header-bg {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(555%);
+  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(650%);
 
 }
 
