@@ -2509,18 +2509,8 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 }
 
 function updateAvatarDisplay() {
-    // Set the base character avatar
-    const avatarBase = document.getElementById("avatar-base");
-    if (avatarBase) {
-        const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
-        if (profile.race && profile.gender) {
-            const avatarSrc = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
-            avatarBase.style.backgroundImage = `url(${avatarSrc})`;
-        }
-    }
-
     // Update customization page armor
-    const customArmorImg = document.getElementById("avatar-armor");
+    const customArmorImg = document.querySelector("avatar-armor");
     const bootsImg = document.getElementById("avatar-boots");
     const weaponImg = document.getElementById("avatar-weapon");
     const capeImg = document.getElementById("avatar-cape");
