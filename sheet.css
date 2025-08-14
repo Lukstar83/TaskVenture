@@ -12,13 +12,10 @@
 /* Character Header Section */
 .char-sheet-header {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 2rem 1rem 1rem;
-  background: linear-gradient(135deg, var(--surface-glass) 0%, rgba(212, 175, 55, 0.1) 100%);
-  backdrop-filter: blur(15px);
-  border-bottom: 2px solid var(--primary-gold);
-  position: relative;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .profile-avatar-container {
@@ -29,7 +26,6 @@
   overflow: hidden;
   position: relative;
   background: var(--background-dark);
-  margin-bottom: 1rem;
 }
 
 .profile-avatar-container:hover {
@@ -59,12 +55,12 @@
 }
 
 .profile-avatar-container[data-race="halfling"] .profile-avatar {
-  top: -18%;
+  top: -15%;
   width: 145%;
+  left: 45px;
 }
 
 .char-sheet-header .character-details {
-  text-align: center;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -93,7 +89,6 @@
 /* Tab Navigation */
 .sheet-tabs {
   display: flex;
-  background: var(--background-dark);
   border-bottom: 2px solid var(--primary-gold);
   overflow-x: auto;
   scrollbar-width: none;
@@ -113,6 +108,7 @@
   color: var(--text-light);
   font-weight: 600;
   font-size: 0.9rem;
+  border-radius: 15px 15px 0 0;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
@@ -381,7 +377,7 @@
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .char-sheet-header {
-    padding: 1rem 0.5rem 0.5rem;
+    padding: 1.5rem 1rem 1rem;
   }
   
   .profile-avatar-container {
