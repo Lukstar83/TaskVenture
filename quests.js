@@ -951,7 +951,6 @@ class QuestEngine {
 
                 <!-- Integrated Dice Section -->
                 <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
-                    <h4>Roll for Action</h4>
                     <div class="integrated-dice-container">
                         <div id="combat-dice-display" class="combat-dice-display"><img src="/images/nav/d20.png"></div>
                         <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
@@ -983,10 +982,6 @@ class QuestEngine {
         const diceSection = document.getElementById('combat-dice-section');
         if (diceSection) {
             diceSection.style.display = 'block';
-
-            // Update the prompt text based on action type
-            const actionText = actionType === 'attack' ? 'attack' : actionType === 'spell' ? 'cast your spell' : 'defend';
-            diceSection.querySelector('h4').textContent = `Roll to ${actionText}!`;
 
             // Initialize the 3D dice in the combat dice display
             setTimeout(() => {

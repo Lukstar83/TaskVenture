@@ -335,6 +335,7 @@
 }
 
 .combat-interface h2 {
+    font-family: "Cinzel Decorative", serif
     color: #dc3545;
     text-align: center;
     margin: 0 0 1.5rem 0;
@@ -398,6 +399,7 @@
 }
 
 .enemy-info h3 {
+    font-family: "Cinzel Decorative", serif
     color: #dc3545;
     margin-bottom: 0.5rem;
     font-size: 1.5rem;
@@ -429,6 +431,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-transform: uppercase;
     font-weight: bold;
     font-size: 0.9rem;
     min-height: 50px;
@@ -594,17 +597,10 @@
     backdrop-filter: blur(15px);
     border: 2px solid #d4af37;
     border-radius: 16px;
-    padding: 1rem;
+    padding: 0 1rem;
     margin: 1rem 0;
     text-align: center;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.combat-dice-section h4 {
-    color: #d4af37;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    font-size: 1.2rem;
 }
 
 .integrated-dice-container {
@@ -615,17 +611,14 @@
 }
 
 .combat-dice-display {
-    width: 100%;
-    max-width: 300px;
-    height: 200px;
+    width: 108%;
     background: #1a1a2e;
-    border: 2px solid #d4af37;
-    border-radius: 12px;
+    border-bottom: 3px solid #d4af37;
+    border-radius: 15px 15px 0 0;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
 .combat-dice-display img {
@@ -666,6 +659,7 @@
     text-align: center;
     min-height: 1.5rem;
     font-weight: 600;
+    padding-bottom: 1rem;
 }
 
 .rewards {
@@ -738,10 +732,6 @@
         padding: 0.5rem;
     }
 
-    .combat-interface {
-        width: 95vw;
-    }
-
     .combat-options {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
@@ -760,11 +750,6 @@
         font-size: 0.9rem;
     }
 
-    .health-bars {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
     .combat-dice-display {
         height: 150px;
     }
@@ -778,21 +763,6 @@
     #combat-log {
         max-height: 200px;
         padding: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .combat-options {
-        grid-template-columns: 1fr;
-    }
-
-    .retreat-btn {
-        grid-column: span 1;
-    }
-
-    .combat-options button {
-        font-size: 0.85rem;
-        padding: 0.8rem;
     }
 }
 
