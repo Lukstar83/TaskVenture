@@ -1,56 +1,62 @@
 // XP and leveling utilities - D&D 5e inspired progression
 function getXPForLevel(level) {
-    // Calculate level based on XP with D&D-style progression (scaled for task completion)
-    if (level <= 1) return 0;
-
-    // Scaled D&D progression for task-based gameplay (roughly 1/10th of official XP requirements)
+    // D&D-style XP requirements (cumulative totals)
     const xpTable = [
-        0,      // Level 1
-        30,     // Level 2
-        90,     // Level 3
-        270,    // Level 4
-        650,    // Level 5
-        1400,   // Level 6
-        2300,   // Level 7
-        3400,   // Level 8
-        4800,   // Level 9
-        6400,   // Level 10
-        8500,   // Level 11
-        10000,  // Level 12
-        12000,  // Level 13
-        14000,  // Level 14
-        16500,  // Level 15
-        19500,  // Level 16
-        22500,  // Level 17
-        26500,  // Level 18
-        30500,  // Level 19
-        35500   // Level 20
+        0,     // Level 1 (starting)
+        300,   // Level 2
+        900,   // Level 3
+        2700,  // Level 4
+        6500,  // Level 5
+        14000, // Level 6
+        23000, // Level 7
+        34000, // Level 8
+        48000, // Level 9
+        64000, // Level 10
+        85000, // Level 11
+        100000, // Level 12
+        120000, // Level 13
+        140000, // Level 14
+        165000, // Level 15
+        195000, // Level 16
+        225000, // Level 17
+        265000, // Level 18
+        305000, // Level 19
+        355000  // Level 20
     ];
-
+    
+    // For levels beyond 20, continue the progression
     if (level <= 20) {
-        return xpTable[level - 1];
+        return xpTable[level - 1] || 0;
+    } else {
+        // Exponential growth for epic levels
+        const baseXP = 355000;
+        const extraLevels = level - 20;
+        return baseXP + (extraLevels * 50000);
     }
-
-    // Beyond level 20, each level requires 5,000 more XP
-    return 35500 + (level - 20) * 5000;
 }
 
 function calculateLevel(xp) {
-    for (let level = 1; level <= 20; level++) {
-        if (xp < getXPForLevel(level + 1)) {
-            return level;
-        }
+    let level = 1;
+    
+    // Find the highest level where XP requirement is met
+    while (level <= 20 && getXPForLevel(level + 1) <= xp) {
+        level++;
     }
-
-    // Beyond level 20
-    const excessXP = xp - 35500;
-    return 20 + Math.floor(excessXP / 5000);
+    
+    // Handle epic levels beyond 20
+    if (level === 20 && xp > getXPForLevel(20)) {
+        const extraXP = xp - getXPForLevel(20);
+        const extraLevels = Math.floor(extraXP / 50000);
+        level += extraLevels;
+    }
+    
+    return level;
 }
 
 function checkLevelUp(user) {
     const currentLevel = user.level || 1;
     const newLevel = calculateLevel(user.xp);
-
+    
     if (newLevel > currentLevel) {
         user.level = newLevel;
         return true;
@@ -60,21 +66,21 @@ function checkLevelUp(user) {
 
 function calculateXPReward(task) {
     let baseXP = 10;
-
+    
     // Bonus XP for longer tasks
     if (task.text.length > 50) {
         baseXP += 5;
     }
-
+    
     // Streak bonus
     baseXP += Math.min(user.streak * 2, 20);
-
+    
     // Dice bonus XP
     if (user.bonusXP) {
         baseXP *= 2;
         user.bonusXP = false; // Reset bonus
     }
-
+    
     return baseXP;
 }
 
@@ -201,7 +207,7 @@ function drawRandomCard() {
     // Updated rarity chances: Common 50%, Uncommon 25%, Rare 15%, Epic 8%, Legendary 2%
     const rand = Math.random() * 100;
     let rarity;
-
+    
     if (rand < 2) {
         rarity = "Legendary";
     } else if (rand < 10) {
@@ -213,10 +219,10 @@ function drawRandomCard() {
     } else {
         rarity = "Common";
     }
-
+    
     // Filter cards by rarity
     const availableCards = cardDatabase.filter(card => card.rarity === rarity);
-
+    
     // Return random card of selected rarity
     const randomIndex = Math.floor(Math.random() * availableCards.length);
     return { ...availableCards[randomIndex] };
@@ -253,15 +259,15 @@ function updateStreak() {
     if (typeof window !== 'undefined' && window.user) {
         const today = new Date().toDateString();
         const lastActive = localStorage.getItem('lastActiveDate');
-
+        
         if (lastActive === today) {
             // Already counted today
             return;
         }
-
+        
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-
+        
         if (lastActive === yesterday.toDateString()) {
             // Continuing streak
             window.user.streak += 1;
@@ -276,7 +282,7 @@ function updateStreak() {
             // First day
             window.user.streak = 1;
         }
-
+        
         localStorage.setItem('lastActiveDate', today);
     }
 }
