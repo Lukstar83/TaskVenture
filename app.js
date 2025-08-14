@@ -3105,13 +3105,7 @@ function playSuccessChime() {
     }
 }
 
-// ---- PWA: register service worker ----
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((reg) => console.log("TaskVenture SW registered:", reg))
-        .catch(console.error);
-}
+
 
 // ---- PWA: Add to Home Screen prompt ----
 let _deferredPrompt = null;
