@@ -349,7 +349,7 @@ class QuestEngine {
     getCharacterWeapons() {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
         const cls = profile.class;
-        
+
         const classWeapons = {
             'Fighter': {
                 melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
@@ -411,7 +411,7 @@ class QuestEngine {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
         const cls = profile.class;
         const level = window.user?.level || 1;
-        
+
         const classSpells = {
             'Wizard': {
                 cantrip_attack: { name: 'Fire Bolt', damage: '1d10', ability: 'INT', type: 'fire', range: '120' },
@@ -539,10 +539,10 @@ class QuestEngine {
 
     showNextChoices() {
         const questContainer = document.getElementById('quest-container');
-        
-        const advantageText = this.successfulActions === 1 ? 
+
+        const advantageText = this.successfulActions === 1 ?
             "Your success gives you a slight advantage. What's your next move?" :
-            this.successfulActions === 2 ? 
+            this.successfulActions === 2 ?
             "Your continued success puts you in a strong position. Choose wisely:" :
             "You've achieved maximum advantage! One final decision before the confrontation:";
 
@@ -623,7 +623,7 @@ class QuestEngine {
 
         // Award rewards
         const rewards = this.activeQuest.rewards;
-        
+
         // Ensure user object exists and load from main app data
         if (!window.user) {
             // Try to load existing user data from main app
@@ -667,7 +667,7 @@ class QuestEngine {
         rewards.items.forEach(item => {
             // Add to quest items inventory
             window.user.questItems.push(item);
-            
+
             // Add to main inventory as well
             window.user.inventory.push(item);
 
@@ -729,14 +729,14 @@ class QuestEngine {
         const xpElement = document.getElementById('user-xp');
         const levelElement = document.getElementById('user-level');
         const cardCountElement = document.getElementById('card-count');
-        
+
         // Update currency display - convert total coins to different denominations
         const totalCoins = window.user.coins || 0;
         const platinum = Math.floor(totalCoins / 1000);
         const gold = Math.floor((totalCoins % 1000) / 100);
         const silver = Math.floor((totalCoins % 100) / 10);
         const copper = totalCoins % 10;
-        
+
         const platinumElement = document.getElementById('platinum-coins');
         const goldElement = document.getElementById('gold-coins');
         const silverElement = document.getElementById('silver-coins');
@@ -745,7 +745,7 @@ class QuestEngine {
         if (xpElement) xpElement.textContent = window.user.xp;
         if (levelElement) levelElement.textContent = window.user.level || 1;
         if (cardCountElement) cardCountElement.textContent = window.user.cards ? window.user.cards.length : 0;
-        
+
         if (platinumElement) platinumElement.textContent = platinum;
         if (goldElement) goldElement.textContent = gold;
         if (silverElement) silverElement.textContent = silver;
@@ -757,7 +757,7 @@ class QuestEngine {
         const xpProgress = (window.user.xp / xpForNextLevel) * 100;
         const xpFill = document.getElementById('xp-fill');
         const xpNextLevel = document.getElementById('xp-next-level');
-        
+
         if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
         if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
 
@@ -931,34 +931,38 @@ class QuestEngine {
                         <p>AC: ${enemy.ac}</p>
                     </div>
                 </div>
-                <div class="combat-options">
-                    <!-- Actions -->
-                    <button onclick="questEngine.initiateCombatAction('melee_attack')">Melee Attack</button>
-                    <button onclick="questEngine.initiateCombatAction('ranged_attack')">Ranged Attack</button>
-                    <button onclick="questEngine.initiateCombatAction('spell_attack')">Cast Attack Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('dash')" class="combat-action-utility">Dash</button>
-                    <button onclick="questEngine.initiateCombatAction('disengage')" class="combat-action-defensive">Disengage</button>
-                    <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge</button>
-                    <button onclick="questEngine.initiateCombatAction('hide')" class="combat-action-utility">Hide</button>
-                    <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Grapple</button>
-                    <button onclick="questEngine.initiateCombatAction('help')" class="combat-action-utility">Help Action</button>
-                    <!-- Bonus Actions -->
-                    <button onclick="questEngine.initiateCombatAction('bonus_spell')" class="combat-action-bonus">Bonus Action Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('cunning_action')" class="combat-action-bonus">Cunning Action</button>
-                    <button onclick="questEngine.initiateCombatAction('second_wind')" class="combat-action-bonus">Second Wind</button>
-                    <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
-                </div>
 
-                <!-- Integrated Dice Section -->
-                <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
-                    <div class="integrated-dice-container">
-                        <div id="combat-dice-display" class="combat-dice-display"><img src="/images/nav/d20.png"></div>
-                        <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
-                        <div id="combat-dice-result" class="combat-dice-result"></div>
+                <!-- Combined Combat Action Center -->
+                <div id="combat-action-center" class="combat-action-center">
+                    <div class="combat-options">
+                        <!-- Actions -->
+                        <button onclick="questEngine.initiateCombatAction('melee_attack')">Melee Attack</button>
+                        <button onclick="questEngine.initiateCombatAction('ranged_attack')">Ranged Attack</button>
+                        <button onclick="questEngine.initiateCombatAction('spell_attack')">Cast Attack Spell</button>
+                        <button onclick="questEngine.initiateCombatAction('dash')" class="combat-action-utility">Dash</button>
+                        <button onclick="questEngine.initiateCombatAction('disengage')" class="combat-action-defensive">Disengage</button>
+                        <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge</button>
+                        <button onclick="questEngine.initiateCombatAction('hide')" class="combat-action-utility">Hide</button>
+                        <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Grapple</button>
+                        <button onclick="questEngine.initiateCombatAction('help')" class="combat-action-utility">Help Action</button>
+                        <!-- Bonus Actions -->
+                        <button onclick="questEngine.initiateCombatAction('bonus_spell')" class="combat-action-bonus">Bonus Action Spell</button>
+                        <button onclick="questEngine.initiateCombatAction('cunning_action')" class="combat-action-bonus">Cunning Action</button>
+                        <button onclick="questEngine.initiateCombatAction('second_wind')" class="combat-action-bonus">Second Wind</button>
+                    </div>
+
+                    <!-- Integrated Dice Section -->
+                    <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
+                        <div class="integrated-dice-container">
+                            <div id="combat-dice-display" class="combat-dice-display"><img src="/images/nav/d20.png"></div>
+                            <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
+                            <div id="combat-dice-result" class="combat-dice-result"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="combat-log"></div>
+                <div id="combat-log" class="combat-log"></div>
+                <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
             </div>
         `;
 
@@ -1025,6 +1029,10 @@ class QuestEngine {
 
         const { type } = this.pendingRoll;
         const logDiv = document.getElementById('combat-log');
+        const actionCenter = document.getElementById('combat-action-center');
+        if (actionCenter) {
+            actionCenter.classList.add('visible');
+        }
 
         switch (type) {
             case 'melee_attack':
@@ -1116,7 +1124,7 @@ class QuestEngine {
         const weapon = weapons.melee;
         const abilityModifier = this.getAbilityModifier(weapon.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-        
+
         let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
@@ -1142,14 +1150,14 @@ class QuestEngine {
 
         if (total >= enemy.ac) {
             let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
-            
+
             // Add sneak attack damage for rogues
             if (this.hasClassFeature('sneak_attack') && (this.playerAdvantage || this.hiddenAdvantage)) {
                 const sneakDamage = this.rollDice('1d6'); // Simplified sneak attack
                 damage += sneakDamage;
                 logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
             }
-            
+
             damage += this.successfulActions; // Quest bonus damage
             this.enemyHP = Math.max(0, this.enemyHP - damage);
             logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name}.</p>`;
@@ -1171,7 +1179,7 @@ class QuestEngine {
         const weapon = weapons.ranged;
         const abilityModifier = this.getAbilityModifier(weapon.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-        
+
         let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById('combat-log');
@@ -1215,7 +1223,7 @@ class QuestEngine {
     resolveSpellAttack(diceRoll) {
         const spells = this.getCharacterSpells();
         const spell = spells.cantrip_attack || spells.level1_attack;
-        
+
         if (!spell) {
             const logDiv = document.getElementById('combat-log');
             logDiv.classList.add('visible');
@@ -1239,7 +1247,7 @@ class QuestEngine {
             const saveDC = 8 + proficiencyBonus + abilityModifier;
             const enemySave = Math.floor(Math.random() * 20) + 1 + 2; // Enemy gets +2 to saves
             logDiv.innerHTML += `<p><strong>${spell.name}:</strong> Enemy ${spell.save} save: ${enemySave} vs DC ${saveDC}</p>`;
-            
+
             if (enemySave < saveDC) {
                 const damage = this.rollWeaponDamage(spell.damage);
                 this.enemyHP = Math.max(0, this.enemyHP - damage);
@@ -1273,7 +1281,7 @@ class QuestEngine {
     resolveDash(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         this.playerAdvantage = true;
         logDiv.innerHTML += `<p class="success">You dash around the battlefield! Gain advantage on your next attack and enemy has disadvantage on their next attack against you!</p>`;
         this.enemyDisadvantage = true;
@@ -1282,10 +1290,10 @@ class QuestEngine {
     resolveDisengage(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         const dexModifier = this.getAbilityModifier('DEX');
         const total = diceRoll + dexModifier;
-        
+
         if (total >= 12) {
             this.playerDisengaged = true;
             this.playerAdvantage = true;
@@ -1298,10 +1306,10 @@ class QuestEngine {
     resolveDodge(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         const dexModifier = this.getAbilityModifier('DEX');
         const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3) + 2;
-        
+
         this.tempACBonus = dodgeBonus;
         this.enemyDisadvantage = true;
         logDiv.innerHTML += `<p class="success">You focus entirely on defense! Gain +${dodgeBonus} AC and enemy has disadvantage on attacks against you!</p>`;
@@ -1310,10 +1318,10 @@ class QuestEngine {
     resolveHide(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         const dexModifier = this.getAbilityModifier('DEX');
         const total = diceRoll + dexModifier;
-        
+
         if (total >= 15) {
             this.hiddenAdvantage = true;
             this.playerAdvantage = true;
@@ -1327,15 +1335,15 @@ class QuestEngine {
     resolveGrapple(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         const strModifier = this.getAbilityModifier('STR');
         const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
-        
+
         logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy Athletics/Acrobatics</p>`;
-        
+
         const enemyDefense = Math.floor(Math.random() * 20) + 1 + 3; // Enemy gets +3 to contest
-        
+
         if (total > enemyDefense) {
             this.enemyGrappled = true;
             this.playerAdvantage = true;
@@ -1349,11 +1357,11 @@ class QuestEngine {
     resolveHelp(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         this.playerAdvantage = true;
         const healAmount = Math.floor(diceRoll / 5) + 1;
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
-        
+
         logDiv.innerHTML += `<p class="success">You take a moment to steady yourself! Recover ${healAmount} HP and gain advantage on your next action!</p>`;
         this.updateHealthBars();
     }
@@ -1363,12 +1371,12 @@ class QuestEngine {
         const spell = spells.bonus_spell;
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         if (!spell) {
             logDiv.innerHTML += `<p class="failure">No bonus action spells available!</p>`;
             return;
         }
-        
+
         if (spell.heal) {
             const healAmount = this.rollWeaponDamage(spell.heal) + this.getAbilityModifier(spell.ability);
             this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
@@ -1386,12 +1394,12 @@ class QuestEngine {
     resolveCunningAction(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         if (!this.hasClassFeature('cunning_action')) {
             logDiv.innerHTML += `<p class="failure">Cunning Action not available!</p>`;
             return;
         }
-        
+
         // Rogue can use cunning action to disengage, dash, or hide as bonus action
         this.playerAdvantage = true;
         this.playerDisengaged = true;
@@ -1401,12 +1409,12 @@ class QuestEngine {
     resolveSecondWind(diceRoll) {
         const logDiv = document.getElementById('combat-log');
         logDiv.classList.add('visible');
-        
+
         if (!this.hasClassFeature('second_wind')) {
             logDiv.innerHTML += `<p class="failure">Second Wind not available!</p>`;
             return;
         }
-        
+
         const healAmount = diceRoll + (window.user?.level || 1);
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
         logDiv.innerHTML += `<p class="success">Second Wind! Regained ${healAmount} hit points!</p>`;
@@ -1419,16 +1427,16 @@ class QuestEngine {
         if (!match) {
             return parseInt(damageString) || 1;
         }
-        
+
         const numDice = parseInt(match[1]);
         const dieSize = parseInt(match[2]);
         const bonus = match[3] ? parseInt(match[3]) : 0;
-        
+
         let total = bonus;
         for (let i = 0; i < numDice; i++) {
             total += Math.floor(Math.random() * dieSize) + 1;
         }
-        
+
         return total;
     }
 
@@ -1439,7 +1447,7 @@ class QuestEngine {
     enemyAttack() {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
-        
+
         // Check if enemy cannot target player (due to hiding)
         if (this.enemyCannotTarget) {
             logDiv.innerHTML += `<p class="success">${enemy.name} cannot find you to attack!</p>`;
@@ -1456,20 +1464,20 @@ class QuestEngine {
         if (this.enemyGrappled) {
             const breakFreeRoll = Math.floor(Math.random() * 20) + 1 + 3; // Enemy +3 bonus
             const playerAC = 10 + this.getAbilityModifier('DEX'); // Player's grapple DC
-            
+
             logDiv.innerHTML += `<p><strong>${enemy.name} attempts to break free:</strong> ${breakFreeRoll} vs DC ${playerAC}</p>`;
-            
+
             if (breakFreeRoll >= playerAC) {
                 this.enemyGrappled = false;
                 this.playerAdvantage = false;
                 this.enemyCannotAttack = false;
                 logDiv.innerHTML += `<p class="failure">${enemy.name} breaks free from the grapple!</p>`;
-                
+
                 // Now the enemy can attack normally this turn
                 setTimeout(() => this.performEnemyAttack(), 1000);
             } else {
                 logDiv.innerHTML += `<p class="success">${enemy.name} fails to break free and remains grappled! Cannot attack this turn.</p>`;
-                
+
                 // Re-enable combat buttons since enemy can't attack
                 setTimeout(() => {
                     const buttons = document.querySelectorAll('.combat-options button');
@@ -1485,10 +1493,10 @@ class QuestEngine {
     performEnemyAttack() {
         const logDiv = document.getElementById('combat-log');
         const enemy = this.currentScene.enemy;
-        
+
         let attackRoll = Math.floor(Math.random() * 20) + 1;
         const enemyAttackBonus = 4;
-        
+
         // Apply disadvantage if enemy has it
         if (this.enemyDisadvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
@@ -1496,19 +1504,19 @@ class QuestEngine {
             logDiv.innerHTML += `<p>${enemy.name} attacks with disadvantage: ${Math.max(attackRoll, secondRoll)}, ${Math.min(attackRoll, secondRoll)} (taking ${attackRoll})</p>`;
             this.enemyDisadvantage = false;
         }
-        
+
         const total = attackRoll + enemyAttackBonus;
 
         // Calculate player AC with bonuses
         let playerAC = 10 + this.getAbilityModifier('DEX');
-        
+
         // Add armor bonus if equipped
         if (window.user?.avatar?.armor) {
             if (window.user.avatar.armor.includes('leather')) playerAC += 1;
             else if (window.user.avatar.armor.includes('chain')) playerAC += 3;
             else if (window.user.avatar.armor.includes('plate')) playerAC += 6;
         }
-        
+
         if (this.tempACBonus) {
             playerAC += this.tempACBonus;
             logDiv.innerHTML += `<p>Your defensive stance grants +${this.tempACBonus} AC this turn.</p>`;
@@ -1519,7 +1527,7 @@ class QuestEngine {
 
         if (total >= playerAC) {
             let damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
-            
+
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
 
@@ -1597,7 +1605,7 @@ class QuestEngine {
 
     renderQuestList() {
         const questContainer = document.getElementById('quest-container');
-        
+
         if (!questContainer) {
             console.error('Quest container not found!');
             return;
@@ -1625,12 +1633,12 @@ class QuestEngine {
 
                 <h3>Completed Quests (${this.completedQuests.length})</h3>
                 <div class="completed-quests">
-                    ${this.completedQuests.length > 0 ? 
+                    ${this.completedQuests.length > 0 ?
                         this.completedQuests.map(questId => `
                             <div class="completed-quest">
                                 <span>✅ ${questId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                             </div>
-                        `).join('') : 
+                        `).join('') :
                         '<p>No quests completed yet.</p>'
                     }
                 </div>
@@ -1660,7 +1668,7 @@ window.initializeQuestsPage = function() {
     if (!window.questEngine) {
         window.questEngine = new QuestEngine();
     }
-    
+
     if (window.questEngine && document.getElementById('quest-container')) {
         window.questEngine.renderQuestList();
     }
