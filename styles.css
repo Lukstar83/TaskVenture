@@ -1254,7 +1254,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfli
 
 .dice-display {
   width: 320px;
-  height: 240px;
+  height: 300px;
   margin: 0 auto 2rem;
   background: var(--surface-glass);
   backdrop-filter: blur(15px);

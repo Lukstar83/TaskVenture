@@ -118,7 +118,7 @@ function initDice() {
     tableCtx.strokeStyle = '#d4af37';
     tableCtx.lineWidth = 8;
     tableCtx.strokeRect(32, 32, 960, 960);
-    
+
     // Inner decorative line
     tableCtx.strokeStyle = '#b8860b';
     tableCtx.lineWidth = 3;
@@ -148,7 +148,7 @@ function initDice() {
     edgeCanvas.width = 256;
     edgeCanvas.height = 256;
     const edgeCtx = edgeCanvas.getContext('2d');
-    
+
     // Wood texture for edge
     const woodGradient = edgeCtx.createLinearGradient(0, 0, 256, 0);
     woodGradient.addColorStop(0, '#8B4513');
@@ -156,14 +156,14 @@ function initDice() {
     woodGradient.addColorStop(1, '#654321');
     edgeCtx.fillStyle = woodGradient;
     edgeCtx.fillRect(0, 0, 256, 256);
-    
+
     const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
     const edgeMaterial = new THREE.MeshPhongMaterial({
       map: edgeTexture,
       shininess: 30,
       specular: 0x222222
     });
-    
+
     const tableEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
     tableEdge.rotation.x = -Math.PI / 2;
     tableEdge.position.y = -3.45;
@@ -284,7 +284,7 @@ function initDice() {
 
   // Ensure dice is properly scaled
   dice.scale.set(.7, .7, .7);
-  
+
   scene.add(dice);
 
   console.log('✅ D20 with all 20 numbered faces created');
