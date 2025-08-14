@@ -487,7 +487,7 @@ body {
 
 /* Move header up only on avatar page */
 #avatar-page.active ~ * .header .header-bg {
-  top: -8%;
+  top: -20%;
 }
 
 .character-avatar img {
