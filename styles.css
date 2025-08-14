@@ -1239,7 +1239,7 @@ body:has(#tasks-page.active) .header .header-bg {
 }
 
 #avatar-page.active ~ .game-interface .header #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(672%);
+  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(500%);
 }
 
 /* Dice Section */
