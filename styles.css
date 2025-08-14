@@ -1215,7 +1215,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-o
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(162%);
+  transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(92%);
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #avatar-boots {
@@ -1239,7 +1239,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(672%);
+  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(522%);
 }
 
 /* Dice Section */
