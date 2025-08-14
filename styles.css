@@ -899,14 +899,7 @@ body {
 }
 
 .avatar-container {
-  position: relative;
-  width: 300px;
-  height: 400px;
-  margin: 2rem auto;
-  background: var(--surface-glass);
-  border: 2px solid var(--primary-gold);
-  border-radius: 16px;
-  overflow: hidden;
+  display: none;
 }
 
 .layered-item {
@@ -930,9 +923,7 @@ body {
 }
 
 .boots-layer {
-  z-index: 2;
-  position: absolute;
-  height: 100%;
+  z-index: 1;
 }
 
 .weapon-layer {
@@ -982,48 +973,6 @@ body {
 
 /* Default armor sizing for unknown races */
 #avatar-customization-container .armor-layer {
-  transform: translateX(-50%) scale(0.50, 0.50);
-}
-
-/* Race-specific scaling for boots - Same as armor scaling */
-#avatar-customization-container[data-race="dragonborn"] .boots-layer {
-  transform: translateX(-50%) scale(0.52, 0.5) translateY(-1.5%);
-}
-
-#avatar-customization-container[data-race="half-orc"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="tiefling"] .boots-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(-1%);
-}
-
-#avatar-customization-container[data-race="half-elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="human"] .boots-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(-1%);
-}
-
-#avatar-customization-container[data-race="dwarf"] .boots-layer {
-  transform: translateX(-50%) scale(0.59, 0.46) translateY(8%);
-}
-
-#avatar-customization-container[data-race="gnome"] .boots-layer {
-  transform: translateX(-50%) scale(0.46, 0.44) translateY(12%);
-}
-
-#avatar-customization-container[data-race="halfling"] .boots-layer {
-  transform: translateX(-50%) scale(0.48, 0.45) translateY(10%);
-}
-
-/* Default boots sizing for unknown races */
-#avatar-customization-container .boots-layer {
   transform: translateX(-50%) scale(0.50, 0.50);
 }
 

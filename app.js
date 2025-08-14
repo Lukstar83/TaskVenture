@@ -2501,18 +2501,17 @@ window.getBaseAvatarImage = TV_AVATAR.getBaseAvatarImage;
 
 /* ---------- Avatar Customization (Avatar page layered assets) ---------- */
 function initializeAvatarCustomization() {
-    // Set up container data attributes for proper scaling
+    // Set up base avatar for customization page
+    const baseAvatar = document.getElementById("avatar-base-customization");
     const container = document.getElementById("avatar-customization-container");
-    const headerAvatar = document.getElementById("header-avatar-container");
 
-    if (container && headerAvatar) {
+    if (baseAvatar && container) {
         const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
-        if (profile.race) {
+        if (profile.race && profile.gender) {
+            baseAvatar.src = TV_AVATAR.buildAvatarSrc(profile.race, profile.gender);
             container.dataset.race = profile.race.toLowerCase();
-            // Copy the race data from header to customization container
-            if (headerAvatar.dataset.race) {
-                container.dataset.race = headerAvatar.dataset.race;
-            }
+        } else {
+            baseAvatar.src = "images/base_avatar.png";
         }
     }
 
@@ -2551,8 +2550,6 @@ function initializeAvatarCustomization() {
 }
 
 function updateAvatarDisplay() {
-    // Avatar customization display - no background needed, only layered equipment
-
     // Update customization page armor
     const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
@@ -2601,14 +2598,7 @@ function updateAvatarDisplay() {
         if (user.avatar.boots) {
             bootsImg.src = user.avatar.boots;
             bootsImg.style.display = "block";
-            
-            // Add error handling to debug image loading
-            bootsImg.onerror = function() {
-                console.error("Boots image failed to load:", this.src);
-            };
-            bootsImg.onload = function() {
-                console.log("Boots image loaded successfully:", this.src);
-            };
+            console.log("Boots set to:", bootsImg.src);
         } else {
             bootsImg.style.display = "none";
         }
