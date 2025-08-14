@@ -813,13 +813,13 @@ body:has(#wellness-page.active) .header .header-bg {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 2px solid var(--primary-gold);
   border-radius: 12px;
-  min-width: 200px;
+  min-width: 225px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   z-index: 201;
 }
 
@@ -1203,7 +1203,7 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"
 }
 
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-armor {
-  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(160%);
+  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(92%);
 }
 
 /* Avatar page adjustments for header boots positioning */
@@ -1393,13 +1393,13 @@ body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfli
 }
 
 .nav-label {
-  font-size: .9rem;
+  font-size: .85rem;
   font-weight: 600;
   color: var(--text-light);
   text-align: center;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  letter-spacing: 0.75px;
+  letter-spacing: 0.5px;
   margin-bottom: 1rem;
 }
 
