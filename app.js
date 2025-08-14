@@ -2607,7 +2607,6 @@ function updateAvatarDisplay() {
         if (user.avatar.boots) {
             bootsImg.src = user.avatar.boots;
             bootsImg.style.display = "block";
-            console.log("Boots set to:", bootsImg.src);
             
             // Add error handling to debug image loading
             bootsImg.onerror = function() {
