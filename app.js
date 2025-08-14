@@ -1928,8 +1928,10 @@ function updateUI() {
     if (silverElement) silverElement.textContent = silver;
     if (copperElement) copperElement.textContent = copper;
 
-    // Check for level up with new system
-    if (checkLevelUp(user)) {
+    // Check for level up with D&D system
+    const newLevel = calculateLevel(user.xp);
+    if (newLevel > user.level) {
+        user.level = newLevel;
         showLevelUpMessage();
     }
 
@@ -2311,7 +2313,7 @@ document.addEventListener('click', function(e) {
 
 // Show level up message
 function showLevelUpMessage() {
-    alert(`🎉 Level Up! You are now level ${user.level}!`);
+    showSelfCareMessage(`🎉 Level Up! You are now level ${user.level}!`, 0);
 }
 
 // Initialize avatar customization
