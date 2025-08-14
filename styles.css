@@ -685,7 +685,7 @@ body {
 
 .xp-text {
   position: absolute;
-  bottom: -16px;
+  bottom: -14px;
   right: 0;
   color: var(--text-gold);
   font-weight: 600;
@@ -766,6 +766,96 @@ body {
   font-size: 1.8rem;
   font-weight: 600;
   text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Hamburger Menu Styles */
+.hamburger-menu {
+  position: absolute;
+  top: 2rem;
+  left: 1.5rem;
+  transform: scale(.8);
+  z-index: 200;
+}
+
+.hamburger-btn {
+  background: rgba(212, 175, 55, 0.9);
+  border: 2px solid var(--primary-gold);
+  border-radius: 8px;
+  padding: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-btn:hover {
+  background: var(--primary-gold);
+  transform: scale(1.05);
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2.5px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.hamburger-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid var(--primary-gold);
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  z-index: 201;
+}
+
+.hamburger-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.hamburger-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: white;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.hamburger-dropdown a:last-child {
+  border-bottom: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.hamburger-dropdown a:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.hamburger-dropdown a:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--primary-gold);
+}
+
+.hamburger-dropdown .menu-icon {
+  font-size: 1.2rem;
+}
+
+/* Hide hamburger menu on non-base pages */
+.page:not(#tasks-page).active~* .hamburger-menu {
+  display: none;
 }
 
 /* Task Management */
@@ -935,90 +1025,6 @@ body {
   z-index: 0;
 }
 
-/* Race-specific scaling for armor - Properly scaled and positioned for each race */
-#avatar-customization-container[data-race="dragonborn"] .armor-layer {
-  transform: translateX(-50%) scale(0.52, 0.5) translateY(-1.5%);
-}
-
-#avatar-customization-container[data-race="half-orc"] .armor-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="tiefling"] .armor-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(-1%);
-}
-
-#avatar-customization-container[data-race="half-elf"] .armor-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="human"] .armor-layer {
-  transform: translateX(-50%) scale(0.53, 0.53) translateY(-0.5%);
-}
-
-#avatar-customization-container[data-race="elf"] .armor-layer {
-  transform: translateX(-50%) scale(0.50, 0.54) translateY(-1%);
-}
-
-#avatar-customization-container[data-race="dwarf"] .armor-layer {
-  transform: translateX(-50%) scale(0.59, 0.46) translateY(8%);
-}
-
-#avatar-customization-container[data-race="gnome"] .armor-layer {
-  transform: translateX(-50%) scale(0.46, 0.44) translateY(12%);
-}
-
-#avatar-customization-container[data-race="halfling"] .armor-layer {
-  transform: translateX(-50%) scale(0.48, 0.45) translateY(10%);
-}
-
-/* Default armor sizing for unknown races */
-#avatar-customization-container .armor-layer {
-  transform: translateX(-50%) scale(0.50, 0.50);
-}
-
-/* Race-specific scaling for boots - positioned low enough to cover feet */
-#avatar-customization-container[data-race="dragonborn"] .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.15) translateY(250%);
-}
-
-#avatar-customization-container[data-race="half-orc"] .boots-layer {
-  transform: translateX(-50%) scale(0.16, 0.16) translateY(275%);
-}
-
-#avatar-customization-container[data-race="tiefling"] .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.16) translateY(140%);
-}
-
-#avatar-customization-container[data-race="half-elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.16, 0.16) translateY(145%);
-}
-
-#avatar-customization-container[data-race="human"] .boots-layer {
-  transform: translateX(-50%) scale(0.16, 0.16) translateY(145%);
-}
-
-#avatar-customization-container[data-race="elf"] .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.16) translateY(140%);
-}
-
-#avatar-customization-container[data-race="dwarf"] .boots-layer {
-  transform: translateX(-50%) scale(0.18, 0.14) translateY(160%);
-}
-
-#avatar-customization-container[data-race="gnome"] .boots-layer {
-  transform: translateX(-50%) scale(0.14, 0.13) translateY(170%);
-}
-
-#avatar-customization-container[data-race="halfling"] .boots-layer {
-  transform: translateX(-50%) scale(0.14, 0.14) translateY(165%);
-}
-
-/* Default boots sizing for unknown races */
-#avatar-customization-container .boots-layer {
-  transform: translateX(-50%) scale(0.15, 0.15) translateY(250%);
-}
-
 .gear-selectors {
   display: flex;
   flex-direction: column;
@@ -1105,7 +1111,7 @@ body {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-armor {
-  transform: translate(-50%, -50%) scale(0.48, 0.45) translateY(10%);
+  transform: translate(-49%, -50%) scale(0.44, 0.46) translateY(105%);
 }
 
 /* Default header armor sizing */
@@ -1155,7 +1161,8 @@ body {
 }
 
 #header-avatar-container[data-race="halfling"] #avatar-boots {
-  transform: translate(-50%, -50%) scale(0.14, 0.14) translateY(165%);
+  transform: translate(-50%, -50%) scale(0.19, 0.16) translateY(555%);
+
 }
 
 /* Default header boots sizing */
@@ -2896,6 +2903,20 @@ body {
   border-left: 4px solid #d4af37;
 }
 
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 /* Mobile app optimizations */
 html,
 body {
@@ -2951,96 +2972,6 @@ body {
   }
 }
 
-/* Hamburger Menu Styles */
-.hamburger-menu {
-  position: absolute;
-  top: 2rem;
-  left: 1.5rem;
-  transform: scale(.8);
-  z-index: 200;
-}
-
-.hamburger-btn {
-  background: rgba(212, 175, 55, 0.9);
-  border: 2px solid var(--primary-gold);
-  border-radius: 8px;
-  padding: 0.4rem;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  transition: all 0.3s ease;
-}
-
-.hamburger-btn:hover {
-  background: var(--primary-gold);
-  transform: scale(1.05);
-}
-
-.hamburger-line {
-  width: 24px;
-  height: 2.5px;
-  background: white;
-  transition: all 0.3s ease;
-}
-
-.hamburger-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border: 2px solid var(--primary-gold);
-  border-radius: 12px;
-  min-width: 200px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
-  z-index: 201;
-}
-
-.hamburger-dropdown.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.hamburger-dropdown a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: white;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-  transition: all 0.3s ease;
-}
-
-.hamburger-dropdown a:last-child {
-  border-bottom: none;
-  border-radius: 0 0 10px 10px;
-}
-
-.hamburger-dropdown a:first-child {
-  border-radius: 10px 10px 0 0;
-}
-
-.hamburger-dropdown a:hover {
-  background: rgba(212, 175, 55, 0.2);
-  color: var(--primary-gold);
-}
-
-.hamburger-dropdown .menu-icon {
-  font-size: 1.2rem;
-}
-
-/* Hide hamburger menu on non-base pages */
-.page:not(#tasks-page).active~* .hamburger-menu {
-  display: none;
-}
-
 /* Wellness Page Styles */
 .wellness-section {
   padding: 2rem 2rem 5rem 2rem;
@@ -3072,18 +3003,4 @@ body {
 .wellness-actions button {
   flex: 1;
   min-width: 200px;
-}
-
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
 }
