@@ -345,6 +345,67 @@
 
     const totalAC = baseAC + armorBonus;
 
+    // Generate weapon attacks based on class
+    const generateWeaponAttacks = (cls, abilityScores, proficiencyBonus) => {
+      const strMod = Math.floor((abilityScores.STR - 10) / 2);
+      const dexMod = Math.floor((abilityScores.DEX - 10) / 2);
+      
+      const classWeapons = {
+        'Fighter': [
+          { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+          { name: 'Shortbow', damage: '1d6', ability: 'DEX', type: 'piercing', range: '80/320' }
+        ],
+        'Rogue': [
+          { name: 'Shortsword', damage: '1d6', ability: 'DEX', type: 'piercing' },
+          { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+        ],
+        'Wizard': [
+          { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' },
+          { name: 'Quarterstaff', damage: '1d6', ability: 'STR', type: 'bludgeoning' }
+        ],
+        'Sorcerer': [
+          { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' },
+          { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+        ],
+        'Cleric': [
+          { name: 'Mace', damage: '1d6', ability: 'STR', type: 'bludgeoning' },
+          { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+        ],
+        'Barbarian': [
+          { name: 'Greataxe', damage: '1d12', ability: 'STR', type: 'slashing' },
+          { name: 'Handaxe', damage: '1d6', ability: 'STR', type: 'slashing', range: '20/60' }
+        ],
+        'Ranger': [
+          { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+          { name: 'Longbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '150/600' }
+        ],
+        'Paladin': [
+          { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
+          { name: 'Javelin', damage: '1d6', ability: 'STR', type: 'piercing', range: '30/120' }
+        ]
+      };
+
+      const weapons = classWeapons[cls] || [
+        { name: 'Unarmed Strike', damage: '1', ability: 'STR', type: 'bludgeoning' }
+      ];
+
+      return weapons.map(weapon => {
+        const abilityMod = weapon.ability === 'STR' ? strMod : dexMod;
+        const attackBonus = abilityMod + proficiencyBonus;
+        const damageBonus = abilityMod;
+        
+        return `
+          <div class="combat-attack">
+            <div class="attack-name"><strong>${weapon.name}</strong></div>
+            <div class="attack-details">
+              Attack: +${attackBonus} | Damage: ${weapon.damage}${damageBonus >= 0 ? '+' : ''}${damageBonus} ${weapon.type}
+              ${weapon.range ? `| Range: ${weapon.range} ft` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
     // Calculate Max HP
     const hitDice = {
       'Barbarian': 12, 'Fighter': 10, 'Paladin': 10, 'Ranger': 10,
@@ -355,6 +416,46 @@
     const hitDie = hitDice[cls] || 8;
     const conMod = Math.floor((abilityScores.CON - 10) / 2);
     const maxHP = hitDie + (level - 1) * (Math.floor(hitDie / 2) + 1) + (conMod * level);
+
+    // Generate spells and cantrips based on class
+    const generateSpells = (cls, level) => {
+      const classSpells = {
+        'Wizard': {
+          cantrips: ['Mage Hand', 'Prestidigitation', 'Minor Illusion'],
+          level1: ['Magic Missile', 'Shield', 'Detect Magic', 'Identify']
+        },
+        'Sorcerer': {
+          cantrips: ['Fire Bolt', 'Mage Hand', 'Prestidigitation', 'Light'],
+          level1: ['Magic Missile', 'Shield', 'Burning Hands', 'Chromatic Orb']
+        },
+        'Cleric': {
+          cantrips: ['Sacred Flame', 'Guidance', 'Light'],
+          level1: ['Cure Wounds', 'Bless', 'Healing Word', 'Detect Magic']
+        },
+        'Druid': {
+          cantrips: ['Druidcraft', 'Guidance', 'Produce Flame'],
+          level1: ['Cure Wounds', 'Entangle', 'Faerie Fire', 'Goodberry']
+        },
+        'Warlock': {
+          cantrips: ['Eldritch Blast', 'Mage Hand', 'Minor Illusion'],
+          level1: ['Hex', 'Armor of Agathys', 'Charm Person']
+        },
+        'Bard': {
+          cantrips: ['Vicious Mockery', 'Mage Hand', 'Minor Illusion'],
+          level1: ['Healing Word', 'Thunderwave', 'Charm Person', 'Dissonant Whispers']
+        },
+        'Ranger': {
+          cantrips: [],
+          level1: level >= 2 ? ['Hunter\'s Mark', 'Cure Wounds', 'Speak with Animals'] : []
+        },
+        'Paladin': {
+          cantrips: [],
+          level1: level >= 2 ? ['Bless', 'Cure Wounds', 'Divine Favor'] : []
+        }
+      };
+
+      return classSpells[cls] || { cantrips: [], level1: [] };
+    };
 
     // Determine spellcasting ability and calculate spell stats
     const spellcastingClasses = {
@@ -484,7 +585,6 @@
           <button class="tab-button active" onclick="switchTab(event, 'features-tab')">Features</button>
           <button class="tab-button" onclick="switchTab(event, 'combat-tab')">Combat</button>
           <button class="tab-button" onclick="switchTab(event, 'abilities-tab')">Abilities</button>
-          <button class="tab-button" onclick="switchTab(event, 'skills-tab')">Skills</button>
           <button class="tab-button" onclick="switchTab(event, 'spells-tab')">Spells</button>
         </div>
 
@@ -534,6 +634,13 @@
               </div>
             </div>
           </div>
+          
+          <div class="tab-section">
+            <h3>Weapon Attacks</h3>
+            <div class="combat-attacks">
+              ${generateWeaponAttacks(cls, abilityScores, proficiencyBonus)}
+            </div>
+          </div>
         </div>
 
         <div id="abilities-tab" class="tab-content">
@@ -558,9 +665,7 @@
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div id="skills-tab" class="tab-content">
+          
           <div class="tab-section">
             <h3>Skills</h3>
             <div class="skills-grid">
@@ -571,6 +676,31 @@
 
         <div id="spells-tab" class="tab-content">
           ${spellStatsContent}
+          ${spellcastingAbility ? `
+            <div class="tab-section">
+              <h3>Cantrips</h3>
+              <div class="spells-list">
+                ${generateSpells(cls, level).cantrips.map(spell => `
+                  <div class="spell-item cantrip">
+                    <div class="spell-name">${spell}</div>
+                    <div class="spell-level">Cantrip</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="tab-section">
+              <h3>1st Level Spells</h3>
+              <div class="spells-list">
+                ${generateSpells(cls, level).level1.map(spell => `
+                  <div class="spell-item level1">
+                    <div class="spell-name">${spell}</div>
+                    <div class="spell-level">1st Level</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
