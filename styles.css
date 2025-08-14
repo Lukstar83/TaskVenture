@@ -474,8 +474,9 @@ body {
 }
 
 #tasks-page ~* .header-bg {
-  padding-top: 20px; 
+  top: 20px; 
 }
+
 .header-bg {
   position: relative;
   display: block;
