@@ -908,26 +908,28 @@ class QuestEngine {
 
         questContainer.innerHTML = `
             <div class="combat-interface">
-                <h2>Combat!</h2>
-                <div class="health-bars">
-                    <div class="health-bar-container">
-                        <h4>Your Health</h4>
-                        <div class="health-bar">
-                            <div class="health-fill" style="width: ${(this.playerHP / this.maxPlayerHP) * 100}%"></div>
-                            <div class="health-text">${this.playerHP}/${this.maxPlayerHP}</div>
+                <div class="combat-header">
+                    <h2>Combat!</h2>
+                    <div class="health-bars">
+                        <div class="health-bar-container">
+                            <h4>Your Health</h4>
+                            <div class="health-bar">
+                                <div class="health-fill" style="width: ${(this.playerHP / this.maxPlayerHP) * 100}%"></div>
+                                <div class="health-text">${this.playerHP}/${this.maxPlayerHP}</div>
+                            </div>
+                        </div>
+                        <div class="health-bar-container">
+                            <h4>${enemy.name}</h4>
+                            <div class="health-bar">
+                                <div class="health-fill" style="width: ${(this.enemyHP / this.maxEnemyHP) * 100}%"></div>
+                                <div class="health-text">${this.enemyHP}/${this.maxEnemyHP}</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="health-bar-container">
-                        <h4>${enemy.name}</h4>
-                        <div class="health-bar">
-                            <div class="health-fill" style="width: ${(this.enemyHP / this.maxEnemyHP) * 100}%"></div>
-                            <div class="health-text">${this.enemyHP}/${this.maxEnemyHP}</div>
-                        </div>
+                    <div class="enemy-info">
+                        <h3>${enemy.name}</h3>
+                        <p>AC: ${enemy.ac}</p>
                     </div>
-                </div>
-                <div class="enemy-info">
-                    <h3>${enemy.name}</h3>
-                    <p>AC: ${enemy.ac}</p>
                 </div>
                 <div class="combat-options">
                     <!-- Actions -->
