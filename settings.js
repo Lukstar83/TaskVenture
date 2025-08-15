@@ -167,47 +167,48 @@ function resetCharacter() {
 }
 
 function resetProgress() {
-    // Clear all game data from localStorage
+    // Clear ALL possible game data from localStorage
     localStorage.removeItem('taskventureData');
     localStorage.removeItem('lastActiveDate');
-
-    // Reset the global user object completely
-    if (typeof window.user !== 'undefined') {
-        window.user = {
-            xp: 0,
-            level: 1,
-            streak: 0,
-            cards: [],
-            tasks: [],
-            inventory: [],
-            questItems: [],
-            coins: 0,
-            restToken: false,
-            lastActiveDate: null,
-            bonusXP: false,
-            avatar: {
-                armor: "",
-                weapon: "",
-                cape: ""
-            }
-        };
-
-        // Save the reset state immediately
-        localStorage.setItem('taskventureData', JSON.stringify(window.user));
-
-        // Update all UI elements
-        if (typeof window.updateUI === 'function') {
-            window.updateUI();
+    localStorage.removeItem('lastWellnessCheckIn');
+    localStorage.removeItem('wellnessData');
+    
+    // Create fresh user object
+    const freshUser = {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        cards: [],
+        tasks: [],
+        inventory: [],
+        questItems: [],
+        coins: 0,
+        restToken: false,
+        lastActiveDate: null,
+        bonusXP: false,
+        avatar: {
+            armor: "",
+            weapon: "",
+            cape: "",
+            boots: ""
         }
-        if (typeof window.renderCollection === 'function') {
-            window.renderCollection();
-        }
-        if (typeof window.renderTasks === 'function') {
-            window.renderTasks();
-        }
+    };
+
+    // Reset both window.user and any local references
+    window.user = freshUser;
+    if (typeof user !== 'undefined') {
+        user = freshUser;
     }
 
-    showFloatingMessage('All progress reset successfully!', 'success');
+    // Force save the reset state
+    localStorage.setItem('taskventureData', JSON.stringify(freshUser));
+
+    showFloatingMessage('All progress reset successfully! Refreshing page...', 'success');
+    
+    // Force a page reload after a short delay to ensure everything resets
+    setTimeout(() => {
+        window.location.reload();
+    }, 1500);
 }
 
 function exportSaveData() {
