@@ -149,17 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Called when wizard is finished
-  function completeWizard(finalProfile) {
-    localStorage.setItem('tv_profile', JSON.stringify(finalProfile));
-
-    // Hide wizard and show main game
-    document.getElementById('wizard').classList.add('hidden');
-    document.getElementById('game-interface').classList.remove('hidden');
-
-    window.renderSheet?.(); // trigger stat sheet render if loaded
-  }
-  
   // 10) Play / Reset
   playBtn.addEventListener("click", () => {
     splashEl.classList.add("hidden");
