@@ -130,27 +130,12 @@ body {
 }
 
 .gem:hover {
-  -webkit-animation: rotate 1s;
-  -moz-animation: rotate 1s;
   animation: rotate .9s;
   filter: drop-shadow(0 0 1rem rgb(128, 255, 255));
 }
 
-@-moz-keyframes rotate {
-  100% {
-    -moz-transform: rotateY(360deg);
-  }
-}
-
-@-webkit-keyframes rotate {
-  100% {
-    -webkit-transform: rotateY(360deg);
-  }
-}
-
 @keyframes rotate {
   100% {
-    -webkit-transform: rotateY(2160deg);
     transform: rotateY(2160deg);
   }
 }
