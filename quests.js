@@ -1451,46 +1451,36 @@ class QuestEngine {
     }
 }
 
-// Initialize quest engine only if it doesn't exist
-if (!window.questEngine) {
-    window.questEngine = new QuestEngine();
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for the quest container to be available
-    setTimeout(() => {
-        if (window.questEngine && document.getElementById('quest-container')) {
-            window.questEngine.renderQuestList();
-        }
-    }, 500);
-});
-
-// Also initialize when showing the quests page
-window.initializeQuestsPage = function() {
-    // Ensure quest engine exists
+// Initialize quest engine - single initialization point
+function initializeQuestEngine() {
     if (!window.questEngine) {
         window.questEngine = new QuestEngine();
+        console.log('✅ QuestEngine initialized');
     }
-
-    if (window.questEngine && document.getElementById('quest-container')) {
+    
+    // Only render if the quest container exists
+    const questContainer = document.getElementById('quest-container');
+    if (questContainer && typeof window.questEngine.renderQuestList === 'function') {
         window.questEngine.renderQuestList();
+    } else if (questContainer) {
+        console.error('❌ QuestEngine renderQuestList method not available');
     }
+}
+
+// Initialize when showing the quests page
+window.initializeQuestsPage = function() {
+    initializeQuestEngine();
 };
 
-// Initialize when the quests page becomes active
+// Initialize when DOM is loaded and when quests page becomes active
 document.addEventListener('DOMContentLoaded', function() {
+    // Set up observer for when quests page becomes active
     const observer = new MutationObserver(() => {
         const questsPage = document.getElementById('quests-page');
         if (questsPage && questsPage.classList.contains('active')) {
             setTimeout(() => {
-                if (!window.questEngine) {
-                    window.questEngine = new QuestEngine();
-                }
-                if (window.questEngine && document.getElementById('quest-container')) {
-                    window.questEngine.renderQuestList();
-                }
-            }, 200);
+                initializeQuestEngine();
+            }, 100);
         }
     });
 
@@ -1498,4 +1488,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (questsPage) {
         observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });
     }
+
+    // Initial check if already on quests page
+    setTimeout(() => {
+        const questsPage = document.getElementById('quests-page');
+        if (questsPage && questsPage.classList.contains('active')) {
+            initializeQuestEngine();
+        }
+    }, 500);
 });
