@@ -1378,7 +1378,15 @@ class QuestEngine {
         this.currentScene = null;
     }
 
+    retreatFromCombat() {
+        this.hideDiceModal();
+        this.activeQuest = null;
+        this.currentScene = null;
+        this.returnToQuestList();
+    }
+
     abandonQuest() {
+        this.hideDiceModal();
         this.activeQuest = null;
         this.currentScene = null;
         this.returnToQuestList();
@@ -1584,13 +1592,13 @@ class QuestEngine {
                     // For now, let's default to d20 for simplicity or use a predefined damage die if available.
                     const actionType = action.type;
                     let dieToRoll = 'd20'; // Default to d20
-                    
+
                     if (actionType === 'second_wind') {
                         dieToRoll = 'd8'; // Example: Second Wind might use a d8 for healing
                     } else if (actionType === 'bonus_spell' && action.spell?.heal) {
                         dieToRoll = 'd4'; // Example: Bonus spell heal uses d4
                     }
-                    
+
                     window.roll3DDice(dieToRoll);
                 } else {
                     // Fallback
@@ -1636,7 +1644,7 @@ class QuestEngine {
             this.cleanupPendingRoll();
         }
     }
-    
+
     // Helper to check if an attack hits
     checkHit(attackRoll, action) {
         const enemy = this.currentScene.enemy;
@@ -1710,12 +1718,12 @@ class QuestEngine {
             const spell = spells.cantrip_attack || spells.level1_attack;
             if (spell) damageString = spell.damage;
         }
-        
+
         // Extract the die part (e.g., '1d8' from '1d8+2')
         const dieMatch = damageString.match(/(\d+d\d+)/);
         return dieMatch ? dieMatch[0] : '1d6'; // Default to d6 if no die found
     }
-    
+
     // Helper to get the full damage string for an action
     getDamageStringForAction(action) {
         const weapons = this.getCharacterWeapons();
@@ -1779,7 +1787,7 @@ class QuestEngine {
             totalDamage += sneakDamage;
             logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
         }
-        
+
         // Ensure damage is at least 1 if calculation results in 0 or less
         totalDamage = Math.max(1, totalDamage);
 
@@ -1794,7 +1802,7 @@ class QuestEngine {
 
         this.updateHealthBars();
     }
-    
+
     // Helper to resolve a miss
     resolveMiss(action, hitRoll) {
         const enemy = this.currentScene.enemy;
@@ -1814,11 +1822,11 @@ class QuestEngine {
 
         logDiv.innerHTML += `<p class="failure">${weaponOrSpellName} attack missed!</p>`;
     }
-    
+
     // Helper to clean up after a roll is processed
     cleanupPendingRoll() {
         this.pendingRoll = null;
-        
+
         // Re-enable combat buttons only if combat continues
         if (this.playerHP > 0 && this.enemyHP > 0) {
             setTimeout(() => {
@@ -1844,19 +1852,19 @@ class QuestEngine {
         }
     }
 
+    // This method is now superseded by the two-stage rolling system.
+    // The logic is integrated into checkHit and resolveDamage.
     resolveMeleeAttack(diceRoll) {
-        // This method is now superseded by the two-stage rolling system.
-        // The logic is integrated into checkHit and resolveDamage.
         console.warn("resolveMeleeAttack called directly, should use two-stage rolling.");
     }
 
+    // This method is now superseded by the two-stage rolling system.
     resolveRangedAttack(diceRoll) {
-        // This method is now superseded by the two-stage rolling system.
         console.warn("resolveRangedAttack called directly, should use two-stage rolling.");
     }
 
+    // This method is now superseded by the two-stage rolling system.
     resolveSpellAttack(diceRoll) {
-        // This method is now superseded by the two-stage rolling system.
         console.warn("resolveSpellAttack called directly, should use two-stage rolling.");
     }
 
@@ -2258,6 +2266,22 @@ class QuestEngine {
                 </div>
             </div>
         `;
+    }
+
+    // Method to hide the dice modal
+    hideDiceModal() {
+        const diceSection = document.getElementById("combat-dice-section");
+        if (diceSection) {
+            diceSection.style.display = "none";
+        }
+        const resultDiv = document.getElementById("combat-dice-result");
+        if (resultDiv) {
+            resultDiv.innerHTML = ''; // Clear previous results
+        }
+        const rollBtn = document.getElementById("combat-roll-btn");
+        if (rollBtn) {
+            rollBtn.onclick = null; // Clear the onclick handler
+        }
     }
 }
 
