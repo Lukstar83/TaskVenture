@@ -1,4 +1,3 @@
-
 // Enhanced 3D Dice rolling functionality using Three.js
 let scene, camera, renderer, world, dice, isRolling = false;
 let currentDiceType = 'd20'; // Track current dice type
@@ -199,7 +198,7 @@ function createDice(diceType = 'd20') {
     ctx.shadowOffsetX = 1; 
     ctx.shadowOffsetY = 1;
     ctx.font = `900 ${size * 0.46}px Cinzel, serif`;
-    
+
     // Cycle through available numbers for this dice type
     const numberIndex = i % maxSides;
     ctx.fillText(String(nums[numberIndex]), size * UV_CX, size * UV_CY);
@@ -233,7 +232,7 @@ function createDice(diceType = 'd20') {
     type: diceType,
     sides: config.sides
   };
-  
+
   scene.add(dice);
   currentDiceType = diceType;
   console.log(`✅ ${diceType.toUpperCase()} created with enhanced combat styling`);
@@ -267,12 +266,12 @@ function initDice() {
     alpha: false, 
     logarithmicDepthBuffer: true 
   });
-  
+
   // Set size based on container
   const containerWidth = diceContainer.offsetWidth || 300;
   const containerHeight = diceContainer.offsetHeight || 200;
   renderer.setSize(containerWidth, containerHeight);
-  
+
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x1a1a2e, 1.0);
@@ -280,7 +279,7 @@ function initDice() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  
+
   diceContainer.innerHTML = '';
   diceContainer.appendChild(renderer.domElement);
 
@@ -346,7 +345,7 @@ function roll3DDice(diceType = currentDiceType) {
 
   const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
   const resultDiv = document.getElementById('dice-result') || document.getElementById('combat-dice-result');
-  
+
   if (rollButton) rollButton.disabled = true;
   isRolling = true;
   if (resultDiv) resultDiv.innerHTML = '';
@@ -490,7 +489,7 @@ function rollDamage(weaponType = 'sword') {
   };
 
   const diceType = weaponDice[weaponType] || 'd6';
-  
+
   return new Promise((resolve) => {
     window.combatRollCallback = resolve;
     roll3DDice(diceType);
@@ -500,7 +499,7 @@ function rollDamage(weaponType = 'sword') {
 // ---------- UI helpers ----------
 function getDiceResultText(roll, diceType = 'd20') {
   const maxRoll = DICE_CONFIGS[diceType]?.sides || 20;
-  
+
   if (diceType === 'd20') {
     if (roll === 20) return "🔥 Critical Hit! Maximum damage!";
     if (roll === 1) return "💀 Critical Miss! Your attack goes awry!";
@@ -540,7 +539,7 @@ function showFloatingMessage(message, type) {
     background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
     border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
   `;
-  
+
   if (!document.querySelector('style[data-floating-messages]')) {
     const style = document.createElement('style');
     style.setAttribute('data-floating-messages', '');
@@ -552,7 +551,7 @@ function showFloatingMessage(message, type) {
     `;
     document.head.appendChild(style);
   }
-  
+
   document.body.appendChild(messageDiv);
   setTimeout(() => {
     messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
@@ -592,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => { ensureDiceInitialized(); }, 500);
     }
   });
-  
+
   const questsPage = document.getElementById('quests-page');
   if (questsPage) {
     observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });
@@ -616,3 +615,193 @@ window.rollSkillCheck = function(skillName, dc, callback) {
     if (callback) callback(result);
   }
 };
+
+// The following is a placeholder for the combat engine logic, 
+// which would typically be in a separate file or class.
+// For this context, we'll define a minimal structure here to make the code runnable.
+if (typeof window.questEngine === 'undefined') {
+    window.questEngine = {
+        pendingRoll: null,
+        currentAction: null,
+        combatPhase: null,
+        logCombat: function(message) { console.log("Combat log:", message); },
+        processDiceRoll: function(roll) {
+            console.log("Processing dice roll:", roll);
+            if (this.pendingRoll) {
+                if (this.pendingRoll.phase === 'attack') {
+                    // Attack roll processed
+                    const attackRoll = roll;
+                    const action = this.pendingRoll.action;
+                    const attackMessage = `Attack Roll: ${attackRoll}`;
+                    this.logCombat(attackMessage);
+
+                    // Placeholder for comparing with enemy AC
+                    const enemyAC = 15; // Example AC
+                    if (attackRoll >= enemyAC) {
+                        this.logCombat("Hit!");
+                        this.pendingRoll.phase = 'damage';
+                        this.combatPhase = 'damage';
+
+                        // Initiate damage roll
+                        if (typeof window.rollDamage === 'function') {
+                            window.rollDamage(action.weapon || 'spell');
+                        } else {
+                            // Fallback damage roll
+                            const damageRoll = Math.floor(Math.random() * 8) + 1;
+                            this.processDiceRoll(damageRoll); // Recursively call to handle damage
+                        }
+                    } else {
+                        this.logCombat("Miss!");
+                        this.pendingRoll = null;
+                        this.combatPhase = null;
+                        const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                        if (rollButton) rollButton.disabled = false;
+                    }
+                } else if (this.pendingRoll.phase === 'damage') {
+                    // Damage roll processed
+                    const damageRoll = roll;
+                    const action = this.pendingRoll.action;
+                    const damageMessage = `Damage Roll: ${damageRoll}`;
+                    this.logCombat(damageMessage);
+                    this.logCombat(`Total damage dealt: ${damageRoll}`);
+
+                    // Placeholder for applying damage to enemy
+                    // enemy.takeDamage(damageRoll);
+
+                    this.pendingRoll = null;
+                    this.combatPhase = null;
+                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                    if (rollButton) rollButton.disabled = false;
+                } else if (this.pendingRoll.phase === 'single') {
+                     // Single utility roll processed
+                    this.logCombat(`Utility Roll: ${roll}`);
+                    this.pendingRoll = null;
+                    this.combatPhase = null;
+                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                    if (rollButton) rollButton.disabled = false;
+                }
+            } else {
+                // Handle cases where pendingRoll might not be set correctly (e.g., direct calls)
+                this.logCombat(`Received roll: ${roll}`);
+                const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                if (rollButton) rollButton.disabled = false;
+            }
+            const combatResultDiv = document.getElementById('combat-dice-result');
+            if (combatResultDiv) {
+                combatResultDiv.innerHTML = `<div>Processed roll: <strong>${roll}</strong></div>`;
+            }
+        },
+        handleCombatAction: async function(action) { // Made async
+            if (this.pendingRoll) return;
+
+            this.currentAction = action;
+            this.combatPhase = 'attack';
+
+            this.logCombat(`You attempt to ${action.name.toLowerCase()}...`);
+
+            // Show dice section
+            const diceSection = document.getElementById('combat-dice-section');
+            if (diceSection) {
+                diceSection.style.display = 'block';
+            }
+
+            try {
+                if (action.type === 'attack' || action.type === 'spell') {
+                    // Phase 1: Attack roll with D20
+                    this.pendingRoll = { action: action, type: 'combat', phase: 'attack' };
+
+                    if (typeof window.rollAttack === 'function') {
+                        await window.rollAttack();
+                    } else {
+                        // Fallback
+                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
+                    }
+                } else {
+                    // Utility actions use single D20 roll
+                    this.pendingRoll = { action: action, type: 'combat', phase: 'single' };
+
+                    if (typeof window.roll3DDice === 'function') {
+                        window.roll3DDice('d20');
+                    } else {
+                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Combat action failed:', error);
+                this.logCombat("Your action fails due to confusion!");
+                this.pendingRoll = null;
+            }
+        }
+    };
+}
+
+// Mock combat engine if it doesn't exist to avoid errors
+if (typeof window.questEngine === 'undefined') {
+    window.questEngine = {
+        pendingRoll: null,
+        currentAction: null,
+        combatPhase: null,
+        logCombat: (msg) => console.log(`Combat Log: ${msg}`),
+        processDiceRoll: (roll) => {
+            console.log(`Mock processDiceRoll called with: ${roll}`);
+            if (window.questEngine.pendingRoll && window.questEngine.pendingRoll.action) {
+                const action = window.questEngine.pendingRoll.action;
+                if (window.questEngine.pendingRoll.phase === 'attack') {
+                    const enemyAC = 15; // Example AC
+                    if (roll >= enemyAC) {
+                        window.questEngine.logCombat(`Hit! (Rolled ${roll})`);
+                        window.questEngine.pendingRoll.phase = 'damage';
+                        window.questEngine.combatPhase = 'damage';
+                        if (typeof window.rollDamage === 'function') {
+                            window.rollDamage(action.weapon || 'spell');
+                        } else {
+                            window.questEngine.processDiceRoll(Math.floor(Math.random() * 8) + 1);
+                        }
+                    } else {
+                        window.questEngine.logCombat(`Miss! (Rolled ${roll})`);
+                        window.questEngine.pendingRoll = null;
+                        window.questEngine.combatPhase = null;
+                        const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                        if (rollButton) rollButton.disabled = false;
+                    }
+                } else if (window.questEngine.pendingRoll.phase === 'damage') {
+                    window.questEngine.logCombat(`Damage dealt: ${roll}`);
+                    window.questEngine.pendingRoll = null;
+                    window.questEngine.combatPhase = null;
+                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+                    if (rollButton) rollButton.disabled = false;
+                }
+            }
+        },
+        handleCombatAction: async function(action) { // Made async
+            if (this.pendingRoll) return;
+            this.currentAction = action;
+            this.combatPhase = 'attack';
+            this.logCombat(`Attempting action: ${action.name}`);
+            const diceSection = document.getElementById('combat-dice-section');
+            if (diceSection) diceSection.style.display = 'block';
+
+            try {
+                if (action.type === 'attack' || action.type === 'spell') {
+                    this.pendingRoll = { action: action, type: 'combat', phase: 'attack' };
+                    if (typeof window.rollAttack === 'function') {
+                        await window.rollAttack();
+                    } else {
+                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
+                    }
+                } else {
+                    this.pendingRoll = { action: action, type: 'combat', phase: 'single' };
+                    if (typeof window.roll3DDice === 'function') {
+                        window.roll3DDice('d20');
+                    } else {
+                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Combat action failed:', error);
+                this.logCombat("Action failed!");
+                this.pendingRoll = null;
+            }
+        }
+    };
+}
