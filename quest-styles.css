@@ -485,7 +485,7 @@
     background: linear-gradient(135deg, #5a2d91 0%, #4c1d82 100%) !important;
 }
 
-#combat-log .inner-container {
+#combat-log {
     background: var(--surface-glass);
     backdrop-filter: blur(15px);
     border: var(--glass-border);
@@ -493,14 +493,12 @@
     padding: 1.5rem;
     max-height: 250px;
     overflow-y: auto;
-    margin: 1rem 0;
-    display: none;
-    padding-bottom: 1rem;
+    margin-top: 1rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-#combat-log.visible {
-    display: block;
+#combat-log .inner-container {
+    /* Remove conflicting styles since we're styling the parent now */
 }
 
 #combat-log p {
@@ -596,7 +594,7 @@
     backdrop-filter: blur(15px);
     border: 2px solid #d4af37;
     border-radius: 16px;
-    padding: 0 1rem;
+    padding: 1rem;
     margin: 1rem 0;
     text-align: center;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
@@ -618,20 +616,31 @@
 
 .combat-dice-display {
     width: 100%;
-    height: auto;
-    background: #1a1a2e;
+    height: 200px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2a1a1a 100%);
     border: 2px solid #d4af37;
     border-radius: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    position: relative;
+    box-shadow: 
+        inset 0 0 20px rgba(212, 175, 55, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.combat-dice-display canvas {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 13px;
 }
 
 .combat-dice-display img {
     width: auto;
     height: 60%;
     object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
 }
 
 .combat-roll-button {

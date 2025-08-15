@@ -950,13 +950,16 @@ class QuestEngine {
                 </div>
 
                 <!-- Integrated Dice Section -->
-                <div id="combat-dice-section" class="combat-dice-section" class="outer-container" style="display: none;">
-                    <div class="integrated-dice-container">
-                        <div id="combat-dice-display" class="combat-dice-display"><img src="/images/nav/d20.png"></div>
-                        <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
-                        <div id="combat-dice-result" class="combat-dice-result"></div>
-                        <div id="combat-log" class="inner-container"></div>
+                <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
+                    <div class="outer-container">
+                        <div class="integrated-dice-container">
+                            <div id="combat-dice-display" class="combat-dice-display">
+                                <img src="/images/nav/d20.png" alt="D20 Dice" style="display: none;">
+                            </div>
+                            <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
+                            <div id="combat-dice-result" class="combat-dice-result"></div>
                         </div>
+                        <div id="combat-log"></div>
                     </div>
                 </div>
                 `;
