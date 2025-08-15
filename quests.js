@@ -1,5 +1,7 @@
 // quests.js - D&D Style Quest System
 
+const DEBUG = window.DEBUG || false;
+
 class QuestEngine {
     constructor() {
         this.activeQuest = null;
@@ -1209,14 +1211,14 @@ class QuestEngine {
             const newLevel = window.calculateLevel(window.user.xp);
             if (newLevel > oldLevel) {
                 window.user.level = newLevel;
-                console.log(`Level up! You are now level ${newLevel}`);
+                DEBUG && console.log(`Level up! You are now level ${newLevel}`);
                 showFloatingMessage(`Level Up! You are now level ${newLevel}!`, 'success');
             }
         } else if (typeof calculateLevel === "function") {
             const newLevel = calculateLevel(window.user.xp);
             if (newLevel > oldLevel) {
                 window.user.level = newLevel;
-                console.log(`Level up! You are now level ${newLevel}`);
+                DEBUG && console.log(`Level up! You are now level ${newLevel}`);
                 showFloatingMessage(`Level Up! You are now level ${newLevel}!`, 'success');
             }
         }
@@ -1224,7 +1226,7 @@ class QuestEngine {
         // Save to main app storage system (taskventureData is the primary one)
         localStorage.setItem("taskventureData", JSON.stringify(window.user));
 
-        console.log("Quest completed! Rewards added:", {
+        DEBUG && console.log("Quest completed! Rewards added:", {
             xp: rewards.xp,
             coins: rewards.coins,
             items: rewards.items,
@@ -1360,7 +1362,7 @@ class QuestEngine {
     // Debug function to check current user stats
     checkStats() {
         if (window.user) {
-            console.log("Current User Stats:", {
+            DEBUG && console.log("Current User Stats:", {
                 xp: window.user.xp,
                 coins: window.user.coins,
                 level: window.user.level,
@@ -1372,7 +1374,7 @@ class QuestEngine {
             });
             return window.user;
         } else {
-            console.log("No user data found");
+            DEBUG && console.log("No user data found");
             return null;
         }
     }
@@ -1527,13 +1529,13 @@ class QuestEngine {
             if (typeof window.ensureDiceInitialized === "function") {
                 const result = window.ensureDiceInitialized();
                 if (result) {
-                    console.log("✅ Combat dice initialized successfully");
+                    DEBUG && console.log("✅ Combat dice initialized successfully");
                     // Ensure d20 is the default die
                     if (typeof window.createDice === "function") {
                         window.createDice('d20');
                     }
                 } else {
-                    console.log("❌ Combat dice initialization failed, using fallback");
+                    DEBUG && console.log("❌ Combat dice initialization failed, using fallback");
                 }
             }
         }, 200);
@@ -1892,7 +1894,7 @@ class QuestEngine {
         // Enemy attacks after a delay (prevent multiple attacks)
         if (this.enemyHP > 0 && this.playerHP > 0 && !this.enemyAttackPending) {
             if (this.enemyGrappled && this.enemyCannotAttack) {
-                console.log("Enemy grappled, cannot attack.");
+                DEBUG && console.log("Enemy grappled, cannot attack.");
             } else if (!this.playerDisengaged) {
                 this.enemyAttackPending = true; // Prevent multiple enemy attacks
                 setTimeout(() => {
@@ -1900,7 +1902,7 @@ class QuestEngine {
                     this.enemyAttackPending = false; // Reset after attack
                 }, 3000);
             } else {
-                console.log("Player disengaged, no opportunity attack.");
+                DEBUG && console.log("Player disengaged, no opportunity attack.");
                 this.playerDisengaged = false;
             }
         }
@@ -2275,7 +2277,7 @@ class QuestEngine {
         );
         this.availableQuests = this.generateAvailableQuests();
         this.renderQuestList();
-        console.log("All quests reset - available for completion again");
+        DEBUG && console.log("All quests reset - available for completion again");
     }
 
     renderQuestList() {

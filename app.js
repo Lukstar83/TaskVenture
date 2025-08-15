@@ -1,5 +1,7 @@
 // app.js
 
+const DEBUG = window.DEBUG || false;
+
 // Wait for DOM to be ready before initializing
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure initial visibility is set immediately to prevent flash
@@ -127,9 +129,9 @@ async function initializeNotifications() {
             notificationsEnabled = permission.display === "granted";
 
             if (notificationsEnabled) {
-                console.log("✅ Notifications enabled");
+                DEBUG && console.log("✅ Notifications enabled");
             } else {
-                console.log("❌ Notifications permission denied");
+                DEBUG && console.log("❌ Notifications permission denied");
             }
         }
     } catch (error) {
@@ -283,7 +285,7 @@ async function scheduleSelfCareNotifications() {
 
         if (notifications.length > 0) {
             await LocalNotifications.schedule({ notifications });
-            console.log(
+            DEBUG && console.log(
                 `✅ Scheduled ${notifications.length} self-care notifications`,
             );
         }
@@ -1701,7 +1703,7 @@ function initializeApp() {
     const addBtn = document.getElementById("add-task-btn");
     if (addBtn) {
         addBtn.addEventListener("click", addTask);
-        console.log("🖱️ add-task-btn click listener attached");
+        DEBUG && console.log("🖱️ add-task-btn click listener attached");
     } else {
         console.warn("⚠️ #add-task-btn not found");
     }
@@ -1912,7 +1914,7 @@ function updateUI() {
 
     // Update currency display - convert total coins to different denominations
     const totalCoins = user.coins || 0;
-    console.log(`💰 Main app coin display update: ${totalCoins} total coins`);
+    DEBUG && console.log(`💰 Main app coin display update: ${totalCoins} total coins`);
     const platinum = Math.floor(totalCoins / 1000);
     const gold = Math.floor((totalCoins % 1000) / 100);
     const silver = Math.floor((totalCoins % 100) / 10);
@@ -1942,12 +1944,12 @@ function updateUI() {
 
 // Add a new task
 function addTask() {
-    console.log("🎯 addTask function called");
+    DEBUG && console.log("🎯 addTask function called");
 
     // First, ensure we're on the tasks page
     const tasksPage = document.getElementById("tasks-page");
     if (!tasksPage || !tasksPage.classList.contains("active")) {
-        console.log("📍 Not on tasks page, switching to it first");
+        DEBUG && console.log("📍 Not on tasks page, switching to it first");
         const tasksNavButton = document.querySelector(
             '.nav-item[onclick*="tasks-page"]',
         );
@@ -1962,13 +1964,13 @@ function addTask() {
     }
 
     let taskInput = document.getElementById("task-input");
-    console.log("🔍 Looking for task input element...");
-    console.log("📍 Task input found:", !!taskInput);
-    console.log("📍 Current page:", document.querySelector(".page.active")?.id);
+    DEBUG && console.log("🔍 Looking for task input element...");
+    DEBUG && console.log("📍 Task input found:", !!taskInput);
+    DEBUG && console.log("📍 Current page:", document.querySelector(".page.active")?.id);
 
     // If input not found, try multiple fallback methods
     if (!taskInput) {
-        console.log("🔄 Trying fallback methods to find input...");
+        DEBUG && console.log("🔄 Trying fallback methods to find input...");
 
         // Method 1: Look for any text input with quest-related placeholder
         const allInputs = document.querySelectorAll('input[type="text"]');
@@ -1980,14 +1982,14 @@ function addTask() {
         );
 
         if (taskInput) {
-            console.log("📍 Found input via placeholder search");
+            DEBUG && console.log("📍 Found input via placeholder search");
         } else {
             // Method 2: Look within the task section specifically
             const taskSection = document.querySelector(".task-section");
             if (taskSection) {
                 taskInput = taskSection.querySelector('input[type="text"]');
                 if (taskInput) {
-                    console.log("📍 Found input within task section");
+                    DEBUG && console.log("📍 Found input within task section");
                 }
             }
         }
@@ -1998,7 +2000,7 @@ function addTask() {
             if (activePage) {
                 taskInput = activePage.querySelector('input[type="text"]');
                 if (taskInput) {
-                    console.log("📍 Found input in active page");
+                    DEBUG && console.log("📍 Found input in active page");
                 }
             }
         }
@@ -2015,7 +2017,7 @@ function addTask() {
     // Ensure the input element is valid and accessible
     try {
         const taskText = taskInput.value.trim();
-        console.log("📝 Task text:", taskText);
+        DEBUG && console.log("📝 Task text:", taskText);
 
         if (taskText === "") {
             alert("Please enter a quest!");
@@ -2034,7 +2036,7 @@ function addTask() {
         taskInput.value = "";
         updateUI();
 
-        console.log("✅ Task added successfully:", task);
+        DEBUG && console.log("✅ Task added successfully:", task);
 
         // Show success feedback
         taskInput.placeholder = "Quest added! Enter another...";
@@ -2070,7 +2072,7 @@ function completeTask(taskId) {
     user.tasks.splice(taskIndex, 1);
 
     // 🎉 Reward feedback - ensure these fire
-    console.log("🎉 Triggering celebration effects");
+    DEBUG && console.log("🎉 Triggering celebration effects");
     setTimeout(() => {
         fireConfetti();
     }, 100);
@@ -2330,7 +2332,7 @@ function initializeAvatarCustomization() {
             this.src = "images/base_avatar.png";
         };
         baseAvatar.onload = function () {
-            console.log("Base avatar image loaded successfully");
+            DEBUG && console.log("Base avatar image loaded successfully");
         };
     }
 
@@ -2628,7 +2630,7 @@ function updateAvatarDisplay() {
         if (user.avatar.boots) {
             bootsImg.src = user.avatar.boots; // Use the direct path from user.avatar.boots
             bootsImg.style.display = "block";
-            console.log("Boots set to:", bootsImg.src);
+            DEBUG && console.log("Boots set to:", bootsImg.src);
         } else {
             bootsImg.style.display = "none";
         }
@@ -2693,7 +2695,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Set up task input handlers when the game interface becomes visible
 function setupTaskInputHandlers() {
-    console.log("Setting up task input handlers...");
+    DEBUG && console.log("Setting up task input handlers...");
 
     // Wait for elements to be available with retry mechanism
     let retryCount = 0;
@@ -2703,7 +2705,7 @@ function setupTaskInputHandlers() {
         let taskInput = document.getElementById("task-input");
         let addTaskBtn = document.getElementById("add-task-btn");
 
-        console.log(
+        DEBUG && console.log(
             `Attempt ${retryCount + 1}: Task input found:`,
             !!taskInput,
             "Button found:",
@@ -2719,7 +2721,7 @@ function setupTaskInputHandlers() {
                     input.placeholder.toLowerCase().includes("quest"),
             );
             if (taskInput) {
-                console.log("📍 Found task input via placeholder search");
+                DEBUG && console.log("📍 Found task input via placeholder search");
             }
         }
 
@@ -2731,7 +2733,7 @@ function setupTaskInputHandlers() {
                     btn.textContent.toLowerCase().includes("add quest"),
             );
             if (addTaskBtn) {
-                console.log("📍 Found add button via text search");
+                DEBUG && console.log("📍 Found add button via text search");
             }
         }
 
@@ -2743,15 +2745,15 @@ function setupTaskInputHandlers() {
                     handleTaskInputKeypress,
                 );
                 taskInput.addEventListener("keypress", handleTaskInputKeypress);
-                console.log("✅ Task input keypress listener added");
+                DEBUG && console.log("✅ Task input keypress listener added");
 
                 addTaskBtn.removeEventListener("click", addTask);
                 addTaskBtn.addEventListener("click", addTask);
-                console.log("✅ Add task button click listener added");
+                DEBUG && console.log("✅ Add task button click listener added");
 
                 // Test the elements work
                 if (typeof taskInput.value === "string" && addTaskBtn.click) {
-                    console.log("✅ Elements are functional");
+                    DEBUG && console.log("✅ Elements are functional");
                     window.taskHandlersReady = true;
                     return true;
                 } else {
@@ -2764,7 +2766,7 @@ function setupTaskInputHandlers() {
 
         retryCount++;
         if (retryCount < maxRetries) {
-            console.log(
+            DEBUG && console.log(
                 `⏳ Retrying handler setup (${retryCount}/${maxRetries})...`,
             );
             setTimeout(trySetupHandlers, 300);
@@ -2780,14 +2782,14 @@ function setupTaskInputHandlers() {
                     e.target.textContent &&
                     e.target.textContent.includes("Add Quest")
                 ) {
-                    console.log(
+                    DEBUG && console.log(
                         "🎯 Fallback: Global click detected on Add Quest button",
                     );
                     e.preventDefault();
                     addTask();
                 }
             });
-            console.log("🔄 Set up fallback global click listener");
+            DEBUG && console.log("🔄 Set up fallback global click listener");
         }
     }
 
@@ -2803,34 +2805,34 @@ function handleTaskInputKeypress(e) {
 
 // Debug function to check current state
 window.debugTaskInput = function () {
-    console.log("=== TASK INPUT DEBUG ===");
-    console.log("Current page:", document.querySelector(".page.active")?.id);
-    console.log("Task input by ID:", !!document.getElementById("task-input"));
-    console.log("Add button by ID:", !!document.getElementById("add-task-btn"));
-    console.log(
+    DEBUG && console.log("=== TASK INPUT DEBUG ===");
+    DEBUG && console.log("Current page:", document.querySelector(".page.active")?.id);
+    DEBUG && console.log("Task input by ID:", !!document.getElementById("task-input"));
+    DEBUG && console.log("Add button by ID:", !!document.getElementById("add-task-btn"));
+    DEBUG && console.log(
         "All text inputs:",
         document.querySelectorAll('input[type="text"]').length,
     );
-    console.log(
+    DEBUG && console.log(
         'All buttons with "Add":',
         Array.from(document.querySelectorAll("button")).filter((b) =>
             b.textContent.includes("Add"),
         ).length,
     );
-    console.log("Task handlers ready:", window.taskHandlersReady);
-    console.log("User object exists:", !!window.user);
-    console.log("Current tasks count:", window.user?.tasks?.length || 0);
+    DEBUG && console.log("Task handlers ready:", window.taskHandlersReady);
+    DEBUG && console.log("User object exists:", !!window.user);
+    DEBUG && console.log("Current tasks count:", window.user?.tasks?.length || 0);
 
     const taskInput = document.getElementById("task-input");
     if (taskInput) {
-        console.log("Task input value access test:", typeof taskInput.value);
+        DEBUG && console.log("Task input value access test:", typeof taskInput.value);
         try {
-            console.log("Current input value:", taskInput.value);
+            DEBUG && console.log("Current input value:", taskInput.value);
         } catch (e) {
             console.error("Error accessing input value:", e);
         }
     }
-    console.log("=== END DEBUG ===");
+    DEBUG && console.log("=== END DEBUG ===");
 };
 
 function enterApp() {
@@ -2853,7 +2855,7 @@ function enterApp() {
 
     const profile = JSON.parse(localStorage.getItem("tv_profile"));
     if (profile) {
-        console.log("🗡️ Loaded profile into app:", profile);
+        DEBUG && console.log("🗡️ Loaded profile into app:", profile);
         if (typeof renderSheet === "function") {
             renderSheet(profile);
         }
@@ -3009,7 +3011,7 @@ function fireConfetti(bursts = 180) {
         resize();
     }
 
-    console.log("🎊 Firing confetti with", bursts, "particles");
+    DEBUG && console.log("🎊 Firing confetti with", bursts, "particles");
 
     const particles = [];
     const colors = [
@@ -3085,11 +3087,11 @@ function fireConfetti(bursts = 180) {
 // ---- Success Chime (Web Audio) ----
 function playSuccessChime() {
     try {
-        console.log("🔊 Playing success chime");
+        DEBUG && console.log("🔊 Playing success chime");
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
 
         if (!AudioCtx) {
-            console.log("Web Audio not supported");
+            DEBUG && console.log("Web Audio not supported");
             return;
         }
 
@@ -3128,7 +3130,7 @@ function playSuccessChime() {
         }
 
     } catch (error) {
-        console.log("Audio context error:", error.message);
+        DEBUG && console.log("Audio context error:", error.message);
     }
 }
 
