@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const DEBUG = process.env.DEBUG === 'true';
+
 // Create dist directory if it doesn't exist
 if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist', { recursive: true });
@@ -28,9 +30,9 @@ const filesToCopy = [
 filesToCopy.forEach(file => {
   if (fs.existsSync(file)) {
     fs.copyFileSync(file, path.join('dist', file));
-    console.log(`Copied ${file} to dist/`);
+    DEBUG && console.log(`Copied ${file} to dist/`);
   } else {
-    console.log(`Warning: ${file} not found, skipping...`);
+    DEBUG && console.log(`Warning: ${file} not found, skipping...`);
   }
 });
 
@@ -40,9 +42,9 @@ const dirsToCopy = ['images', 'data', 'attached_assets', 'dice-box'];
 dirsToCopy.forEach(dir => {
   if (fs.existsSync(dir)) {
     copyDir(dir, path.join('dist', dir));
-    console.log(`Copied ${dir}/ to dist/`);
+    DEBUG && console.log(`Copied ${dir}/ to dist/`);
   } else {
-    console.log(`Warning: ${dir} directory not found, skipping...`);
+    DEBUG && console.log(`Warning: ${dir} directory not found, skipping...`);
   }
 });
 
@@ -65,4 +67,4 @@ function copyDir(src, dest) {
   }
 }
 
-console.log('Build completed! Files copied to dist/');
+DEBUG && console.log('Build completed! Files copied to dist/');

@@ -2,6 +2,8 @@
 // Enhanced 3D Dice (Three.js)
 // =======================
 
+const DEBUG = window.DEBUG || false;
+
 let scene, camera, renderer, world, dice, isRolling = false;
 let currentDiceType = 'd20';
 
@@ -484,7 +486,7 @@ function ensureDiceInitialized() {
       try { return initDice(); }
       catch (e) { console.error('Failed to initialize dice:', e); return false; }
     } else {
-      console.log('THREE.js not loaded yet'); return false;
+      DEBUG && console.log('THREE.js not loaded yet'); return false;
     }
   }
   return !!renderer;

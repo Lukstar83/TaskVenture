@@ -1,6 +1,8 @@
 
 // sheet.js
 (function(){
+  const DEBUG = window.DEBUG || false;
+
   // 1) Load and parse the tv_profile from localStorage
   function loadProfile(){
     const raw = localStorage.getItem('tv_profile');
@@ -299,7 +301,7 @@
   // 2) Build and inject the HTML
   function renderSheet() {
     const p = loadProfile();
-    console.log('🗡️ renderSheet() got profile:', p);
+    DEBUG && console.log('🗡️ renderSheet() got profile:', p);
 
     const container = document.getElementById('sheet-container');
     if (!container) {
