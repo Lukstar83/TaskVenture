@@ -892,3 +892,36 @@
 
 /* Remove the old framed look on the inner display if it’s still present */
 .combat-dice-display{ border:none !important; background:transparent !important; }
+
+.combat-options button.unavailable {
+    background: linear-gradient(135deg, #404040 0%, #2a2a2a 100%);
+    color: #666666;
+    border-color: #555555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.combat-options button.unavailable:hover {
+    background: linear-gradient(135deg, #404040 0%, #2a2a2a 100%);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Combat log message types */
+#combat-log .critical-miss {
+    color: #ff4444;
+    font-weight: bold;
+}
+
+#combat-log .miss {
+    color: #ffaa44;
+}
+
+#combat-log .damage {
+    color: #44ff44;
+    font-weight: bold;
+}
+
+#combat-log .low-damage {
+    color: #88ff88;
+}

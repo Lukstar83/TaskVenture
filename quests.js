@@ -16,6 +16,14 @@ class QuestEngine {
         this.successfulActions = 0;
         this.maxSuccessfulActions = 3;
         this.enemyCannotAttack = false;
+        this.playerDisengaged = false;
+        this.playerAdvantage = false;
+        this.enemyDisadvantage = false;
+        this.hiddenAdvantage = false;
+        this.enemyCannotTarget = false;
+        this.enemyGrappled = false;
+        this.tempACBonus = 0;
+        this.positionAdvantage = false; // This seems unused, can be removed if not needed
     }
 
     // Generate random quests based on character level
@@ -466,6 +474,16 @@ class QuestEngine {
         this.tempACBonus = 0;
         this.positionAdvantage = false;
         this.enemyGrappled = false;
+        this.playerDisengaged = false;
+        this.playerAdvantage = false;
+        this.enemyDisadvantage = false;
+        this.hiddenAdvantage = false;
+        this.enemyCannotTarget = false;
+
+        // Reset combat state if starting a new combat quest
+        this.playerHP = this.maxPlayerHP;
+        this.enemyHP = 0; // Will be set in renderCombat
+
         this.renderQuestInterface();
         return true;
     }
@@ -883,20 +901,55 @@ class QuestEngine {
         );
     }
 
-    hasClassFeature(feature) {
+    getCharacterClass() {
         const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
-        const cls = profile.class;
+        return profile.class || "Fighter";
+    }
+
+    hasClassFeature(featureName) {
+        const cls = this.getCharacterClass();
         const level = window.user?.level || 1;
 
-        const classFeatures = {
-            cunning_action: cls === "Rogue" && level >= 2,
-            second_wind: cls === "Fighter" && level >= 1,
-            rage: cls === "Barbarian" && level >= 1,
-            sneak_attack: cls === "Rogue" && level >= 1,
-            channel_divinity: cls === "Cleric" && level >= 2,
-        };
+        switch (featureName) {
+            case "cunning_action":
+                return cls === "Rogue";
+            case "second_wind":
+                return cls === "Fighter";
+            case "bonus_spell":
+                return ["Cleric", "Druid", "Sorcerer", "Warlock", "Wizard", "Bard", "Paladin", "Ranger"].includes(cls) && level >= 1;
+            case "spell_attack":
+                return ["Cleric", "Druid", "Sorcerer", "Warlock", "Wizard", "Bard"].includes(cls) || (["Paladin", "Ranger"].includes(cls) && level >= 2);
+            case "ranged_attack":
+                // Most classes can use ranged weapons, but let's check if they have appropriate stats
+                return true; // For now, allow all classes to attempt ranged attacks
+            default:
+                return true; // Basic actions available to all
+        }
+    }
 
-        return classFeatures[feature] || false;
+    isActionAvailable(actionType) {
+        switch (actionType) {
+            case "melee_attack":
+            case "dash":
+            case "disengage":
+            case "dodge":
+            case "hide":
+            case "grapple":
+            case "help":
+                return true; // Available to all characters
+            case "ranged_attack":
+                return this.hasClassFeature("ranged_attack");
+            case "spell_attack":
+                return this.hasClassFeature("spell_attack");
+            case "bonus_spell":
+                return this.hasClassFeature("bonus_spell");
+            case "cunning_action":
+                return this.hasClassFeature("cunning_action");
+            case "second_wind":
+                return this.hasClassFeature("second_wind");
+            default:
+                return true;
+        }
     }
 
     displayRollResult(choice, roll, modifier, total, success) {
@@ -1401,35 +1454,32 @@ class QuestEngine {
                     </div>
                 </div>
                 <div class="combat-options">
-                    <!-- Actions -->
-                    <button onclick="questEngine.initiateCombatAction('melee_attack')">Melee Attack</button>
-                    <button onclick="questEngine.initiateCombatAction('ranged_attack')">Ranged Attack</button>
-                    <button onclick="questEngine.initiateCombatAction('spell_attack')">Cast Attack Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('dash')" class="combat-action-utility">Dash</button>
-                    <button onclick="questEngine.initiateCombatAction('disengage')" class="combat-action-defensive">Disengage</button>
-                    <button onclick="questEngine.initiateCombatAction('dodge')" class="combat-action-defensive">Dodge</button>
-                    <button onclick="questEngine.initiateCombatAction('hide')" class="combat-action-utility">Hide</button>
-                    <button onclick="questEngine.initiateCombatAction('grapple')" class="combat-action-utility">Grapple</button>
-                    <button onclick="questEngine.initiateCombatAction('help')" class="combat-action-utility">Help Action</button>
-                    <!-- Bonus Actions -->
-                    <button onclick="questEngine.initiateCombatAction('bonus_spell')" class="combat-action-bonus">Bonus Action Spell</button>
-                    <button onclick="questEngine.initiateCombatAction('cunning_action')" class="combat-action-bonus">Cunning Action</button>
-                    <button onclick="questEngine.initiateCombatAction('second_wind')" class="combat-action-bonus">Second Wind</button>
-                    <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">Retreat from Combat</button>
+                    ${this.generateCombatButton('melee_attack', '⚔️ Melee Attack')}
+                    ${this.generateCombatButton('ranged_attack', '🏹 Ranged Attack')}
+                    ${this.generateCombatButton('spell_attack', '✨ Spell Attack')}
+                    ${this.generateCombatButton('dash', '🏃 Dash')}
+                    ${this.generateCombatButton('disengage', '🚶 Disengage')}
+                    ${this.generateCombatButton('dodge', '🛡️ Dodge')}
+                    ${this.generateCombatButton('hide', '👤 Hide')}
+                    ${this.generateCombatButton('grapple', '🤼 Grapple')}
+                    ${this.generateCombatButton('help', '❤️ Help Self')}
+                    ${this.generateCombatButton('bonus_spell', '🌟 Bonus Spell')}
+                    ${this.generateCombatButton('cunning_action', '🗡️ Cunning Action')}
+                    ${this.generateCombatButton('second_wind', '💨 Second Wind')}
+                    <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">🏃‍♂️ Retreat from Combat</button>
                 </div>
 
                 <!-- Integrated Dice Section -->
-<div class="dice-card">
-  <div id="combat-dice-display" class="dice-stage"></div>
-  <div class="dice-actions">
-    <button id="combat-roll-btn" class="combat-roll-button">Roll D20</button>
-  </div>
-  <div id="combat-dice-result" class="combat-dice-result"></div>
-</div>
-                        <div id="combat-log"></div>
-                    </div>
+                <div id="combat-dice-section" style="display: none;">
+                  <div id="combat-dice-display" class="dice-stage"></div>
+                  <div class="dice-actions">
+                    <button id="combat-roll-btn" class="combat-roll-button">ROLL DICE</button>
+                  </div>
+                  <div id="combat-dice-result" class="combat-dice-result"></div>
                 </div>
-                `;
+                <div id="combat-log"></div>
+            </div>
+        `;
 
         // Initialize dice after combat interface is rendered
         setTimeout(() => {
@@ -1446,325 +1496,378 @@ class QuestEngine {
         }, 200);
     }
 
-    initiateCombatAction(actionType) {
-        this.pendingRoll = { type: actionType };
+    generateCombatButton(actionType, displayText) {
+        const isAvailable = this.isActionAvailable(actionType);
+        const className = isAvailable ? '' : 'unavailable';
+        const onclick = isAvailable
+            ? `questEngine.handleCombatAction({type: '${actionType}', name: '${displayText.replace(/[^a-zA-Z ]/g, '').trim()}'})`
+            : `questEngine.showUnavailableAction('${displayText}')`;
 
-        // Show the integrated dice section
+        return `<button class="${className}" onclick="${onclick}">${displayText}</button>`;
+    }
+
+    showUnavailableAction(actionName) {
+        showFloatingMessage(`${actionName} is not available to your character!`, 'error');
+    }
+
+    async handleCombatAction(action) {
+        if (this.pendingRoll) return;
+
+        // Check if action is available
+        if (!this.isActionAvailable(action.type)) {
+            this.showUnavailableAction(action.name);
+            return;
+        }
+
+        this.currentAction = action;
+
+        // Show dice and set up roll context
         const diceSection = document.getElementById("combat-dice-section");
         if (diceSection) {
             diceSection.style.display = "block";
+        }
 
-            // Initialize the 3D dice in the combat dice display
-            setTimeout(() => {
-                this.initializeCombatDice();
-            }, 100);
+        // For attack actions, we need two-stage rolling (hit then damage)
+        if (['melee_attack', 'ranged_attack', 'spell_attack'].includes(action.type)) {
+            this.pendingRoll = { type: action.type, action: action, stage: 'hit' };
+            this.setupHitRoll(action);
+        } else {
+            // Non-attack actions use single roll
+            this.pendingRoll = { type: action.type, action: action, stage: 'single' };
+            this.setupSingleRoll(action);
+        }
+
+        // Initialize dice if needed
+        if (typeof window.ensureDiceInitialized === "function") {
+            window.ensureDiceInitialized();
         }
 
         // Disable combat buttons temporarily
-        const buttons = document.querySelectorAll(".combat-options button");
+        const buttons = document.querySelectorAll(".combat-options button:not(.unavailable)");
         buttons.forEach((btn) => (btn.disabled = true));
     }
 
-    initializeCombatDice() {
-        // Initialize dice specifically for combat using the combat dice display
-        setTimeout(() => {
-            if (typeof window.ensureDiceInitialized === "function") {
-                const result = window.ensureDiceInitialized();
-                if (result) {
-                    console.log("✅ Combat dice ready for rolling");
+    setupHitRoll(action) {
+        const resultDiv = document.getElementById("combat-dice-result");
+        if (resultDiv) {
+            resultDiv.innerHTML = `<p>Roll to HIT with ${action.name}. Click "ROLL DICE".</p>`;
+        }
+
+        const rollBtn = document.getElementById("combat-roll-btn");
+        if (rollBtn) {
+            rollBtn.disabled = false;
+            rollBtn.onclick = () => {
+                if (typeof window.roll3DDice === "function") {
+                    window.roll3DDice('d20');
                 } else {
-                    console.warn(
-                        "Combat dice failed to initialize, will use fallback rolls",
-                    );
-                    // Show fallback message in dice display
-                    const diceDisplay = document.getElementById(
-                        "combat-dice-display",
-                    );
-                    if (diceDisplay && !diceDisplay.querySelector("canvas")) {
-                        diceDisplay.innerHTML =
-                            '<div style="color: #d4af37;">🎲 Dice Ready (2D Mode)</div>';
-                    }
+                    // Fallback
+                    const roll = Math.floor(Math.random() * 20) + 1;
+                    this.processDiceRoll(roll); // This will call resolveMeleeAttack etc.
                 }
-            } else if (typeof window.initCombatDice === "function") {
-                window.initCombatDice();
-            }
-        }, 300);
+            };
+        }
+    }
+
+    setupSingleRoll(action) {
+        const resultDiv = document.getElementById("combat-dice-result");
+        if (resultDiv) {
+            resultDiv.innerHTML = `<p>Perform ${action.name}. Click "ROLL DICE".</p>`;
+        }
+
+        const rollBtn = document.getElementById("combat-roll-btn");
+        if (rollBtn) {
+            rollBtn.disabled = false;
+            rollBtn.onclick = () => {
+                if (typeof window.roll3DDice === "function") {
+                    // For non-attack actions, we might need different dice, but for now, let's assume d20 for general actions.
+                    // Or, if the action implies damage, we might need a damage die. This needs more context.
+                    // For now, let's default to d20 for simplicity or use a predefined damage die if available.
+                    const actionType = action.type;
+                    let dieToRoll = 'd20'; // Default to d20
+                    
+                    if (actionType === 'second_wind') {
+                        dieToRoll = 'd8'; // Example: Second Wind might use a d8 for healing
+                    } else if (actionType === 'bonus_spell' && action.spell?.heal) {
+                        dieToRoll = 'd4'; // Example: Bonus spell heal uses d4
+                    }
+                    
+                    window.roll3DDice(dieToRoll);
+                } else {
+                    // Fallback
+                    const roll = Math.floor(Math.random() * 20) + 1;
+                    this.processDiceRoll(roll);
+                }
+            };
+        }
     }
 
     // Main method to handle dice rolls (called from dice.js)
     processDiceRoll(diceResult) {
-        return this.processCombatRoll(diceResult);
-    }
-
-    processCombatRoll(diceResult) {
-        if (!this.pendingRoll) return;
-
-        const { type } = this.pendingRoll;
-        const logDiv = document.getElementById("combat-log");
-
-        switch (type) {
-            case "melee_attack":
-                this.resolveMeleeAttack(diceResult);
-                break;
-            case "ranged_attack":
-                this.resolveRangedAttack(diceResult);
-                break;
-            case "spell_attack":
-                this.resolveSpellAttack(diceResult);
-                break;
-            case "dash":
-                this.resolveDash(diceResult);
-                break;
-            case "disengage":
-                this.resolveDisengage(diceResult);
-                break;
-            case "dodge":
-                this.resolveDodge(diceResult);
-                break;
-            case "hide":
-                this.resolveHide(diceResult);
-                break;
-            case "grapple":
-                this.resolveGrapple(diceResult);
-                break;
-            case "help":
-                this.resolveHelp(diceResult);
-                break;
-            case "bonus_spell":
-                this.resolveBonusSpell(diceResult);
-                break;
-            case "cunning_action":
-                this.resolveCunningAction(diceResult);
-                break;
-            case "second_wind":
-                this.resolveSecondWind(diceResult);
-                break;
-        }
-
-        this.pendingRoll = null;
-
-        // Hide the integrated dice section
-        const diceSection = document.getElementById("combat-dice-section");
-        if (diceSection) {
-            diceSection.style.display = "none";
-        }
-
-        // Check if combat ends before re-enabling buttons
-        if (this.enemyHP <= 0 || this.playerHP <= 0) {
-            return; // Combat ended, don't re-enable buttons
-        }
-
-        // Re-enable combat buttons only if combat continues
-        setTimeout(() => {
-            const buttons = document.querySelectorAll(".combat-options button");
-            buttons.forEach((btn) => (btn.disabled = false));
-        }, 500);
-
-        // Enemy attacks after a delay (unless player used disengage)
-        if (this.enemyHP > 0 && this.playerHP > 0 && !this.playerDisengaged) {
-            setTimeout(() => this.enemyAttack(), 1500);
-        } else if (this.playerDisengaged) {
-            logDiv.innerHTML += `<p class="success">You successfully disengage - the enemy cannot make opportunity attacks!</p>`;
-            this.playerDisengaged = false;
-        }
-    }
-
-    retreatFromCombat() {
-        const questContainer = document.getElementById("quest-container");
-        questContainer.innerHTML = `
-            <div class="quest-completion" style="background: var(--surface-glass); border-color: #6c757d;">
-                <h2>⚡ Tactical Retreat!</h2>
-                <h3>You wisely chose to withdraw from combat.</h3>
-                <p>Sometimes discretion is the better part of valor. You can return to try this quest again when you're better prepared.</p>
-                <button onclick="questEngine.returnToQuestList()">Return to Quest List</button>
-            </div>
-        `;
-
-        // Reset combat state
-        this.playerHP = this.maxPlayerHP;
-        this.enemyHP = 0;
-        this.activeQuest = null;
-        this.currentScene = null;
-    }
-
-    resolveMeleeAttack(diceRoll) {
-        const weapons = this.getCharacterWeapons();
-        const weapon = weapons.melee;
-        const abilityModifier = this.getAbilityModifier(weapon.ability);
-        const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-
-        let total = diceRoll + abilityModifier + proficiencyBonus;
-        const enemy = this.currentScene.enemy;
-        const logDiv = document.getElementById("combat-log");
-        logDiv.classList.add("visible");
-
-        // Apply quest advantages and other bonuses
-        const questBonus = this.successfulActions * 2;
-        total += questBonus;
-
-        // Apply advantage/disadvantage
-        let advantageText = "";
-        if (this.playerAdvantage || this.hiddenAdvantage) {
-            const secondRoll = Math.floor(Math.random() * 20) + 1;
-            if (secondRoll > diceRoll) {
-                total =
-                    secondRoll +
-                    abilityModifier +
-                    proficiencyBonus +
-                    questBonus;
-                advantageText = ` (advantage: ${secondRoll})`;
-            }
-            this.playerAdvantage = false;
-            this.hiddenAdvantage = false;
-        }
-
-        logDiv.innerHTML += `<p><strong>${weapon.name} Attack:</strong> ${diceRoll}${advantageText} + ${abilityModifier} (${weapon.ability}) + ${proficiencyBonus} (prof) + ${questBonus} (quest) = ${total} vs AC ${enemy.ac}</p>`;
-
-        if (total >= enemy.ac) {
-            let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
-
-            // Add sneak attack damage for rogues
-            if (
-                this.hasClassFeature("sneak_attack") &&
-                (this.playerAdvantage || this.hiddenAdvantage)
-            ) {
-                const sneakDamage = this.rollDice("1d6"); // Simplified sneak attack
-                damage += sneakDamage;
-                logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
-            }
-
-            damage += this.successfulActions; // Quest bonus damage
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name}.</p>`;
-
-            if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
-                setTimeout(() => this.completeQuest(), 2000);
-                return;
-            }
-        } else {
-            logDiv.innerHTML += `<p class="failure">${weapon.name} attack missed!</p>`;
-        }
-
-        this.updateHealthBars();
-    }
-
-    resolveRangedAttack(diceRoll) {
-        const weapons = this.getCharacterWeapons();
-        const weapon = weapons.ranged;
-        const abilityModifier = this.getAbilityModifier(weapon.ability);
-        const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-
-        let total = diceRoll + abilityModifier + proficiencyBonus;
-        const enemy = this.currentScene.enemy;
-        const logDiv = document.getElementById("combat-log");
-        logDiv.classList.add("visible");
-
-        const questBonus = this.successfulActions * 2;
-        total += questBonus;
-
-        // Apply advantage from height/position
-        let advantageText = "";
-        if (this.playerAdvantage || this.hiddenAdvantage) {
-            const secondRoll = Math.floor(Math.random() * 20) + 1;
-            if (secondRoll > diceRoll) {
-                total =
-                    secondRoll +
-                    abilityModifier +
-                    proficiencyBonus +
-                    questBonus;
-                advantageText = ` (advantage: ${secondRoll})`;
-            }
-            this.playerAdvantage = false;
-            this.hiddenAdvantage = false;
-        }
-
-        logDiv.innerHTML += `<p><strong>${weapon.name} Attack:</strong> ${diceRoll}${advantageText} + ${abilityModifier} (${weapon.ability}) + ${proficiencyBonus} (prof) = ${total} vs AC ${enemy.ac}</p>`;
-
-        if (total >= enemy.ac) {
-            let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
-            damage += this.successfulActions;
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name} (Range: ${weapon.range} ft).</p>`;
-
-            if (this.enemyHP <= 0) {
-                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
-                setTimeout(() => this.completeQuest(), 2000);
-                return;
-            }
-        } else {
-            logDiv.innerHTML += `<p class="failure">${weapon.name} attack missed!</p>`;
-        }
-
-        this.updateHealthBars();
-    }
-
-    resolveSpellAttack(diceRoll) {
-        const spells = this.getCharacterSpells();
-        const spell = spells.cantrip_attack || spells.level1_attack;
-
-        if (!spell) {
-            const logDiv = document.getElementById("combat-log");
-            logDiv.classList.add("visible");
-            logDiv.innerHTML += `<p class="failure">No attack spells available!</p>`;
+        if (!this.pendingRoll) {
+            console.warn("processDiceRoll called with no pending roll.");
             return;
         }
 
-        const abilityModifier = this.getAbilityModifier(spell.ability);
+        const { type, action, stage } = this.pendingRoll;
+
+        if (stage === 'hit') {
+            // First stage: Hit roll
+            const hitRoll = diceResult;
+            const success = this.checkHit(hitRoll, action); // Implement checkHit logic
+
+            if (success) {
+                // Transition to damage roll
+                this.pendingRoll.stage = 'damage';
+                this.pendingRoll.hitRoll = hitRoll;
+                this.setupDamageRoll(action, hitRoll);
+            } else {
+                // Miss
+                this.resolveMiss(action, hitRoll);
+                this.cleanupPendingRoll();
+            }
+        } else if (stage === 'damage') {
+            // Second stage: Damage roll
+            const damageRoll = diceResult;
+            this.resolveDamage(action, this.pendingRoll.hitRoll, damageRoll);
+            this.cleanupPendingRoll();
+        } else if (stage === 'single') {
+            // Single roll for non-attack actions
+            this.processCombatRoll(diceResult); // Use the existing processCombatRoll for non-attack actions
+            this.cleanupPendingRoll();
+        }
+    }
+    
+    // Helper to check if an attack hits
+    checkHit(attackRoll, action) {
+        const enemy = this.currentScene.enemy;
+        const weapons = this.getCharacterWeapons();
+        const spells = this.getCharacterSpells();
+
+        let attackInfo = {};
+        if (action.type === 'melee_attack') attackInfo = weapons.melee;
+        else if (action.type === 'ranged_attack') attackInfo = weapons.ranged;
+        else if (action.type === 'spell_attack') attackInfo = spells.cantrip_attack || spells.level1_attack;
+
+        if (!attackInfo) return false;
+
+        const abilityModifier = this.getAbilityModifier(attackInfo.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
+        const questBonus = this.successfulActions * 2;
+
+        let totalAttackRoll = attackRoll + abilityModifier + proficiencyBonus + questBonus;
+
+        // Apply advantage/disadvantage logic here if applicable to the hit roll itself
+        // (e.g., if playerAdvantage was set before calling handleCombatAction)
+        let advantageText = "";
+        if (this.playerAdvantage) { // This logic might need refinement based on when advantage is applied
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            if (secondRoll > attackRoll) {
+                totalAttackRoll = secondRoll + abilityModifier + proficiencyBonus + questBonus;
+                advantageText = ` (advantage: ${secondRoll})`;
+            }
+        }
+
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        logDiv.innerHTML += `<p><strong>${attackInfo.name} Attack:</strong> ${attackRoll}${advantageText} + ${abilityModifier} (${attackInfo.ability}) + ${proficiencyBonus} (prof) + ${questBonus} (quest) = ${totalAttackRoll} vs AC ${enemy.ac}</p>`;
+
+        return totalAttackRoll >= enemy.ac;
+    }
+
+    // Helper to set up the damage roll stage
+    setupDamageRoll(action, hitRoll) {
+        const damageDie = this.getDamageDieForAction(action);
+        const resultDiv = document.getElementById("combat-dice-result");
+        if (resultDiv) {
+            resultDiv.innerHTML = `<p>Hit with ${action.name}! Roll for damage. Click "ROLL DICE" for ${damageDie}.</p>`;
+        }
+
+        const rollBtn = document.getElementById("combat-roll-btn");
+        if (rollBtn) {
+            rollBtn.disabled = false;
+            rollBtn.onclick = () => {
+                if (typeof window.roll3DDice === "function") {
+                    window.roll3DDice(damageDie);
+                } else {
+                    // Fallback damage roll
+                    const damageRoll = this.rollWeaponDamage(this.getDamageStringForAction(action));
+                    this.processDiceRoll(damageRoll);
+                }
+            };
+        }
+    }
+
+    // Helper to get the damage die string for an action
+    getDamageDieForAction(action) {
+        const weapons = this.getCharacterWeapons();
+        const spells = this.getCharacterSpells();
+        let damageString = "";
+
+        if (action.type === 'melee_attack') damageString = weapons.melee.damage;
+        else if (action.type === 'ranged_attack') damageString = weapons.ranged.damage;
+        else if (action.type === 'spell_attack') {
+            const spell = spells.cantrip_attack || spells.level1_attack;
+            if (spell) damageString = spell.damage;
+        }
+        
+        // Extract the die part (e.g., '1d8' from '1d8+2')
+        const dieMatch = damageString.match(/(\d+d\d+)/);
+        return dieMatch ? dieMatch[0] : '1d6'; // Default to d6 if no die found
+    }
+    
+    // Helper to get the full damage string for an action
+    getDamageStringForAction(action) {
+        const weapons = this.getCharacterWeapons();
+        const spells = this.getCharacterSpells();
+
+        if (action.type === 'melee_attack') return weapons.melee.damage;
+        else if (action.type === 'ranged_attack') return weapons.ranged.damage;
+        else if (action.type === 'spell_attack') {
+            const spell = spells.cantrip_attack || spells.level1_attack;
+            return spell ? spell.damage : "1d6"; // Default to 1d6
+        }
+        return "1d6"; // Default for other actions if needed
+    }
+
+    // Helper to resolve the damage after a hit
+    resolveDamage(action, hitRoll, damageRoll) {
         const enemy = this.currentScene.enemy;
         const logDiv = document.getElementById("combat-log");
         logDiv.classList.add("visible");
 
-        if (spell.auto_hit) {
-            // Magic Missile auto-hits
-            const damage = this.rollWeaponDamage(spell.damage);
-            this.enemyHP = Math.max(0, this.enemyHP - damage);
-            logDiv.innerHTML += `<p class="success">${spell.name} automatically hits! Dealt ${damage} ${spell.type} damage.</p>`;
-        } else if (spell.save) {
-            // Saving throw spell
-            const saveDC = 8 + proficiencyBonus + abilityModifier;
-            const enemySave = Math.floor(Math.random() * 20) + 1 + 2; // Enemy gets +2 to saves
-            logDiv.innerHTML += `<p><strong>${spell.name}:</strong> Enemy ${spell.save} save: ${enemySave} vs DC ${saveDC}</p>`;
+        let totalDamage = damageRoll;
+        let weaponOrSpellName = "";
+        let weaponOrSpellType = "";
 
-            if (enemySave < saveDC) {
-                const damage = this.rollWeaponDamage(spell.damage);
-                this.enemyHP = Math.max(0, this.enemyHP - damage);
-                logDiv.innerHTML += `<p class="success">Save failed! Dealt ${damage} ${spell.type} damage.</p>`;
-            } else {
-                logDiv.innerHTML += `<p class="failure">Enemy saved! No damage.</p>`;
-            }
-        } else {
-            // Attack roll spell
-            const total = diceRoll + abilityModifier + proficiencyBonus;
-            logDiv.innerHTML += `<p><strong>${spell.name} Spell Attack:</strong> ${diceRoll} + ${abilityModifier} (${spell.ability}) + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
+        const weapons = this.getCharacterWeapons();
+        const spells = this.getCharacterSpells();
 
-            if (total >= enemy.ac) {
-                const damage =
-                    this.rollWeaponDamage(spell.damage) + abilityModifier;
-                this.enemyHP = Math.max(0, this.enemyHP - damage);
-                logDiv.innerHTML += `<p class="success">${spell.name} hits! Dealt ${damage} ${spell.type} damage.</p>`;
-            } else {
-                logDiv.innerHTML += `<p class="failure">${spell.name} missed!</p>`;
+        if (action.type === 'melee_attack') {
+            const weapon = weapons.melee;
+            totalDamage += this.getAbilityModifier(weapon.ability);
+            weaponOrSpellName = weapon.name;
+            weaponOrSpellType = weapon.type;
+        } else if (action.type === 'ranged_attack') {
+            const weapon = weapons.ranged;
+            totalDamage += this.getAbilityModifier(weapon.ability);
+            weaponOrSpellName = weapon.name;
+            weaponOrSpellType = weapon.type;
+        } else if (action.type === 'spell_attack') {
+            const spell = spells.cantrip_attack || spells.level1_attack;
+            if (spell) {
+                weaponOrSpellName = spell.name;
+                weaponOrSpellType = spell.type;
+                // For spells, damage might already include ability modifier or have special rules
+                // Here, we add the ability modifier if it's not a direct damage spell like Magic Missile
+                if (!spell.auto_hit && !spell.save) {
+                    totalDamage += this.getAbilityModifier(spell.ability);
+                }
             }
         }
 
+        // Apply quest bonus damage
+        totalDamage += this.successfulActions;
+
+        // Add sneak attack damage for rogues
+        if (
+            action.type === 'melee_attack' &&
+            this.hasClassFeature("sneak_attack") &&
+            (this.playerAdvantage || this.hiddenAdvantage)
+        ) {
+            const sneakDamage = this.rollDice("1d6"); // Simplified sneak attack
+            totalDamage += sneakDamage;
+            logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
+        }
+        
+        // Ensure damage is at least 1 if calculation results in 0 or less
+        totalDamage = Math.max(1, totalDamage);
+
+        this.enemyHP = Math.max(0, this.enemyHP - totalDamage);
+        logDiv.innerHTML += `<p class="success">Hit! Dealt ${totalDamage} ${weaponOrSpellType} damage with ${weaponOrSpellName}.</p>`;
+
         if (this.enemyHP <= 0) {
-            logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by magic!</strong></p>`;
+            logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated!</strong></p>`;
             setTimeout(() => this.completeQuest(), 2000);
             return;
         }
 
         this.updateHealthBars();
     }
+    
+    // Helper to resolve a miss
+    resolveMiss(action, hitRoll) {
+        const enemy = this.currentScene.enemy;
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        let weaponOrSpellName = "";
+        const weapons = this.getCharacterWeapons();
+        const spells = this.getCharacterSpells();
+
+        if (action.type === 'melee_attack') weaponOrSpellName = weapons.melee.name;
+        else if (action.type === 'ranged_attack') weaponOrSpellName = weapons.ranged.name;
+        else if (action.type === 'spell_attack') {
+            const spell = spells.cantrip_attack || spells.level1_attack;
+            if (spell) weaponOrSpellName = spell.name;
+        }
+
+        logDiv.innerHTML += `<p class="failure">${weaponOrSpellName} attack missed!</p>`;
+    }
+    
+    // Helper to clean up after a roll is processed
+    cleanupPendingRoll() {
+        this.pendingRoll = null;
+        
+        // Re-enable combat buttons only if combat continues
+        if (this.playerHP > 0 && this.enemyHP > 0) {
+            setTimeout(() => {
+                const buttons = document.querySelectorAll(".combat-options button:not(.unavailable)");
+                buttons.forEach((btn) => (btn.disabled = false));
+            }, 500);
+        } else {
+            // If combat ended, ensure buttons are not re-enabled
+        }
+
+        // Enemy attacks after a delay (unless player used disengage or enemy is grappled and can't attack)
+        if (this.enemyHP > 0 && this.playerHP > 0) {
+            if (this.enemyGrappled && this.enemyCannotAttack) {
+                // Enemy is grappled and cannot attack this turn
+                console.log("Enemy grappled, cannot attack.");
+            } else if (!this.playerDisengaged) {
+                setTimeout(() => this.enemyAttack(), 1500);
+            } else {
+                // Player disengaged, no opportunity attack from enemy
+                console.log("Player disengaged, no opportunity attack.");
+                this.playerDisengaged = false; // Reset disengage state
+            }
+        }
+    }
+
+    resolveMeleeAttack(diceRoll) {
+        // This method is now superseded by the two-stage rolling system.
+        // The logic is integrated into checkHit and resolveDamage.
+        console.warn("resolveMeleeAttack called directly, should use two-stage rolling.");
+    }
+
+    resolveRangedAttack(diceRoll) {
+        // This method is now superseded by the two-stage rolling system.
+        console.warn("resolveRangedAttack called directly, should use two-stage rolling.");
+    }
+
+    resolveSpellAttack(diceRoll) {
+        // This method is now superseded by the two-stage rolling system.
+        console.warn("resolveSpellAttack called directly, should use two-stage rolling.");
+    }
 
     resolveDash(diceRoll) {
         const logDiv = document.getElementById("combat-log");
         logDiv.classList.add("visible");
 
-        this.playerAdvantage = true;
-        logDiv.innerHTML += `<p class="success">You dash around the battlefield! Gain advantage on your next attack and enemy has disadvantage on their next attack against you!</p>`;
-        this.enemyDisadvantage = true;
+        this.playerAdvantage = true; // Advantage on next action
+        this.enemyDisadvantage = true; // Enemy disadvantage on attacks against player
+        logDiv.innerHTML += `<p class="success">You dash effectively! Gain advantage on your next action and the enemy has disadvantage on attacks against you!</p>`;
+        this.cleanupPendingRoll();
     }
 
     resolveDisengage(diceRoll) {
@@ -1774,13 +1877,16 @@ class QuestEngine {
         const dexModifier = this.getAbilityModifier("DEX");
         const total = diceRoll + dexModifier;
 
+        // Assuming a DC of 12 for disengage
         if (total >= 12) {
             this.playerDisengaged = true;
-            this.playerAdvantage = true;
+            this.playerAdvantage = true; // Often disengage grants advantage on next attack if moving away
             logDiv.innerHTML += `<p class="success">Successfully disengaged! You can move without provoking opportunity attacks and gain advantage on your next action!</p>`;
         } else {
             logDiv.innerHTML += `<p class="failure">Failed to disengage properly. Enemy can still make opportunity attacks.</p>`;
+            this.playerDisengaged = false;
         }
+        this.cleanupPendingRoll();
     }
 
     resolveDodge(diceRoll) {
@@ -1788,11 +1894,14 @@ class QuestEngine {
         logDiv.classList.add("visible");
 
         const dexModifier = this.getAbilityModifier("DEX");
-        const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3) + 2;
+        // The dodge bonus AC might be static or based on the roll + modifier.
+        // Let's use a roll-based bonus for now.
+        const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3) + 2; // Example calculation
 
-        this.tempACBonus = dodgeBonus;
-        this.enemyDisadvantage = true;
+        this.tempACBonus = dodgeBonus; // Apply bonus AC for this round
+        this.enemyDisadvantage = true; // Enemy has disadvantage on attacks against you
         logDiv.innerHTML += `<p class="success">You focus entirely on defense! Gain +${dodgeBonus} AC and enemy has disadvantage on attacks against you!</p>`;
+        this.cleanupPendingRoll();
     }
 
     resolveHide(diceRoll) {
@@ -1802,14 +1911,18 @@ class QuestEngine {
         const dexModifier = this.getAbilityModifier("DEX");
         const total = diceRoll + dexModifier;
 
+        // Assuming a DC of 15 for hiding against a watchful enemy
         if (total >= 15) {
             this.hiddenAdvantage = true;
-            this.playerAdvantage = true;
+            this.playerAdvantage = true; // Gain advantage on next attack
+            this.enemyCannotTarget = true; // Enemy cannot target you directly this turn
             logDiv.innerHTML += `<p class="success">Successfully hidden! You have advantage on your next attack and the enemy cannot target you directly this turn!</p>`;
-            this.enemyCannotTarget = true;
         } else {
             logDiv.innerHTML += `<p class="failure">Failed to hide effectively. You remain visible to the enemy.</p>`;
+            this.hiddenAdvantage = false;
+            this.enemyCannotTarget = false;
         }
+        this.cleanupPendingRoll();
     }
 
     resolveGrapple(diceRoll) {
@@ -1820,30 +1933,38 @@ class QuestEngine {
         const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
 
-        logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy Athletics/Acrobatics</p>`;
+        // Enemy's Athletics or Acrobatics check to resist grapple (assuming a base bonus of +3 for simplicity)
+        const enemyDefense = Math.floor(Math.random() * 20) + 1 + 3;
 
-        const enemyDefense = Math.floor(Math.random() * 20) + 1 + 3; // Enemy gets +3 to contest
+        logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy Athletics/Acrobatics (${enemyDefense})</p>`;
 
         if (total > enemyDefense) {
             this.enemyGrappled = true;
-            this.playerAdvantage = true;
-            this.enemyCannotAttack = true;
+            this.playerAdvantage = true; // Advantage on attacks against the grappled enemy
+            this.enemyCannotAttack = true; // Enemy cannot attack while grappled
             logDiv.innerHTML += `<p class="success">Grapple successful! Enemy is restrained and cannot attack you. You have advantage on all rolls until they break free!</p>`;
         } else {
-            logDiv.innerHTML += `<p class="failure">Grapple attempt failed! Enemy breaks free.</p>`;
+            logDiv.innerHTML += `<p class="failure">Grapple attempt failed! Enemy resists or breaks free.</p>`;
+            this.enemyGrappled = false;
+            this.enemyCannotAttack = false;
         }
+        this.cleanupPendingRoll();
     }
 
     resolveHelp(diceRoll) {
         const logDiv = document.getElementById("combat-log");
         logDiv.classList.add("visible");
 
+        // Help action grants advantage to an ally. Here, we'll help ourselves.
         this.playerAdvantage = true;
-        const healAmount = Math.floor(diceRoll / 5) + 1;
+        // The roll itself might determine effectiveness, or it's just a flat advantage.
+        // Let's add a small heal as a bonus from the "help" action.
+        const healAmount = Math.floor(diceRoll / 5) + 1; // Example: heal based on roll
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
 
-        logDiv.innerHTML += `<p class="success">You take a moment to steady yourself! Recover ${healAmount} HP and gain advantage on your next action!</p>`;
+        logDiv.innerHTML += `<p class="success">You take a moment to steady yourself or offer aid! Recover ${healAmount} HP and gain advantage on your next action!</p>`;
         this.updateHealthBars();
+        this.cleanupPendingRoll();
     }
 
     resolveBonusSpell(diceRoll) {
@@ -1854,6 +1975,7 @@ class QuestEngine {
 
         if (!spell) {
             logDiv.innerHTML += `<p class="failure">No bonus action spells available!</p>`;
+            this.cleanupPendingRoll();
             return;
         }
 
@@ -1865,15 +1987,22 @@ class QuestEngine {
                 this.maxPlayerHP,
                 this.playerHP + healAmount,
             );
-            logDiv.innerHTML += `<p class="success">Cast ${spell.name}! Healed ${healAmount} HP.</p>`;
+            logDiv.innerHTML += `<p class="success">Cast ${spell.name} as bonus action! Healed ${healAmount} HP.</p>`;
             this.updateHealthBars();
         } else {
-            // Offensive bonus spell
+            // Offensive bonus spell (e.g., Hex)
             const damage = this.rollWeaponDamage(spell.damage);
             this.enemyHP = Math.max(0, this.enemyHP - damage);
             logDiv.innerHTML += `<p class="success">Cast ${spell.name} as bonus action! Dealt ${damage} ${spell.type} damage.</p>`;
             this.updateHealthBars();
+
+            if (this.enemyHP <= 0) {
+                logDiv.innerHTML += `<p class="success"><strong>${enemy.name} defeated by bonus spell!</strong></p>`;
+                setTimeout(() => this.completeQuest(), 2000);
+                return;
+            }
         }
+        this.cleanupPendingRoll();
     }
 
     resolveCunningAction(diceRoll) {
@@ -1882,13 +2011,17 @@ class QuestEngine {
 
         if (!this.hasClassFeature("cunning_action")) {
             logDiv.innerHTML += `<p class="failure">Cunning Action not available!</p>`;
+            this.cleanupPendingRoll();
             return;
         }
 
         // Rogue can use cunning action to disengage, dash, or hide as bonus action
-        this.playerAdvantage = true;
-        this.playerDisengaged = true;
-        logDiv.innerHTML += `<p class="success">Cunning Action! You disengage and reposition, gaining advantage on your next action!</p>`;
+        // For simplicity, let's default to disengage/dash functionality for now.
+        // A more complex implementation would allow player to choose Cunning Action target (dash, disengage, hide)
+        this.playerDisengaged = true; // Treat as disengage for movement
+        this.playerAdvantage = true; // Also grant advantage on next action
+        logDiv.innerHTML += `<p class="success">Cunning Action! You move swiftly and reposition, gaining advantage on your next action!</p>`;
+        this.cleanupPendingRoll();
     }
 
     resolveSecondWind(diceRoll) {
@@ -1897,13 +2030,17 @@ class QuestEngine {
 
         if (!this.hasClassFeature("second_wind")) {
             logDiv.innerHTML += `<p class="failure">Second Wind not available!</p>`;
+            this.cleanupPendingRoll();
             return;
         }
 
-        const healAmount = diceRoll + (window.user?.level || 1);
+        // Second wind healing is typically 1d10 + Fighter level
+        const fighterLevel = window.user?.level || 1; // Assume user level is fighter level for simplicity
+        const healAmount = diceRoll + fighterLevel;
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
         logDiv.innerHTML += `<p class="success">Second Wind! Regained ${healAmount} hit points!</p>`;
         this.updateHealthBars();
+        this.cleanupPendingRoll();
     }
 
     rollWeaponDamage(damageString) {
@@ -1936,43 +2073,17 @@ class QuestEngine {
         // Check if enemy cannot target player (due to hiding)
         if (this.enemyCannotTarget) {
             logDiv.innerHTML += `<p class="success">${enemy.name} cannot find you to attack!</p>`;
-            this.enemyCannotTarget = false;
-            // Re-enable combat buttons
-            setTimeout(() => {
-                const buttons = document.querySelectorAll(
-                    ".combat-options button",
-                );
-                buttons.forEach((btn) => (btn.disabled = false));
-            }, 500);
+            this.enemyCannotTarget = false; // Reset for next turn
+            this.cleanupPendingRoll(); // Ensure combat buttons are re-enabled if no other action pending
             return;
         }
 
         // Check if enemy is grappled and tries to break free
         if (this.enemyGrappled) {
-            const breakFreeRoll = Math.floor(Math.random() * 20) + 1 + 3; // Enemy +3 bonus
-            const playerAC = 10 + this.getAbilityModifier("DEX"); // Player's grapple DC
-
-            logDiv.innerHTML += `<p><strong>${enemy.name} attempts to break free:</strong> ${breakFreeRoll} vs DC ${playerAC}</p>`;
-
-            if (breakFreeRoll >= playerAC) {
-                this.enemyGrappled = false;
-                this.playerAdvantage = false;
-                this.enemyCannotAttack = false;
-                logDiv.innerHTML += `<p class="failure">${enemy.name} breaks free from the grapple!</p>`;
-
-                // Now the enemy can attack normally this turn
-                setTimeout(() => this.performEnemyAttack(), 1000);
-            } else {
-                logDiv.innerHTML += `<p class="success">${enemy.name} fails to break free and remains grappled! Cannot attack this turn.</p>`;
-
-                // Re-enable combat buttons since enemy can't attack
-                setTimeout(() => {
-                    const buttons = document.querySelectorAll(
-                        ".combat-options button",
-                    );
-                    buttons.forEach((btn) => (btn.disabled = false));
-                }, 500);
-            }
+            // Logic for breaking grapple should be handled by the player's action, not enemy's turn directly.
+            // If enemy is grappled, they can't attack.
+            logDiv.innerHTML += `<p>${enemy.name} is grappled and cannot attack!</p>`;
+            this.cleanupPendingRoll();
             return;
         }
 
@@ -1983,21 +2094,21 @@ class QuestEngine {
         const logDiv = document.getElementById("combat-log");
         const enemy = this.currentScene.enemy;
 
-        let attackRoll = Math.floor(Math.random() * 20) + 1;
-        const enemyAttackBonus = 4;
+        let attackRoll = this.rollD20();
+        const enemyAttackBonus = 4; // Example attack bonus for enemy
 
         // Apply disadvantage if enemy has it
         if (this.enemyDisadvantage) {
-            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            const secondRoll = this.rollD20();
             attackRoll = Math.min(attackRoll, secondRoll); // Take the lower roll
             logDiv.innerHTML += `<p>${enemy.name} attacks with disadvantage: ${Math.max(attackRoll, secondRoll)}, ${Math.min(attackRoll, secondRoll)} (taking ${attackRoll})</p>`;
-            this.enemyDisadvantage = false;
+            this.enemyDisadvantage = false; // Reset disadvantage
         }
 
         const total = attackRoll + enemyAttackBonus;
 
         // Calculate player AC with bonuses
-        let playerAC = 10 + this.getAbilityModifier("DEX");
+        let playerAC = 10 + this.getAbilityModifier("DEX"); // Base AC
 
         // Add armor bonus if equipped
         if (window.user?.avatar?.armor) {
@@ -2009,22 +2120,21 @@ class QuestEngine {
         if (this.tempACBonus) {
             playerAC += this.tempACBonus;
             logDiv.innerHTML += `<p>Your defensive stance grants +${this.tempACBonus} AC this turn.</p>`;
-            this.tempACBonus = 0;
+            this.tempACBonus = 0; // Reset temporary AC bonus
         }
 
         logDiv.innerHTML += `<p><strong>${enemy.name} attacks:</strong> ${attackRoll} + ${enemyAttackBonus} = ${total} vs AC ${playerAC}</p>`;
 
         if (total >= playerAC) {
-            let damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
-
+            // Enemy hits
+            let damage = this.rollWeaponDamage(enemy.damage); // Use enemy's damage string
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
 
             if (this.playerHP <= 0) {
                 logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
-                const buttons = document.querySelectorAll(
-                    ".combat-options button",
-                );
+                // Disable combat buttons as the game is over
+                const buttons = document.querySelectorAll(".combat-options button");
                 buttons.forEach((btn) => (btn.disabled = true));
                 setTimeout(() => this.handleCombatDefeat(), 2000);
                 return;
@@ -2034,16 +2144,7 @@ class QuestEngine {
         }
 
         this.updateHealthBars();
-
-        // Re-enable combat buttons after enemy attack if combat continues
-        setTimeout(() => {
-            if (this.playerHP > 0 && this.enemyHP > 0) {
-                const buttons = document.querySelectorAll(
-                    ".combat-options button",
-                );
-                buttons.forEach((btn) => (btn.disabled = false));
-            }
-        }, 500);
+        this.cleanupPendingRoll(); // Ensure buttons are re-enabled after enemy attack
     }
 
     updateHealthBars() {
@@ -2160,19 +2261,39 @@ class QuestEngine {
     }
 }
 
-// Initialize quest engine only if it doesn't exist
-if (!window.questEngine) {
-    window.questEngine = new QuestEngine();
+// Add floating message utility if not already defined
+function showFloatingMessage(message, type = 'info') {
+    if (typeof window.showFloatingMessage !== 'undefined') {
+        window.showFloatingMessage(message, type);
+        return;
+    }
+
+    // Fallback implementation
+    const msg = document.createElement('div');
+    msg.textContent = message;
+    msg.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 1rem; border-radius: 8px;
+        color: white; font-weight: bold; z-index: 1001; animation: slideIn 0.3s ease-out;
+        background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
+    `;
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 3000);
 }
 
-// Initialize when DOM is loaded
-document.addEventListener("DOMContentLoaded", function () {
-    // Wait for the quest container to be available
-    setTimeout(() => {
-        if (window.questEngine && document.getElementById("quest-container")) {
-            window.questEngine.renderQuestList();
-        }
-    }, 500);
+
+// Initialize quest engine when DOM loads
+document.addEventListener("DOMContentLoaded", () => {
+    // Check if questEngine already exists to avoid reinitialization if this script is loaded multiple times
+    if (!window.questEngine) {
+        window.questEngine = new QuestEngine();
+        // Render the quest list initially if the container is present
+        setTimeout(() => {
+            if (document.getElementById("quest-container")) {
+                window.questEngine.renderQuestList();
+            }
+        }, 500); // Small delay to ensure DOM is ready
+    }
 });
 
 // Also initialize when showing the quests page
