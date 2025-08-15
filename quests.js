@@ -13,8 +13,8 @@ class QuestEngine {
         this.enemyHP = 0;
         this.maxEnemyHP = 0;
         this.pendingRoll = null;
-        this.successfulActions = 0;
-        this.maxSuccessfulActions = 3;
+        this.inspiration = false; // D&D style inspiration
+        this.questTasksCompleted = 0; // Track successful skill checks for inspiration
         this.enemyCannotAttack = false;
         this.playerDisengaged = false;
         this.playerAdvantage = false;
@@ -23,7 +23,7 @@ class QuestEngine {
         this.enemyCannotTarget = false;
         this.enemyGrappled = false;
         this.tempACBonus = 0;
-        this.positionAdvantage = false; // This seems unused, can be removed if not needed
+        this.enemyAttackPending = false; // Fix for multiple enemy attacks
     }
 
     // Generate random quests based on character level
@@ -470,15 +470,15 @@ class QuestEngine {
 
         this.activeQuest = { ...quest };
         this.currentScene = quest.scenes[0];
-        this.successfulActions = 0;
+        this.questTasksCompleted = 0;
         this.tempACBonus = 0;
-        this.positionAdvantage = false;
         this.enemyGrappled = false;
         this.playerDisengaged = false;
         this.playerAdvantage = false;
         this.enemyDisadvantage = false;
         this.hiddenAdvantage = false;
         this.enemyCannotTarget = false;
+        this.enemyAttackPending = false;
 
         // Reset combat state if starting a new combat quest
         this.playerHP = this.maxPlayerHP;
@@ -984,24 +984,30 @@ class QuestEngine {
             localStorage.setItem("tv_user", JSON.stringify(window.user));
         }
 
-        // Track successful action
-        this.successfulActions++;
+        // Track successful action for inspiration
+        this.questTasksCompleted++;
+
+        // Grant inspiration after 3 successful tasks (once per quest)
+        if (this.questTasksCompleted >= 3 && !this.inspiration) {
+            this.inspiration = true;
+            const logDiv = document.getElementById("quest-results");
+            if (logDiv) {
+                logDiv.innerHTML += `
+                    <div class="roll-result success">
+                        <h4>🌟 INSPIRATION GAINED! 🌟</h4>
+                        <p>Your excellent performance grants you Inspiration! You can use this for advantage on any one roll.</p>
+                    </div>
+                `;
+            }
+        }
 
         // Show next options after success
         setTimeout(() => {
-            if (
-                this.successfulActions < this.maxSuccessfulActions &&
-                this.activeQuest.scenes.length > 1
-            ) {
-                this.showNextChoices();
+            if (this.activeQuest.scenes.length > 1) {
+                this.currentScene = this.activeQuest.scenes[1];
+                this.renderQuestInterface();
             } else {
-                // Either max successes reached or no more scenes
-                if (this.activeQuest.scenes.length > 1) {
-                    this.currentScene = this.activeQuest.scenes[1];
-                    this.renderQuestInterface();
-                } else {
-                    this.completeQuest();
-                }
+                this.completeQuest();
             }
         }, 2000);
     }
@@ -1477,15 +1483,18 @@ class QuestEngine {
                     <button class="retreat-btn" onclick="questEngine.retreatFromCombat()">🏃‍♂️ Retreat from Combat</button>
                 </div>
 
-                <!-- Integrated Dice Section -->
-                <div id="combat-dice-section" style="display: none;">
-                  <div id="combat-dice-display" class="dice-stage"></div>
-                  <div class="dice-actions">
-                    <button id="combat-roll-btn" class="combat-roll-button">ROLL DICE</button>
-                  </div>
-                  <div id="combat-dice-result" class="combat-dice-result"></div>
-                </div>
                 <div id="combat-log"></div>
+            </div>
+
+            <!-- Combat Dice Modal -->
+            <div id="dice-modal" class="dice-modal">
+                <div class="dice-modal-content">
+                    <button class="dice-modal-close" onclick="questEngine.hideDiceModal()">×</button>
+                    <h3 id="dice-modal-title">Roll Dice</h3>
+                    <div id="combat-dice-display" class="combat-dice-display"></div>
+                    <button id="combat-roll-btn" class="combat-roll-button">ROLL DICE</button>
+                    <div id="combat-dice-result" class="combat-dice-result"></div>
+                </div>
             </div>
         `;
 
@@ -1529,11 +1538,8 @@ class QuestEngine {
 
         this.currentAction = action;
 
-        // Show dice and set up roll context
-        const diceSection = document.getElementById("combat-dice-section");
-        if (diceSection) {
-            diceSection.style.display = "block";
-        }
+        // Show dice modal
+        this.showDiceModal();
 
         // For attack actions, we need two-stage rolling (hit then damage)
         if (['melee_attack', 'ranged_attack', 'spell_attack'].includes(action.type)) {
@@ -1660,19 +1666,32 @@ class QuestEngine {
 
         const abilityModifier = this.getAbilityModifier(attackInfo.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-        const questBonus = this.successfulActions * 2;
+        const questBonus = this.questTasksCompleted; // Smaller bonus from completed tasks
 
         let totalAttackRoll = attackRoll + abilityModifier + proficiencyBonus + questBonus;
 
-        // Apply advantage/disadvantage logic here if applicable to the hit roll itself
-        // (e.g., if playerAdvantage was set before calling handleCombatAction)
+        // Apply advantage/disadvantage logic
         let advantageText = "";
-        if (this.playerAdvantage) { // This logic might need refinement based on when advantage is applied
+        let usedInspiration = false;
+
+        // Check if player wants to use inspiration for advantage
+        if (this.inspiration && !this.playerAdvantage) {
+            // For now, auto-use inspiration on important rolls (could be made interactive later)
+            if (attackRoll <= 10) { // Use inspiration on poor rolls
+                this.inspiration = false;
+                usedInspiration = true;
+                this.playerAdvantage = true;
+                advantageText = " (used Inspiration for advantage)";
+            }
+        }
+
+        if (this.playerAdvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
             if (secondRoll > attackRoll) {
                 totalAttackRoll = secondRoll + abilityModifier + proficiencyBonus + questBonus;
-                advantageText = ` (advantage: ${secondRoll})`;
+                advantageText += ` (advantage: ${secondRoll} vs ${attackRoll})`;
             }
+            this.playerAdvantage = false; // Reset advantage after use
         }
 
         const logDiv = document.getElementById("combat-log");
@@ -1775,7 +1794,7 @@ class QuestEngine {
         }
 
         // Apply quest bonus damage
-        totalDamage += this.successfulActions;
+        totalDamage += this.questTasksCompleted;
 
         // Add sneak attack damage for rogues
         if (
@@ -1827,27 +1846,32 @@ class QuestEngine {
     cleanupPendingRoll() {
         this.pendingRoll = null;
 
+        // Hide dice modal
+        setTimeout(() => {
+            this.hideDiceModal();
+        }, 2000);
+
         // Re-enable combat buttons only if combat continues
         if (this.playerHP > 0 && this.enemyHP > 0) {
             setTimeout(() => {
                 const buttons = document.querySelectorAll(".combat-options button:not(.unavailable)");
                 buttons.forEach((btn) => (btn.disabled = false));
-            }, 500);
-        } else {
-            // If combat ended, ensure buttons are not re-enabled
+            }, 2500);
         }
 
-        // Enemy attacks after a delay (unless player used disengage or enemy is grappled and can't attack)
-        if (this.enemyHP > 0 && this.playerHP > 0) {
+        // Enemy attacks after a delay (prevent multiple attacks)
+        if (this.enemyHP > 0 && this.playerHP > 0 && !this.enemyAttackPending) {
             if (this.enemyGrappled && this.enemyCannotAttack) {
-                // Enemy is grappled and cannot attack this turn
                 console.log("Enemy grappled, cannot attack.");
             } else if (!this.playerDisengaged) {
-                setTimeout(() => this.enemyAttack(), 1500);
+                this.enemyAttackPending = true; // Prevent multiple enemy attacks
+                setTimeout(() => {
+                    this.enemyAttack();
+                    this.enemyAttackPending = false; // Reset after attack
+                }, 3000);
             } else {
-                // Player disengaged, no opportunity attack from enemy
                 console.log("Player disengaged, no opportunity attack.");
-                this.playerDisengaged = false; // Reset disengage state
+                this.playerDisengaged = false;
             }
         }
     }
@@ -2152,7 +2176,15 @@ class QuestEngine {
         }
 
         this.updateHealthBars();
-        this.cleanupPendingRoll(); // Ensure buttons are re-enabled after enemy attack
+        
+        // Don't call cleanupPendingRoll here as it can cause recursion
+        // Just re-enable buttons after enemy attack
+        if (this.playerHP > 0 && this.enemyHP > 0) {
+            setTimeout(() => {
+                const buttons = document.querySelectorAll(".combat-options button:not(.unavailable)");
+                buttons.forEach((btn) => (btn.disabled = false));
+            }, 1000);
+        }
     }
 
     updateHealthBars() {
@@ -2268,11 +2300,19 @@ class QuestEngine {
         `;
     }
 
+    // Method to show the dice modal
+    showDiceModal() {
+        const modal = document.getElementById("dice-modal");
+        if (modal) {
+            modal.classList.add("active");
+        }
+    }
+
     // Method to hide the dice modal
     hideDiceModal() {
-        const diceSection = document.getElementById("combat-dice-section");
-        if (diceSection) {
-            diceSection.style.display = "none";
+        const modal = document.getElementById("dice-modal");
+        if (modal) {
+            modal.classList.remove("active");
         }
         const resultDiv = document.getElementById("combat-dice-result");
         if (resultDiv) {
@@ -2282,6 +2322,7 @@ class QuestEngine {
         if (rollBtn) {
             rollBtn.onclick = null; // Clear the onclick handler
         }
+        this.pendingRoll = null;
     }
 }
 

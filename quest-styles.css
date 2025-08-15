@@ -586,27 +586,24 @@
     box-shadow: var(--shadow-premium);
 }
 
-/* Combat Dice Modal */
+/* Combat Dice Modal - True Pop-up */
 .dice-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(10px);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    animation: fadeIn 0.3s ease;
 }
 
 .dice-modal.active {
-    opacity: 1;
-    visibility: visible;
+    display: flex;
 }
 
 .dice-modal-content {
@@ -627,6 +624,17 @@
 
 .dice-modal.active .dice-modal-content {
     transform: scale(1);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: scale(0.8) translateY(50px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .dice-modal h3 {
@@ -660,13 +668,6 @@
     border-radius: 13px;
 }
 
-.combat-dice-display img {
-    width: auto;
-    height: 60%;
-    object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
-}
-
 .combat-roll-button {
     background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
     color: #1a1a2e;
@@ -680,7 +681,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-    margin-bottom: 1rem;
+    margin: 1rem;
 }
 
 .combat-roll-button:hover:not(:disabled) {
@@ -700,12 +701,31 @@
     text-align: center;
     min-height: 2rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin: 1rem;
 }
 
-/* Hide the old embedded dice section */
-#combat-dice-section {
-    display: none !important;
+.dice-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #d4af37;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.dice-modal-close:hover {
+    background: rgba(212, 175, 55, 0.2);
+    transform: rotate(90deg);
 }
 
 .cinzel-dic {
