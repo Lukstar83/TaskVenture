@@ -2594,7 +2594,7 @@ function updateAvatarDisplay() {
     }
     if (capeImg) {
         if (user.avatar.cape) {
-            capeImg.src = `images/capes/${user.avatar.cape}_cape.png`; // Ensure correct path for capes
+            capeImg.src = `images/capes/${user.avatar.cape}`; // Ensure correct path for capes
             capeImg.style.display = "block";
         } else {
             capeImg.style.display = "none";

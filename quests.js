@@ -549,13 +549,13 @@ class QuestEngine {
             Fighter: {
                 melee: {
                     name: "Longsword",
-                    damage: "1d8",
+                    damage: "1d8+3",
                     ability: "STR",
                     type: "slashing",
                 },
                 ranged: {
                     name: "Shortbow",
-                    damage: "1d6",
+                    damage: "1d6+2",
                     ability: "DEX",
                     type: "piercing",
                     range: "80/320",
@@ -564,13 +564,13 @@ class QuestEngine {
             Rogue: {
                 melee: {
                     name: "Shortsword",
-                    damage: "1d6",
+                    damage: "1d6+2",
                     ability: "DEX",
                     type: "piercing",
                 },
                 ranged: {
                     name: "Dagger",
-                    damage: "1d4",
+                    damage: "1d4+2",
                     ability: "DEX",
                     type: "piercing",
                     range: "20/60",
@@ -579,13 +579,13 @@ class QuestEngine {
             Wizard: {
                 melee: {
                     name: "Dagger",
-                    damage: "1d4",
+                    damage: "1d4+1",
                     ability: "DEX",
                     type: "piercing",
                 },
                 ranged: {
                     name: "Dagger",
-                    damage: "1d4",
+                    damage: "1d4+1",
                     ability: "DEX",
                     type: "piercing",
                     range: "20/60",
@@ -1045,27 +1045,27 @@ class QuestEngine {
         const questContainer = document.getElementById("quest-container");
 
         const advantageText =
-            this.successfulActions === 1
+            this.questTasksCompleted === 1
                 ? "Your success gives you a slight advantage. What's your next move?"
-                : this.successfulActions === 2
+                : this.questTasksCompleted === 2
                   ? "Your continued success puts you in a strong position. Choose wisely:"
                   : "You've achieved maximum advantage! One final decision before the confrontation:";
 
         const nextOptions = [
             {
-                text: `Continue with stealth approach (${this.successfulActions + 1}/3 advantages)`,
+                text: `Continue with stealth approach (${this.questTasksCompleted + 1}/3 for Inspiration bonus)`,
                 action: "stealth",
             },
             {
-                text: `Gather more intelligence (${this.successfulActions + 1}/3 advantages)`,
+                text: `Gather more intelligence (${this.questTasksCompleted + 1}/3 for Inspiration bonus)`,
                 action: "intel",
             },
             {
-                text: `Set up tactical position (${this.successfulActions + 1}/3 advantages)`,
+                text: `Set up tactical position (${this.questTasksCompleted + 1}/3 for Inspiration bonus)`,
                 action: "tactics",
             },
             {
-                text: `Proceed to confrontation (${this.successfulActions}/3 advantages)`,
+                text: `Proceed to confrontation (${this.questTasksCompleted}/3 for Inspiration bonus)`,
                 action: "combat",
             },
         ];
@@ -1803,31 +1803,41 @@ class QuestEngine {
         const logDiv = document.getElementById("combat-log");
         logDiv.classList.add("visible");
 
-        let totalDamage = damageRoll;
         let weaponOrSpellName = "";
         let weaponOrSpellType = "";
+        let totalDamage = 0;
 
         const weapons = this.getCharacterWeapons();
         const spells = this.getCharacterSpells();
 
         if (action.type === 'melee_attack') {
             const weapon = weapons.melee;
-            totalDamage += this.getAbilityModifier(weapon.ability);
+            // Roll the full damage string (e.g., "1d8+2")
+            totalDamage = this.rollWeaponDamage(weapon.damage);
+            // Add ability modifier if not already included in damage string
+            if (!weapon.damage.includes('+') && !weapon.damage.includes('-')) {
+                totalDamage += this.getAbilityModifier(weapon.ability);
+            }
             weaponOrSpellName = weapon.name;
             weaponOrSpellType = weapon.type;
         } else if (action.type === 'ranged_attack') {
             const weapon = weapons.ranged;
-            totalDamage += this.getAbilityModifier(weapon.ability);
+            // Roll the full damage string (e.g., "1d6+1")
+            totalDamage = this.rollWeaponDamage(weapon.damage);
+            // Add ability modifier if not already included in damage string
+            if (!weapon.damage.includes('+') && !weapon.damage.includes('-')) {
+                totalDamage += this.getAbilityModifier(weapon.ability);
+            }
             weaponOrSpellName = weapon.name;
             weaponOrSpellType = weapon.type;
         } else if (action.type === 'spell_attack') {
             const spell = spells.cantrip_attack || spells.level1_attack;
             if (spell) {
+                totalDamage = this.rollWeaponDamage(spell.damage);
                 weaponOrSpellName = spell.name;
                 weaponOrSpellType = spell.type;
                 // For spells, damage might already include ability modifier or have special rules
-                // Here, we add the ability modifier if it's not a direct damage spell like Magic Missile
-                if (!spell.auto_hit && !spell.save) {
+                if (!spell.auto_hit && !spell.save && !spell.damage.includes('+') && !spell.damage.includes('-')) {
                     totalDamage += this.getAbilityModifier(spell.ability);
                 }
             }
@@ -2345,6 +2355,10 @@ class QuestEngine {
         const modal = document.getElementById("dice-modal");
         if (modal) {
             modal.classList.add("active");
+            // Ensure D20 is always shown first
+            if (typeof window.createDice === "function") {
+                window.createDice('d20');
+            }
         }
     }
 
