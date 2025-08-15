@@ -89,7 +89,7 @@ function initDice() {
     scene.add(rimLight);
 
     // Create enhanced gaming table with felt surface
-    const tableGeometry = new THREE.PlaneGeometry(12, 8);
+    const tableGeometry = new THREE.PlaneGeometry(14, 10);
 
     // Create felt texture for gaming table
     const tableCanvas = document.createElement('canvas');
@@ -142,33 +142,18 @@ function initDice() {
     table.receiveShadow = true;
     scene.add(table);
 
-    // Add wooden edge around the table
-    const edgeGeometry = new THREE.RingGeometry(6.2, 6.5, 32);
-    const edgeCanvas = document.createElement('canvas');
-    edgeCanvas.width = 256;
-    edgeCanvas.height = 256;
-    const edgeCtx = edgeCanvas.getContext('2d');
-
-    // Wood texture for edge
-    const woodGradient = edgeCtx.createLinearGradient(0, 0, 256, 0);
-    woodGradient.addColorStop(0, '#8B4513');
-    woodGradient.addColorStop(0.5, '#A0522D');
-    woodGradient.addColorStop(1, '#654321');
-    edgeCtx.fillStyle = woodGradient;
-    edgeCtx.fillRect(0, 0, 256, 256);
-
-    const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
-    const edgeMaterial = new THREE.MeshPhongMaterial({
-      map: edgeTexture,
-      shininess: 30,
-      specular: 0x222222
+    // Simple table border instead of complex wood edge
+    const borderGeometry = new THREE.RingGeometry(6.8, 7.0, 32);
+    const borderMaterial = new THREE.MeshPhongMaterial({
+      color: 0x8b4513,
+      shininess: 10
     });
 
-    const tableEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
-    tableEdge.rotation.x = -Math.PI / 2;
-    tableEdge.position.y = -3.45;
-    tableEdge.receiveShadow = true;
-    scene.add(tableEdge);
+    const tableBorder = new THREE.Mesh(borderGeometry, borderMaterial);
+    tableBorder.rotation.x = -Math.PI / 2;
+    tableBorder.position.y = -3.45;
+    tableBorder.receiveShadow = true;
+    scene.add(tableBorder);
 
     // Create dice after table
     createDice();
@@ -223,7 +208,10 @@ function initDice() {
     ctx.lineWidth = 2;
     ctx.strokeRect(8, 8, size - 16, size - 16);
 
-    // Add the number for this face
+    // Add the number for this face - map face index to proper D20 numbers
+    const d20Numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    const faceNumber = d20Numbers[Math.min(i - 1, 19)]; // Ensure we don't exceed array bounds
+    
     ctx.fillStyle = '#2c2c2c';
     ctx.font = `bold ${size * 0.4}px serif`;
     ctx.textAlign = 'center';
@@ -232,7 +220,7 @@ function initDice() {
     ctx.shadowBlur = 2;
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 1;
-    ctx.fillText(i.toString(), size/2, size/2);
+    ctx.fillText(faceNumber.toString(), size/2, size/2);
 
     // Add corner decoration dots
     ctx.shadowColor = 'transparent';
@@ -452,14 +440,14 @@ function animate() {
             dice.userData.angularVelocity.z *= 0.8;
         }
 
-        // Boundaries (adjusted for table size)
-        if (Math.abs(dice.position.x) > 3) {
+        // Boundaries (adjusted for wider table size)
+        if (Math.abs(dice.position.x) > 4) {
             dice.userData.velocity.x *= -0.6;
-            dice.position.x = Math.sign(dice.position.x) * 3;
+            dice.position.x = Math.sign(dice.position.x) * 4;
         }
-        if (Math.abs(dice.position.z) > 2.5) {
+        if (Math.abs(dice.position.z) > 3.5) {
             dice.userData.velocity.z *= -0.6;
-            dice.position.z = Math.sign(dice.position.z) * 2.5;
+            dice.position.z = Math.sign(dice.position.z) * 3.5;
         }
     }
 
