@@ -1070,56 +1070,56 @@ body:has(#wellness-page.active) .header .header-bg {
 }
 
 /* Header avatar armor overlay */
-#header-avatar-container #avatar-armor {
+#header-avatar-container #header-avatar-armor {
   position: absolute;
   top: 50%;
   z-index: 10;
 }
 
 /* Race-specific scaling for header armor - Matching avatar customization */
-#header-avatar-container[data-race="dragonborn"] #avatar-armor {
+#header-avatar-container[data-race="dragonborn"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(-1.5%);
 }
 
-#header-avatar-container[data-race="half-orc"] #avatar-armor {
+#header-avatar-container[data-race="half-orc"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="tiefling"] #avatar-armor {
+#header-avatar-container[data-race="tiefling"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
 }
 
-#header-avatar-container[data-race="half-elf"] #avatar-armor {
+#header-avatar-container[data-race="half-elf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="human"] #avatar-armor {
+#header-avatar-container[data-race="human"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="elf"] #avatar-armor {
+#header-avatar-container[data-race="elf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
 }
 
-#header-avatar-container[data-race="dwarf"] #avatar-armor {
+#header-avatar-container[data-race="dwarf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(8%);
 }
 
-#header-avatar-container[data-race="gnome"] #avatar-armor {
+#header-avatar-container[data-race="gnome"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(12%);
 }
 
-#header-avatar-container[data-race="halfling"] #avatar-armor {
+#header-avatar-container[data-race="halfling"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(143%);
 }
 
 /* Default header armor sizing */
-#header-avatar-container #avatar-armor {
+#header-avatar-container #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.50);
 }
 
 /* Header avatar boots overlay */
-#header-avatar-container #avatar-boots {
+#header-avatar-container #header-avatar-boots {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1127,50 +1127,50 @@ body:has(#wellness-page.active) .header .header-bg {
 }
 
 /* Race-specific scaling for header boots - Matching avatar customization */
-#header-avatar-container[data-race="dragonborn"] #avatar-boots {
+#header-avatar-container[data-race="dragonborn"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(150%);
 }
 
-#header-avatar-container[data-race="half-orc"] #avatar-boots {
+#header-avatar-container[data-race="half-orc"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.19, 0.19) translateY(260%);
 }
 
-#header-avatar-container[data-race="tiefling"] #avatar-boots {
+#header-avatar-container[data-race="tiefling"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(140%);
 }
 
-#header-avatar-container[data-race="half-elf"] #avatar-boots {
+#header-avatar-container[data-race="half-elf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(145%);
 }
 
-#header-avatar-container[data-race="human"] #avatar-boots {
+#header-avatar-container[data-race="human"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(145%);
 }
 
-#header-avatar-container[data-race="elf"] #avatar-boots {
+#header-avatar-container[data-race="elf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(140%);
 }
 
-#header-avatar-container[data-race="dwarf"] #avatar-boots {
+#header-avatar-container[data-race="dwarf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.18, 0.14) translateY(160%);
 }
 
-#header-avatar-container[data-race="gnome"] #avatar-boots {
+#header-avatar-container[data-race="gnome"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.14, 0.13) translateY(170%);
 }
 
-#header-avatar-container[data-race="halfling"] #avatar-boots {
+#header-avatar-container[data-race="halfling"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.2, 0.16) translateY(662%);
 
 }
 
 /* Default header boots sizing */
-#header-avatar-container #avatar-boots {
+#header-avatar-container #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(150%);
 }
 
 /* Header avatar cape overlay */
-#header-avatar-container #avatar-cape {
+#header-avatar-container #header-avatar-cape {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1178,155 +1178,155 @@ body:has(#wellness-page.active) .header .header-bg {
 }
 
 /* Race-specific scaling for header cape - Matching avatar customization */
-#header-avatar-container[data-race="dragonborn"] #avatar-cape {
+#header-avatar-container[data-race="dragonborn"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(-1.5%);
 }
 
-#header-avatar-container[data-race="half-orc"] #avatar-cape {
+#header-avatar-container[data-race="half-orc"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="tiefling"] #avatar-cape {
+#header-avatar-container[data-race="tiefling"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
 }
 
-#header-avatar-container[data-race="half-elf"] #avatar-cape {
+#header-avatar-container[data-race="half-elf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="human"] #avatar-cape {
+#header-avatar-container[data-race="human"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
 }
 
-#header-avatar-container[data-race="elf"] #avatar-cape {
+#header-avatar-container[data-race="elf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
 }
 
-#header-avatar-container[data-race="dwarf"] #avatar-cape {
+#header-avatar-container[data-race="dwarf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(8%);
 }
 
-#header-avatar-container[data-race="gnome"] #avatar-cape {
+#header-avatar-container[data-race="gnome"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(12%);
 }
 
-#header-avatar-container[data-race="halfling"] #avatar-cape {
+#header-avatar-container[data-race="halfling"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(143%);
 }
 
 /* Default header cape sizing */
-#header-avatar-container #avatar-cape {
+#header-avatar-container #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.50, 0.50);
 }
 
 /* Avatar page adjustments for header cape positioning */
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(20.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(30%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(34%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-cape {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #header-avatar-cape {
   transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(95%);
 }
 
 /* Avatar page adjustments for header armor positioning */
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(20.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(30%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(34%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-armor {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #header-avatar-armor {
   transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(95%);
 }
 
 /* Avatar page adjustments for header boots positioning */
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(172%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.19, 0.19) translateY(282%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(92%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(167%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.16, 0.16) translateY(167%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.15, 0.16) translateY(162%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.18, 0.14) translateY(182%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.14, 0.13) translateY(192%);
 }
 
-body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-boots {
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #header-avatar-boots {
   transform: translate(-50%, -50%) scale(0.2, 0.16) translateY(518%);
 }
 

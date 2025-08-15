@@ -2559,10 +2559,10 @@ function initializeAvatarCustomization() {
 
 function updateAvatarDisplay() {
     // Update customization page armor
-    const customArmorImg = document.querySelector("#avatar-customization-container #avatar-armor");
+    const customArmorImg = document.querySelector("#avatar-customization-container #custom-avatar-armor");
     const weaponImg = document.getElementById("avatar-weapon");
-    const capeImg = document.getElementById("avatar-cape");
-    const bootsImg = document.getElementById("avatar-boots"); // Get boots image element
+    const capeImg = document.getElementById("custom-avatar-cape");
+    const bootsImg = document.getElementById("custom-avatar-boots"); // Get boots image element
 
     if (customArmorImg) {
         if (user.avatar.armor) {
@@ -2574,7 +2574,7 @@ function updateAvatarDisplay() {
     }
 
     // Update header armor overlay
-    const headerArmorImg = document.querySelector("#header-avatar-container #avatar-armor");
+    const headerArmorImg = document.querySelector("#header-avatar-container #header-avatar-armor");
     if (headerArmorImg) {
         if (user.avatar.armor) {
             headerArmorImg.src = user.avatar.armor;
@@ -2585,7 +2585,7 @@ function updateAvatarDisplay() {
     }
 
     // Update header cape overlay
-    const headerCapeImg = document.querySelector("#header-avatar-container #avatar-cape");
+    const headerCapeImg = document.querySelector("#header-avatar-container #header-avatar-cape");
     if (headerCapeImg) {
         if (user.avatar.cape) {
             headerCapeImg.src = `images/capes/${user.avatar.cape}`;
@@ -2613,7 +2613,7 @@ function updateAvatarDisplay() {
     }
 
     // Update header boots overlay
-    const headerBootsImg = document.querySelector("#header-avatar-container #avatar-boots");
+    const headerBootsImg = document.querySelector("#header-avatar-container #header-avatar-boots");
     if (headerBootsImg) {
         if (user.avatar.boots) {
             headerBootsImg.src = user.avatar.boots;
