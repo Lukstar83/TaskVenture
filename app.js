@@ -2621,7 +2621,9 @@ function updateAvatarDisplay() {
         } else {
             headerBootsImg.style.display = "none";
         }
-    }pdate boots display
+    }
+    
+    // Update boots display
     if (bootsImg) {
         if (user.avatar.boots) {
             bootsImg.src = user.avatar.boots; // Use the direct path from user.avatar.boots
