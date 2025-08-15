@@ -1023,7 +1023,7 @@ class QuestEngine {
         }, 200);
     }
 
-    handleCombatAction(action) {
+    async handleCombatAction(action) {
         if (this.pendingRoll) return;
 
         this.currentAction = action;
@@ -1107,7 +1107,7 @@ class QuestEngine {
 
                 try {
                     if (typeof window.rollDamage === 'function') {
-                        await window.rollDamage(action.weapon || 'spell');
+                        window.rollDamage(action.weapon || 'spell');
                     } else {
                         // Fallback damage roll
                         const damageRoll = Math.floor(Math.random() * 8) + 1;
