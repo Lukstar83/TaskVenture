@@ -1516,7 +1516,7 @@ class QuestEngine {
                     <button class="dice-modal-close" onclick="questEngine.hideDiceModal()">×</button>
                     <h3 id="dice-modal-title">Roll Dice</h3>
                     <div id="combat-dice-display" class="combat-dice-display"></div>
-                    <button id="combat-roll-btn" class="combat-roll-button">ROLL DICE</button>
+                    <button id="combat-roll-btn" class="combat-roll-button" onclick="questEngine.rollCurrentDice()">ROLL DICE</button>
                     <div id="combat-dice-result" class="combat-dice-result"></div>
                 </div>
             </div>
@@ -1528,10 +1528,12 @@ class QuestEngine {
                 const result = window.ensureDiceInitialized();
                 if (result) {
                     console.log("✅ Combat dice initialized successfully");
+                    // Ensure d20 is the default die
+                    if (typeof window.createDice === "function") {
+                        window.createDice('d20');
+                    }
                 } else {
-                    console.log(
-                        "❌ Combat dice initialization failed, using fallback",
-                    );
+                    console.log("❌ Combat dice initialization failed, using fallback");
                 }
             }
         }, 200);
@@ -1595,19 +1597,11 @@ class QuestEngine {
         if (rollBtn) {
             rollBtn.disabled = false;
             rollBtn.textContent = "ROLL D20";
-            rollBtn.onclick = () => {
-                if (typeof window.roll3DDice === "function" && typeof window.createDice === "function") {
-                    // Ensure we're using d20 for hit rolls
-                    window.createDice('d20');
-                    setTimeout(() => {
-                        window.roll3DDice('d20');
-                    }, 200);
-                } else {
-                    // Fallback
-                    const roll = Math.floor(Math.random() * 20) + 1;
-                    this.processDiceRoll(roll); // This will call resolveMeleeAttack etc.
-                }
-            };
+        }
+
+        // Ensure d20 is set up
+        if (typeof window.createDice === "function") {
+            window.createDice('d20');
         }
     }
 
@@ -1620,27 +1614,22 @@ class QuestEngine {
         const rollBtn = document.getElementById("combat-roll-btn");
         if (rollBtn) {
             rollBtn.disabled = false;
-            rollBtn.onclick = () => {
-                if (typeof window.roll3DDice === "function") {
-                    // For non-attack actions, we might need different dice, but for now, let's assume d20 for general actions.
-                    // Or, if the action implies damage, we might need a damage die. This needs more context.
-                    // For now, let's default to d20 for simplicity or use a predefined damage die if available.
-                    const actionType = action.type;
-                    let dieToRoll = 'd20'; // Default to d20
+            
+            // Determine and set up the appropriate die type
+            let dieToRoll = 'd20'; // Default to d20
+            if (action.type === 'second_wind') {
+                dieToRoll = 'd10';
+            } else if (action.type === 'bonus_spell') {
+                dieToRoll = 'd4';
+            }
+            
+            rollBtn.textContent = `ROLL ${dieToRoll.toUpperCase()}`;
+        }
 
-                    if (actionType === 'second_wind') {
-                        dieToRoll = 'd8'; // Example: Second Wind might use a d8 for healing
-                    } else if (actionType === 'bonus_spell' && action.spell?.heal) {
-                        dieToRoll = 'd4'; // Example: Bonus spell heal uses d4
-                    }
-
-                    window.roll3DDice(dieToRoll);
-                } else {
-                    // Fallback
-                    const roll = Math.floor(Math.random() * 20) + 1;
-                    this.processDiceRoll(roll);
-                }
-            };
+        // Set up the appropriate die
+        const dieType = this.getCurrentDieType();
+        if (typeof window.createDice === "function") {
+            window.createDice(dieType);
         }
     }
 
@@ -1743,20 +1732,11 @@ class QuestEngine {
         if (rollBtn) {
             rollBtn.disabled = false;
             rollBtn.textContent = `ROLL ${damageDie.toUpperCase()}`;
-            rollBtn.onclick = () => {
-                if (typeof window.roll3DDice === "function" && typeof window.createDice === "function") {
-                    // Change the dice type to match the damage die
-                    window.createDice(damageDie);
-                    // Wait a moment for dice to be created, then roll
-                    setTimeout(() => {
-                        window.roll3DDice(damageDie);
-                    }, 200);
-                } else {
-                    // Fallback damage roll
-                    const damageRoll = this.rollWeaponDamage(this.getDamageStringForAction(action));
-                    this.processDiceRoll(damageRoll);
-                }
-            };
+        }
+
+        // Change the dice type to match the damage die
+        if (typeof window.createDice === "function") {
+            window.createDice(damageDie);
         }
     }
 
@@ -2362,6 +2342,38 @@ class QuestEngine {
         }
     }
 
+    // Method to handle dice rolling from quest interface
+    rollCurrentDice() {
+        if (typeof window.roll3DDice === "function") {
+            const dieType = this.getCurrentDieType();
+            window.roll3DDice(dieType);
+        } else {
+            // Fallback
+            const roll = Math.floor(Math.random() * 20) + 1;
+            this.processDiceRoll(roll);
+        }
+    }
+
+    // Helper to get current die type based on pending roll
+    getCurrentDieType() {
+        if (!this.pendingRoll) return 'd20';
+        
+        const { type, stage } = this.pendingRoll;
+        
+        if (stage === 'hit') {
+            return 'd20'; // Always d20 for attack rolls
+        } else if (stage === 'damage') {
+            return this.getDamageDieForAction(this.pendingRoll.action);
+        } else if (stage === 'single') {
+            // Determine die type based on action
+            if (type === 'second_wind') return 'd10';
+            if (type === 'bonus_spell') return 'd4';
+            return 'd20'; // Default for most actions
+        }
+        
+        return 'd20';
+    }
+
     // Method to hide the dice modal
     hideDiceModal() {
         const modal = document.getElementById("dice-modal");
@@ -2371,10 +2383,6 @@ class QuestEngine {
         const resultDiv = document.getElementById("combat-dice-result");
         if (resultDiv) {
             resultDiv.innerHTML = ''; // Clear previous results
-        }
-        const rollBtn = document.getElementById("combat-roll-btn");
-        if (rollBtn) {
-            rollBtn.onclick = null; // Clear the onclick handler
         }
         this.pendingRoll = null;
     }
