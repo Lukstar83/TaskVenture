@@ -1,20 +1,21 @@
-// === Enhanced 3D Dice (d4/d6/d8/d10/d12/d20) ===============================
+// Enhanced 3D Dice rolling functionality using Three.js
 let scene, camera, renderer, world, dice, isRolling = false;
 let currentDiceType = 'd20';
 
-// Per-die config + how many TRIANGLES make up one logical face for each geom
+// ===== Config =====
 const DICE_CONFIGS = {
-  d4:  { sides: 4,  geometry: 'tetrahedron',   scale: 0.8,  trisPerFace: 1 },
-  d6:  { sides: 6,  geometry: 'box',           scale: 0.7,  trisPerFace: 2 },
-  d8:  { sides: 8,  geometry: 'octahedron',    scale: 0.8,  trisPerFace: 1 },
-  // d10 here is a 10-sided prism (2 triangles per rectangular side)
-  d10: { sides: 10, geometry: 'prism10',       scale: 0.8,  trisPerFace: 2 },
-  // d12 triangulates pentagons into 3 triangles each
-  d12: { sides: 12, geometry: 'dodecahedron',  scale: 0.8,  trisPerFace: 3 },
-  d20: { sides: 20, geometry: 'icosahedron',   scale: 0.7,  trisPerFace: 1 },
+  d4:  { sides: 4,  geometry: 'tetra',       scale: 0.9 },
+  d6:  { sides: 6,  geometry: 'box',         scale: 0.8 },
+  d8:  { sides: 8,  geometry: 'octa',        scale: 0.9 },
+  d10: { sides: 10, geometry: 'bipyramid',   scale: 0.9 },
+  d12: { sides: 12, geometry: 'dodeca',      scale: 0.85 },
+  d20: { sides: 20, geometry: 'icosa',       scale: 0.75 }
 };
 
-// --------- Helpers: rounded-rect tray --------------------------------------
+const TRAY_SIZE = { width: 12.0, height: 6.8, cornerR: 0.6, wall: 0.35, depth: 0.6 }; // <— make wider/taller here
+const CAMERA_OPTS = { fov: 45, pos: {x:0, y:7, z:7} };
+
+// ===== Helpers: tray geometry =====
 function addRoundedRectPath(shape, x, y, w, h, r) {
   shape.moveTo(x + r, y);
   shape.lineTo(x + w - r, y);
@@ -27,28 +28,23 @@ function addRoundedRectPath(shape, x, y, w, h, r) {
   shape.absarc(x + r, y + r, r, Math.PI, 1.5 * Math.PI);
 }
 
-function buildDiceTray({
-  width = 8.0,
-  height = 5.0,
-  cornerR = 0.6,
-  wall = 0.35,
-  depth = 0.6
-} = {}) {
+function buildDiceTray(opts = {}) {
+  const { width, height, cornerR, wall, depth } = { ...TRAY_SIZE, ...opts };
   const tray = new THREE.Group();
 
   const shape = new THREE.Shape();
   addRoundedRectPath(shape, -width/2, -height/2, width, height, cornerR);
+
   const hole = new THREE.Path();
   addRoundedRectPath(hole, -width/2 + wall, -height/2 + wall,
-    width - wall*2, height - wall*2, Math.max(0.1, cornerR - 0.25));
+                     width - wall*2, height - wall*2, Math.max(0.1, cornerR - 0.25));
   shape.holes.push(hole);
 
   const frameGeo = new THREE.ExtrudeGeometry(shape, {
-    depth, bevelEnabled: true, bevelSize: 0.08, bevelThickness: 0.08,
-    bevelSegments: 2, curveSegments: 32
+    depth, bevelEnabled: true, bevelSize: 0.08, bevelThickness: 0.08, bevelSegments: 2, curveSegments: 32
   });
 
-  const wood = new THREE.MeshStandardMaterial({ color: 0x4a1a1a, roughness: 0.75, metalness: 0.1 });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x7b2a2a, roughness: 0.8, metalness: 0.1 });
   const frame = new THREE.Mesh(frameGeo, wood);
   frame.rotation.x = -Math.PI / 2;
   frame.position.y = -1.0;
@@ -64,262 +60,237 @@ function buildDiceTray({
   tray.add(felt);
 
   tray.userData.groundY = felt.position.y + 0.01;
-  tray.userData.bounds = {
-    x: (width  - wall*2) / 2 - 0.25,
-    z: (height - wall*2) / 2 - 0.25
-  };
+  tray.userData.bounds = { x: (width - wall*2)/2 - 0.25, z: (height - wall*2)/2 - 0.25 };
   tray.name = 'diceTray';
   return tray;
 }
 
-// --------- Font loader (Cinzel 900) ----------------------------------------
+// ===== Font loader =====
 async function loadDiceFont() {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap';
-  document.head.appendChild(link);
-  await document.fonts.load('900 100px Cinzel');
+  if (!document.getElementById('cinzel-font-link')) {
+    const link = document.createElement('link');
+    link.id = 'cinzel-font-link';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap';
+    document.head.appendChild(link);
+  }
+  try {
+    await document.fonts.load('900 100px Cinzel');
+  } catch (e) { /* ignore */ }
 }
 
-// --------- Geometry builders -----------------------------------------------
-function createDiceGeometry(type) {
-  switch (DICE_CONFIGS[type].geometry) {
-    case 'tetrahedron':   return new THREE.TetrahedronGeometry(1.2, 0).toNonIndexed();
-    case 'box':           return new THREE.BoxGeometry(1.2, 1.2, 1.2).toNonIndexed();
-    case 'octahedron':    return new THREE.OctahedronGeometry(1.2, 0).toNonIndexed();
-    case 'dodecahedron':  return new THREE.DodecahedronGeometry(1.2, 0).toNonIndexed();
-    case 'icosahedron':   return new THREE.IcosahedronGeometry(1.2, 0).toNonIndexed();
-
-    // 10-sided prism: cylinder with 10 radial segments, no caps (2 tris per side)
-    case 'prism10': {
-      const g = new THREE.CylinderGeometry(1.0, 1.0, 1.6, 10, 1, /*openEnded=*/true);
-      // rotate so faces read more nicely
-      g.rotateX(Math.PI / 2);
-      return g.toNonIndexed();
+// ===== Dice builders =====
+function createGeometry(type) {
+  const cfg = DICE_CONFIGS[type] || DICE_CONFIGS.d20;
+  let geo;
+  switch (cfg.geometry) {
+    case 'tetra':   geo = new THREE.TetrahedronGeometry(1.2, 0); break;
+    case 'box':     geo = new THREE.BoxGeometry(1.2, 1.2, 1.2); break;
+    case 'octa':    geo = new THREE.OctahedronGeometry(1.2, 0); break;
+    case 'bipyramid': {
+      // cheap D10: two cones base-to-base with 10 segments
+      const cone = new THREE.ConeGeometry(1.0, 1.2, 10, 1);
+      const cone2 = cone.clone(); cone2.rotateX(Math.PI); cone2.translate(0, -1.2, 0);
+      geo = THREE.BufferGeometryUtils ? THREE.BufferGeometryUtils.mergeBufferGeometries([cone, cone2]) : cone;
+      break;
     }
-    default:              return new THREE.IcosahedronGeometry(1.2, 0).toNonIndexed();
+    case 'dodeca':  geo = new THREE.DodecahedronGeometry(1.2, 0); break;
+    case 'icosa':
+    default:        geo = new THREE.IcosahedronGeometry(1.2, 0); break;
   }
+  return geo.toNonIndexed();
 }
 
-// --------- Dice creation (any type) ----------------------------------------
-async function createDice(type = 'd20') {
-  currentDiceType = type;
-  await loadDiceFont();
-
-  if (dice) { scene.remove(dice); dice.geometry.dispose(); }
-
-  const cfg = DICE_CONFIGS[type];
-  const geo = createDiceGeometry(type);
-  geo.computeVertexNormals();
-
-  // Group triangles so the SAME material is used by all triangles of one face
-  const triCount = geo.attributes.position.count / 3;
-  const trisPerFace = cfg.trisPerFace;
-  const logicalFaceCount = Math.floor(triCount / trisPerFace);
-
-  geo.clearGroups();
-  for (let tri = 0; tri < triCount; tri++) {
-    const faceId = Math.floor(tri / trisPerFace);
-    geo.addGroup(tri * 3, 3, faceId);
-  }
-
-  // UVs: map each triangle to full [0..1] (simple + robust)
-  // (For quads/pentagons this means the number is duplicated across the triangles of a face,
-  //  but both triangles share the same material/number so it still reads clearly.)
-  const uvs = new Float32Array(triCount * 3 * 2);
-  for (let t = 0; t < triCount; t++) {
-    const o = t * 6;
-    uvs[o+0]=0; uvs[o+1]=0;  // v0
-    uvs[o+2]=1; uvs[o+3]=0;  // v1
-    uvs[o+4]=0; uvs[o+5]=1;  // v2
-  }
-  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-
-  // Build one material per logical face
-  const size = 256;
-  const UV_CX = 1/3, UV_CY = 1/3 + 0.02;
+function makeFaceMaterials(faceCount, sides) {
   const mats = [];
+  const size = 256;
+  const UV_CX = 1/3, UV_CY = 1/3 + 0.30; // centroid-ish for our right-triangle UVs
+  for (let i = 0; i < faceCount; i++) {
+    const num = (i % sides) + 1;
 
-  for (let faceId = 0; faceId < logicalFaceCount; faceId++) {
-    const num = (faceId % cfg.sides) + 1; // wrap just in case
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
 
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d');
-
-    // Dark metallic plate
+    // dark plate
     const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
     g.addColorStop(0, '#3a3a3a'); g.addColorStop(0.3, '#2a2a2a');
     g.addColorStop(0.7, '#1a1a1a'); g.addColorStop(1, '#0a0a0a');
     ctx.fillStyle = g; ctx.fillRect(0,0,size,size);
 
-    // Gold frame
+    // gold frame
     ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 4; ctx.strokeRect(4,4,size-8,size-8);
     ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2; ctx.strokeRect(8,8,size-16,size-16);
 
-    // Number (gold with white outline for pop)
-    const cx = size * UV_CX, cy = size * UV_CY;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `900 ${size * 0.46}px Cinzel, serif`;
-    ctx.lineJoin = 'round'; ctx.miterLimit = 2;
-    ctx.lineWidth = size * 0.06; ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-    ctx.strokeText(String(num), cx, cy);
+    // number (bold Cinzel)
     ctx.fillStyle = '#d4af37';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.shadowColor = '#000'; ctx.shadowBlur = 3; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-    ctx.fillText(String(num), cx, cy);
+    ctx.font = `900 ${size * 0.46}px Cinzel, serif`;
+    ctx.fillText(String(num), size * UV_CX, size * UV_CY);
 
-    const tex = new THREE.CanvasTexture(canvas);
+    const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
+    tex.minFilter = THREE.LinearMipmapLinearFilter; tex.magFilter = THREE.LinearFilter;
 
     mats.push(new THREE.MeshStandardMaterial({
       map: tex, roughness: 0.35, metalness: 0.1, envMapIntensity: 0.3, side: THREE.DoubleSide
     }));
   }
+  return mats;
+}
 
-  // Mesh + physics props
-  dice = new THREE.Mesh(geo, mats);
+function createDice(type = 'd20') {
+  currentDiceType = type;
+  const cfg = DICE_CONFIGS[type] || DICE_CONFIGS.d20;
+
+  const geo = createGeometry(type);
+  geo.computeVertexNormals();
+
+  const faceCount = geo.attributes.position.count / 3;
+  geo.clearGroups();
+  for (let f = 0; f < faceCount; f++) geo.addGroup(f * 3, 3, f);
+
+  // per-face UVs (right triangle mapping per face)
+  const uvs = new Float32Array(faceCount * 3 * 2);
+  for (let f = 0; f < faceCount; f++) {
+    const o = f * 6;
+    uvs[o+0]=0; uvs[o+1]=0;
+    uvs[o+2]=1; uvs[o+3]=0;
+    uvs[o+4]=0; uvs[o+5]=1;
+  }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+  const materials = makeFaceMaterials(faceCount, cfg.sides);
+
+  if (dice) { scene.remove(dice); dice.geometry.dispose(); }
+
+  geo.computeBoundingSphere();
+  dice = new THREE.Mesh(geo, materials);
   dice.castShadow = dice.receiveShadow = true;
   dice.position.set(0, 1, 0);
   dice.scale.set(cfg.scale, cfg.scale, cfg.scale);
-  geo.computeBoundingSphere();
-  dice.userData.radius = (geo.boundingSphere?.radius || 1) * cfg.scale;
-  dice.userData.sides  = cfg.sides;
-
+  dice.userData.radius = (geo.boundingSphere?.radius || 1.2) * cfg.scale;
+  dice.userData.sides = cfg.sides;
   scene.add(dice);
 }
 
-// --------- Scene init -------------------------------------------------------
+// ===== Scene init =====
 function initDice() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1a1a2e);
 
-  // build camera after we know container size (set later)
-  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-  camera.position.set(0, 7, 7);
-  camera.lookAt(0, 0, 0);
+  camera = new THREE.PerspectiveCamera(CAMERA_OPTS.fov, 1, 0.1, 1000);
+  camera.position.set(CAMERA_OPTS.pos.x, CAMERA_OPTS.pos.y, CAMERA_OPTS.pos.z);
+  camera.lookAt(0,0,0);
 
-  let diceContainer = document.getElementById('combat-dice-display') ||
-                      document.getElementById('dice-display') ||
-                      document.querySelector('.combat-dice-display');
-  if (!diceContainer) { console.warn('No dice container found'); return false; }
+  let diceContainer = document.getElementById('combat-dice-display') || document.getElementById('dice-display');
+  if (!diceContainer) {
+    const sec = document.querySelector('.combat-dice-section');
+    if (sec) diceContainer = sec.querySelector('.combat-dice-display');
+    if (!diceContainer) return false;
+  }
 
-  // Renderer size = container size
-  const w = diceContainer.offsetWidth  || 300;
-  const h = diceContainer.offsetHeight || 200;
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, logarithmicDepthBuffer: true });
-  renderer.setSize(w, h);
-  camera.aspect = w / h; camera.updateProjectionMatrix();
-
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false, logarithmicDepthBuffer:true });
+  const cw = diceContainer.clientWidth || 360;
+  const ch = Math.max(220, Math.round(cw * 0.55)); // keep a nice aspect so tray fits
+  renderer.setSize(cw, ch);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x1a1a2e, 1.0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.15;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
   diceContainer.innerHTML = '';
   diceContainer.appendChild(renderer.domElement);
 
-  world = { gravity: -20 };
+  world = { gravity: -20, objects: [] };
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0x404040, 0.4));
-  const spot = new THREE.SpotLight(0xffffff, 2.5);
-  spot.position.set(-3, 6, 3); spot.target.position.set(0, 0, 0);
-  spot.distance = 15; spot.angle = Math.PI/4; spot.penumbra = 0.1; spot.decay = 2;
-  spot.castShadow = true;
-  spot.shadow.mapSize.width = 2048; spot.shadow.mapSize.height = 2048;
-  spot.shadow.camera.near = 0.5; spot.shadow.camera.far = 15; spot.shadow.bias = -0.0001;
+  scene.add(new THREE.AmbientLight(0x404040, 0.5));
+  const spot = new THREE.SpotLight(0xffffff, 2.4);
+  spot.position.set(-3, 6, 3); spot.target.position.set(0,0,0);
+  spot.distance=15; spot.angle=Math.PI/4; spot.penumbra=0.1; spot.decay=2;
+  spot.castShadow=true; spot.shadow.mapSize.width=2048; spot.shadow.mapSize.height=2048;
+  spot.shadow.camera.near=0.5; spot.shadow.camera.far=15; spot.shadow.bias=-0.0001;
   scene.add(spot);
 
-  const combat = new THREE.DirectionalLight(0xff6666, 0.6); combat.position.set(5, 3, -2); scene.add(combat);
-  const rim = new THREE.DirectionalLight(0xd4af37, 0.4);    rim.position.set(-2, 1, -3);  scene.add(rim);
+  const combat = new THREE.DirectionalLight(0xff6666, 0.55); combat.position.set(5,3,-2); scene.add(combat);
+  const rim = new THREE.DirectionalLight(0xd4af37, 0.4); rim.position.set(-2,1,-3); scene.add(rim);
 
-  // Tray
-  const tray = buildDiceTray({ width: 6.0, height: 4.0 });
+  const tray = buildDiceTray({ width: TRAY_SIZE.width, height: TRAY_SIZE.height });
   scene.add(tray);
 
-  // Build starting die
-  createDice('d20');
+  loadDiceFont().then(() => createDice(currentDiceType)).catch(() => createDice(currentDiceType));
 
-  // Resize handler
-  window.addEventListener('resize', () => {
-    const w2 = diceContainer.offsetWidth  || 300;
-    const h2 = diceContainer.offsetHeight || 200;
-    renderer.setSize(w2, h2);
-    camera.aspect = w2 / h2; camera.updateProjectionMatrix();
-  });
-
-  // Render loop
   animate();
 
-  // Button
-  const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-  if (rollButton) rollButton.addEventListener('click', () => roll3DDice(currentDiceType));
+  const btn = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+  if (btn) btn.addEventListener('click', () => roll3DDice(currentDiceType));
+
+  // handle resize so edges don't get clipped
+  new ResizeObserver(() => {
+    const w = diceContainer.clientWidth || cw;
+    const h = Math.max(220, Math.round(w * 0.55));
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }).observe(diceContainer);
 
   return true;
 }
 
-// --------- Rolling / physics ------------------------------------------------
-function roll3DDice(diceType = currentDiceType) {
+// ===== Rolling / physics =====
+function roll3DDice(type = currentDiceType) {
   if (isRolling) return;
   if (!ensureDiceInitialized()) return;
 
-  // Switch type on the fly
-  if (diceType !== currentDiceType) {
-    createDice(diceType);
+  if (type !== currentDiceType || !dice) {
+    createDice(type);
   }
 
-  const btn = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-  const resultDiv = document.getElementById('combat-dice-result') || document.getElementById('dice-result');
-  if (btn) btn.disabled = true;
+  const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+  const resultDiv  = document.getElementById('combat-dice-result') || document.getElementById('dice-result');
+  if (rollButton) rollButton.disabled = true;
   isRolling = true;
   if (resultDiv) resultDiv.innerHTML = '';
 
-  dice.userData.velocity = {
-    x: (Math.random() - 0.5) * 12,
-    y: Math.random() * 6 + 6,
-    z: (Math.random() - 0.5) * 12
-  };
-  dice.userData.angularVelocity = {
-    x: (Math.random() - 0.5) * 25,
-    y: (Math.random() - 0.5) * 25,
-    z: (Math.random() - 0.5) * 25
-  };
+  dice.userData.velocity = { x:(Math.random()-0.5)*12, y:Math.random()*6+6, z:(Math.random()-0.5)*12 };
+  dice.userData.angularVelocity = { x:(Math.random()-0.5)*25, y:(Math.random()-0.5)*25, z:(Math.random()-0.5)*25 };
 
-  dice.position.set((Math.random() - 0.5) * 2, 4, (Math.random() - 0.5) * 2);
+  dice.position.set((Math.random()-0.5)*2, 4, (Math.random()-0.5)*2);
 
-  setTimeout(stopDiceAndShowResult, 3500);
+  setTimeout(stopDiceAndShowResult, 3200);
 }
 
 function stopDiceAndShowResult() {
   if (dice && dice.userData) {
-    dice.userData.velocity = { x: 0, y: 0, z: 0 };
-    dice.userData.angularVelocity = { x: 0, y: 0, z: 0 };
+    dice.userData.velocity = { x:0, y:0, z:0 };
+    dice.userData.angularVelocity = { x:0, y:0, z:0 };
   }
 
   const finalRoll = calculateDiceResult();
-  const combatResultDiv  = document.getElementById('combat-dice-result');
+  const combatResultDiv = document.getElementById('combat-dice-result');
   const regularResultDiv = document.getElementById('dice-result');
 
   const resultText = getDiceResultText(finalRoll, currentDiceType);
-  const html = `
-    <div>You rolled: <strong>${finalRoll}</strong> on ${currentDiceType.toUpperCase()}</div>
-    <div style="font-size:0.9rem;margin-top:0.5rem;">${resultText}</div>
-  `;
+  const html = `<div>You rolled: <strong>${finalRoll}</strong> on ${currentDiceType.toUpperCase()}</div>
+                <div style="font-size:0.9rem;margin-top:0.5rem;">${resultText}</div>`;
+  const targetDiv = combatResultDiv || regularResultDiv;
+  if (targetDiv) targetDiv.innerHTML = html;
 
-  // write to whichever result box exists
-  const target = combatResultDiv || regularResultDiv;
-  if (target) target.innerHTML = html;
+  // Always notify quest engine if present — it will ignore if not expecting a roll.
+  if (window.questEngine && typeof window.questEngine.processDiceRoll === 'function') {
+    window.questEngine.processDiceRoll(finalRoll);
+  } else if (window.skillCheckContext && typeof window.skillCheckContext.callback === 'function') {
+    const ctx = window.skillCheckContext;
+    ctx.callback(finalRoll);
+    window.skillCheckContext = null;
+  } else {
+    applyDiceEffect(finalRoll);
+  }
 
-  // re-enable button
-  const btn = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-  if (btn) btn.disabled = false;
-
+  const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
+  if (rollButton) rollButton.disabled = false;
   isRolling = false;
 }
 
@@ -344,76 +315,117 @@ function animate() {
     dice.rotation.z += dice.userData.angularVelocity.z * dt;
 
     const tray = scene.getObjectByName('diceTray');
-    const bounds = tray?.userData?.bounds || { x: 2.5, z: 1.5 };
+    const bounds = tray?.userData?.bounds || { x: 3, z: 2 };
     const groundY = tray?.userData?.groundY ?? -0.95;
-    const r = dice.userData?.radius || 0.8;
+    const r = dice.userData?.radius || 0.84;
 
     if (Math.abs(dice.position.x) > bounds.x - r) {
       dice.userData.velocity.x *= -0.6;
       dice.position.x = Math.sign(dice.position.x) * (bounds.x - r);
-      dice.userData.angularVelocity.x *= 0.8;
+      dice.userData.angularVelocity.x *= 0.85;
     }
     if (Math.abs(dice.position.z) > bounds.z - r) {
       dice.userData.velocity.z *= -0.6;
       dice.position.z = Math.sign(dice.position.z) * (bounds.z - r);
-      dice.userData.angularVelocity.z *= 0.8;
+      dice.userData.angularVelocity.z *= 0.85;
     }
+
     if (dice.position.y < groundY + r) {
       dice.position.y = groundY + r;
       dice.userData.velocity.y *= -0.5;
       dice.userData.velocity.x *= 0.85;
       dice.userData.velocity.z *= 0.85;
-      dice.userData.angularVelocity.x *= 0.8;
-      dice.userData.angularVelocity.y *= 0.8;
-      dice.userData.angularVelocity.z *= 0.8;
+      dice.userData.angularVelocity.x *= 0.85;
+      dice.userData.angularVelocity.y *= 0.85;
+      dice.userData.angularVelocity.z *= 0.85;
     }
   }
 
   if (renderer && scene && camera) renderer.render(scene, camera);
 }
 
-// --------- UI helpers -------------------------------------------------------
-function getDiceResultText(roll, type='d20') {
-  const max = DICE_CONFIGS[type]?.sides || 20;
-  if (type === 'd20') {
+// ===== UI helpers =====
+function getDiceResultText(roll, diceType='d20') {
+  const max = DICE_CONFIGS[diceType]?.sides || 20;
+  if (diceType === 'd20') {
     if (roll === 20) return "🔥 Critical Hit! Maximum damage!";
     if (roll === 1)  return "💀 Critical Miss! Your attack goes awry!";
     if (roll >= 17)  return "⭐ Excellent roll! You strike true!";
     if (roll >= 13)  return "👍 Good hit! Your attack connects!";
     if (roll >= 8)   return "😐 Decent attempt, but not your best.";
     return "😬 Poor roll. You struggle to connect.";
+  } else {
+    if (roll === max) return `🔥 Maximum ${diceType} damage!`;
+    if (roll === 1)   return `😬 Minimal ${diceType} damage.`;
+    if (roll >= Math.ceil(max*0.75)) return `⭐ High ${diceType} damage!`;
+    if (roll >= Math.ceil(max*0.5))  return `👍 Solid ${diceType} damage.`;
+    return `😐 Low ${diceType} damage.`;
   }
-  if (roll === max) return `🔥 Maximum ${type} damage!`;
-  if (roll === 1)   return `😬 Minimal ${type} damage.`;
-  if (roll >= Math.ceil(max*0.75)) return `⭐ High ${type} damage!`;
-  if (roll >= Math.ceil(max*0.5))  return `👍 Solid ${type} damage.`;
-  return `😐 Low ${type} damage.`;
 }
 
-// --------- Bootstrapping ----------------------------------------------------
+function applyDiceEffect(roll) {
+  if (roll === 20 && currentDiceType === 'd20') {
+    if (window.user) window.user.bonusXP = true;
+    showFloatingMessage("Critical Hit! Bonus XP activated!", "success");
+  } else if (roll === 1 && currentDiceType === 'd20') {
+    showFloatingMessage("Critical Miss! But you learn from failure!", "info");
+  } else if (roll >= 15 && currentDiceType === 'd20' && window.user) {
+    window.user.xp = (window.user.xp || 0) + 3;
+    showFloatingMessage("+3 XP from excellent combat!", "success");
+    if (window.updateUI) window.updateUI();
+  }
+}
+
+function showFloatingMessage(message, type) {
+  const msg = document.createElement('div');
+  msg.textContent = message;
+  msg.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 1rem; border-radius: 8px;
+    color: white; font-weight: bold; z-index: 1001; animation: slideIn 0.3s ease-out;
+    background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
+    border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
+  `;
+  if (!document.querySelector('style[data-floating-messages]')) {
+    const style = document.createElement('style');
+    style.setAttribute('data-floating-messages', '');
+    style.textContent = `
+      @keyframes slideIn { from { transform: translateX(100%); opacity: 0; }
+                           to   { transform: translateX(0);     opacity: 1; } }
+    `;
+    document.head.appendChild(style);
+  }
+  document.body.appendChild(msg);
+  setTimeout(() => { msg.style.animation = 'slideIn 0.3s ease-out reverse';
+                     setTimeout(() => msg.remove(), 300); }, 3000);
+}
+
+// ===== Bootstrapping =====
 function ensureDiceInitialized() {
   const diceContainer = document.getElementById('combat-dice-display') ||
                         document.getElementById('dice-display') ||
                         document.querySelector('.combat-dice-display');
   if (diceContainer && !renderer) {
-    if (typeof THREE !== 'undefined') return initDice();
-    console.log('THREE.js not loaded yet'); return false;
+    if (typeof THREE !== 'undefined') {
+      try { return initDice(); }
+      catch (e) { console.error('Failed to initialize dice:', e); return false; }
+    } else {
+      console.log('THREE.js not loaded yet'); return false;
+    }
   }
   return !!renderer;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => { ensureDiceInitialized(); }, 800);
+  setTimeout(() => { ensureDiceInitialized(); }, 600);
 
-  const questsPage = document.getElementById('quests-page');
-  if (questsPage) {
-    const observer = new MutationObserver(() => {
-      if (questsPage.classList.contains('active')) {
-        setTimeout(() => { ensureDiceInitialized(); }, 500);
-      }
-    });
-    observer.observe(questsPage, { attributes: true });
-  }
+  const observer = new MutationObserver(() => {
+    const questsPage = document.getElementById('quests-page') || document.getElementById('dice-page');
+    if (questsPage && questsPage.classList.contains('active')) {
+      setTimeout(() => { ensureDiceInitialized(); }, 400);
+    }
+  });
+  const qp = document.getElementById('quests-page') || document.getElementById('dice-page');
+  if (qp) observer.observe(qp, { attributes: true });
 });
 
 // Expose a couple helpers
