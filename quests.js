@@ -49,6 +49,21 @@ class QuestEngine {
 
     // Generate random quests based on character level
     generateAvailableQuests() {
+        // Ensure user data is loaded
+        if (!window.user) {
+            const savedData = localStorage.getItem('taskventureData');
+            if (savedData) {
+                try {
+                    window.user = JSON.parse(savedData);
+                } catch (e) {
+                    console.log('Failed to load user data, using defaults');
+                    window.user = { level: 1, xp: 0 };
+                }
+            } else {
+                window.user = { level: 1, xp: 0 };
+            }
+        }
+
         const questTemplates = [
             {
                 id: 'goblin_camp',
@@ -1008,7 +1023,7 @@ class QuestEngine {
         }, 200);
     }
 
-    async handleCombatAction(action) {
+    handleCombatAction(action) {
         if (this.pendingRoll) return;
 
         this.currentAction = action;
@@ -1340,9 +1355,6 @@ class QuestEngine {
         if (this.enemyDisadvantage) {
             const secondRoll = this.rollD20();
             this.logCombat(`Enemy attacks with disadvantage: ${Math.max(attackRoll, secondRoll)}, ${Math.min(attackRoll, secondRoll)} (taking ${secondRoll})`);
-            // If player has disadvantage, enemy gets advantage, so we use the lower roll for player's AC check
-            // This is incorrect. Enemy turn should apply disadvantage to enemy's roll.
-            // Corrected below: enemy uses the lower roll for their attack.
             // For simplicity, we'll just use a single roll here and manage player disadvantage separately if needed.
         }
 
@@ -1481,7 +1493,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 200);
         }
     });
-    
+
     const questsPage = document.getElementById('quests-page');
     if (questsPage) {
         observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });

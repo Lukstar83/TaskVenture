@@ -461,81 +461,6 @@
     background: linear-gradient(135deg, #5a6268 0%, #343a40 100%) !important;
 }
 
-.combat-action-defensive {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
-}
-
-.combat-action-defensive:hover:not(:disabled) {
-    background: linear-gradient(135deg, #0069d9 0%, #004085 100%) !important;
-}
-
-.combat-action-utility {
-    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
-}
-
-.combat-action-utility:hover:not(:disabled) {
-    background: linear-gradient(135deg, #218838 0%, #155724 100%) !important;
-}
-
-.combat-action-bonus {
-    background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%) !important;
-}
-
-.combat-action-bonus:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5a2d91 0%, #4c1d82 100%) !important;
-}
-
-#combat-log {
-    background: var(--surface-glass);
-    backdrop-filter: blur(15px);
-    border: var(--glass-border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    max-height: 250px;
-    overflow-y: auto;
-    margin-top: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-#combat-log .inner-container {
-    /* Remove conflicting styles since we're styling the parent now */
-}
-
-#combat-log p {
-    margin: 0.75rem 0;
-    color: var(--text-light);
-    line-height: 1.4;
-    font-weight: 500;
-}
-
-#combat-log p.success {
-    color: #22c55e;
-}
-
-#combat-log p.failure {
-    color: #ef4444;
-}
-
-#combat-log p strong {
-    color: #d4af37;
-}
-
-/* Retreat Button - Floating */
-.retreat-btn {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-    grid-column: span 4;
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 12px;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.retreat-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5a6268 0%, #343a40 100%) !important;
-}
-
 /* Completed Quests */
 .completed-quest {
     background: rgba(34, 197, 94, 0.1);
@@ -845,4 +770,26 @@
     color: #e0e0e0;
     font-size: 1.1rem;
     text-align: center;
+}
+
+/* No Quests State */
+.no-quests {
+    background: var(--surface-glass);
+    backdrop-filter: blur(15px);
+    border: var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.no-quests p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.no-quests strong {
+    color: var(--text-gold);
 }
