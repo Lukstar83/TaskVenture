@@ -1,5 +1,4 @@
 /* Quest System Styles */
-
 .quests-section {
     display: flex;
     flex-direction: column;
@@ -22,7 +21,8 @@
     gap: 1.5rem;
 }
 
-.available-quests, .completed-quests {
+.available-quests,
+.completed-quests {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -47,24 +47,24 @@
 }
 
 .reset-quests-btn {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: var(--surface-glass);
-      backdrop-filter: blur(10px);
-      border: var(--glass-border);
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      color: var(--text-muted);
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .reset-quests-btn:hover {
-      transform: translateY(-3px) scale(1.1);
-      box-shadow:
+    transform: translateY(-3px) scale(1.1);
+    box-shadow:
         0 30px 60px rgba(0, 0, 0, 0.4),
         var(--shadow-glow);
 }
@@ -335,8 +335,7 @@
 }
 
 .combat-interface h2 {
-    font-family: "Cinzel Decorative", serif
-    color: #dc3545;
+    font-family: "Cinzel Decorative", serif color: #dc3545;
     text-align: center;
     margin: 0 0 1.5rem 0;
     font-size: 2rem;
@@ -399,8 +398,7 @@
 }
 
 .enemy-info h3 {
-    font-family: "Cinzel Decorative", serif
-    color: #dc3545;
+    font-family: "Cinzel Decorative", serif color: #dc3545;
     margin-bottom: 0.5rem;
     font-size: 1.5rem;
 }
@@ -604,6 +602,13 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
+.cinzel-dic {
+    font-family: "Cinzel", serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
 .integrated-dice-container {
     display: flex;
     flex-direction: column;
@@ -613,7 +618,7 @@
 
 .combat-dice-display {
     width: 100%;
-    height: 300px;
+    height: auto;
     background: #1a1a2e;
     border: 2px solid #d4af37;
     border-radius: 15px;
@@ -751,10 +756,6 @@
         font-size: 0.9rem;
     }
 
-    .combat-dice-display {
-        height: 150px;
-    }
-
     .quest-info {
         flex-direction: column;
         gap: 0.5rem;
@@ -769,7 +770,8 @@
 
 /* Dice Rolling Section */
 .dice-section {
-    display: none; /* Hidden by default */
+    display: none;
+    /* Hidden by default */
     max-width: 300px;
     margin: 1rem auto;
     padding: 1rem;
@@ -798,7 +800,7 @@
 
 .dice-display {
     width: 200px;
-    height: 150px;
+    height: auto;
     background: #1a1a2e;
     border: 1px solid #d4af37;
     border-radius: 8px;
