@@ -167,11 +167,11 @@ function resetCharacter() {
 }
 
 function resetProgress() {
-    const profile = localStorage.getItem('tv_profile');
-
+    // Clear all game data from localStorage
     localStorage.removeItem('taskventureData');
     localStorage.removeItem('lastActiveDate');
 
+    // Reset the global user object completely
     if (typeof window.user !== 'undefined') {
         window.user = {
             xp: 0,
@@ -180,8 +180,11 @@ function resetProgress() {
             cards: [],
             tasks: [],
             inventory: [],
+            questItems: [],
+            coins: 0,
             restToken: false,
             lastActiveDate: null,
+            bonusXP: false,
             avatar: {
                 armor: "",
                 weapon: "",
@@ -189,8 +192,18 @@ function resetProgress() {
             }
         };
 
+        // Save the reset state immediately
+        localStorage.setItem('taskventureData', JSON.stringify(window.user));
+
+        // Update all UI elements
         if (typeof window.updateUI === 'function') {
             window.updateUI();
+        }
+        if (typeof window.renderCollection === 'function') {
+            window.renderCollection();
+        }
+        if (typeof window.renderTasks === 'function') {
+            window.renderTasks();
         }
     }
 

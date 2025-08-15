@@ -1,29 +1,29 @@
-// XP and leveling utilities - D&D 5e inspired progression
+// XP and leveling utilities - Official D&D 5e progression
 function getXPForLevel(level) {
-    // D&D 5e XP requirements scaled down for task-based gameplay (divided by 100)
+    // Official D&D 5e XP requirements scaled down by 10 for task-based gameplay
     if (level <= 1) return 0;
 
     const xpTable = [
         0,      // Level 1
-        3,      // Level 2 (300 XP / 100)
-        9,      // Level 3 (900 XP / 100)
-        27,     // Level 4 (2,700 XP / 100)
-        65,     // Level 5 (6,500 XP / 100)
-        140,    // Level 6 (14,000 XP / 100)
-        230,    // Level 7 (23,000 XP / 100)
-        340,    // Level 8 (34,000 XP / 100)
-        480,    // Level 9 (48,000 XP / 100)
-        640,    // Level 10 (64,000 XP / 100)
-        850,    // Level 11 (85,000 XP / 100)
-        1000,   // Level 12 (100,000 XP / 100)
-        1200,   // Level 13 (120,000 XP / 100)
-        1400,   // Level 14 (140,000 XP / 100)
-        1650,   // Level 15 (165,000 XP / 100)
-        1950,   // Level 16 (195,000 XP / 100)
-        2250,   // Level 17 (225,000 XP / 100)
-        2650,   // Level 18 (265,000 XP / 100)
-        3050,   // Level 19 (305,000 XP / 100)
-        3550    // Level 20 (355,000 XP / 100)
+        30,     // Level 2 (300 XP / 10)
+        90,     // Level 3 (900 XP / 10)
+        270,    // Level 4 (2,700 XP / 10)
+        650,    // Level 5 (6,500 XP / 10)
+        1400,   // Level 6 (14,000 XP / 10)
+        2300,   // Level 7 (23,000 XP / 10)
+        3400,   // Level 8 (34,000 XP / 10)
+        4800,   // Level 9 (48,000 XP / 10)
+        6400,   // Level 10 (64,000 XP / 10)
+        8500,   // Level 11 (85,000 XP / 10)
+        10000,  // Level 12 (100,000 XP / 10)
+        12000,  // Level 13 (120,000 XP / 10)
+        14000,  // Level 14 (140,000 XP / 10)
+        16500,  // Level 15 (165,000 XP / 10)
+        19500,  // Level 16 (195,000 XP / 10)
+        22500,  // Level 17 (225,000 XP / 10)
+        26500,  // Level 18 (265,000 XP / 10)
+        30500,  // Level 19 (305,000 XP / 10)
+        35500   // Level 20 (355,000 XP / 10)
     ];
 
     if (level <= 20) {
@@ -31,7 +31,7 @@ function getXPForLevel(level) {
     }
 
     // Beyond level 20, each level requires additional XP (scaled)
-    return 3550 + (level - 20) * 500;
+    return 35500 + (level - 20) * 5000;
 }
 
 function calculateLevel(xp) {
@@ -58,15 +58,15 @@ function checkLevelUp(user) {
 }
 
 function calculateXPReward(task) {
-    let baseXP = 1; // Reduced base XP to match scaled system
+    let baseXP = 5; // Increased base XP to work with higher requirements
 
     // Bonus XP for longer tasks
     if (task.text.length > 50) {
-        baseXP += 1;
+        baseXP += 5;
     }
 
-    // Streak bonus (smaller amounts)
-    baseXP += Math.min(Math.floor(user.streak / 2), 3);
+    // Streak bonus (meaningful amounts)
+    baseXP += Math.min(user.streak * 2, 20);
 
     // Dice bonus XP
     if (user.bonusXP) {
