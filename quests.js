@@ -3,7 +3,9 @@
 class QuestEngine {
     constructor() {
         this.activeQuest = null;
-        this.completedQuests = JSON.parse(localStorage.getItem('completedQuests') || '[]');
+        this.completedQuests = JSON.parse(
+            localStorage.getItem("completedQuests") || "[]",
+        );
         this.availableQuests = this.generateAvailableQuests();
         this.currentScene = null;
         this.playerHP = 100;
@@ -20,183 +22,310 @@ class QuestEngine {
     generateAvailableQuests() {
         const questTemplates = [
             {
-                id: 'goblin_camp',
-                title: 'Goblin Camp Infiltration',
-                description: 'A band of goblins has been raiding nearby villages. Infiltrate their camp and stop their leader.',
-                difficulty: 'Easy',
+                id: "goblin_camp",
+                title: "Goblin Camp Infiltration",
+                description:
+                    "A band of goblins has been raiding nearby villages. Infiltrate their camp and stop their leader.",
+                difficulty: "Easy",
                 minLevel: 1,
-                rewards: { xp: 50, coins: 25, items: ['Goblin Dagger', 'Leather Boots'] },
+                rewards: {
+                    xp: 50,
+                    coins: 25,
+                    items: ["Goblin Dagger", "Leather Boots"],
+                },
                 scenes: [
                     {
-                        id: 'approach',
-                        text: 'You approach the goblin camp hidden in the forest. Smoke rises from their fires.',
+                        id: "approach",
+                        text: "You approach the goblin camp hidden in the forest. Smoke rises from their fires.",
                         options: [
-                            { text: 'Sneak around the perimeter (Stealth)', skill: 'DEX', dc: 12 },
-                            { text: 'Charge in boldly (Intimidation)', skill: 'CHA', dc: 14 },
-                            { text: 'Study the camp layout (Investigation)', skill: 'INT', dc: 10 }
-                        ]
+                            {
+                                text: "Sneak around the perimeter (Stealth)",
+                                skill: "DEX",
+                                dc: 12,
+                            },
+                            {
+                                text: "Charge in boldly (Intimidation)",
+                                skill: "CHA",
+                                dc: 14,
+                            },
+                            {
+                                text: "Study the camp layout (Investigation)",
+                                skill: "INT",
+                                dc: 10,
+                            },
+                        ],
                     },
                     {
-                        id: 'combat',
-                        text: 'The goblin chief notices you! Combat begins!',
+                        id: "combat",
+                        text: "The goblin chief notices you! Combat begins!",
                         combat: true,
-                        enemy: { name: 'Goblin Chief', hp: 25, ac: 14, damage: '1d6+2' }
-                    }
-                ]
+                        enemy: {
+                            name: "Goblin Chief",
+                            hp: 25,
+                            ac: 14,
+                            damage: "1d6+2",
+                        },
+                    },
+                ],
             },
             {
-                id: 'forest_bandits',
-                title: 'Forest Bandit Patrol',
-                description: 'Bandits have been ambushing travelers on the forest road. Stop their operations.',
-                difficulty: 'Easy',
+                id: "forest_bandits",
+                title: "Forest Bandit Patrol",
+                description:
+                    "Bandits have been ambushing travelers on the forest road. Stop their operations.",
+                difficulty: "Easy",
                 minLevel: 1,
-                rewards: { xp: 45, coins: 20, items: ['Bandit Mask', 'Shortbow'] },
+                rewards: {
+                    xp: 45,
+                    coins: 20,
+                    items: ["Bandit Mask", "Shortbow"],
+                },
                 scenes: [
                     {
-                        id: 'encounter',
-                        text: 'You spot bandits setting up an ambush ahead. They haven\'t noticed you yet.',
+                        id: "encounter",
+                        text: "You spot bandits setting up an ambush ahead. They haven't noticed you yet.",
                         options: [
-                            { text: 'Set up counter-ambush (Stealth)', skill: 'DEX', dc: 13 },
-                            { text: 'Negotiate peaceful resolution (Persuasion)', skill: 'CHA', dc: 15 },
-                            { text: 'Charge them directly (Athletics)', skill: 'STR', dc: 12 }
-                        ]
-                    }
-                ]
+                            {
+                                text: "Set up counter-ambush (Stealth)",
+                                skill: "DEX",
+                                dc: 13,
+                            },
+                            {
+                                text: "Negotiate peaceful resolution (Persuasion)",
+                                skill: "CHA",
+                                dc: 15,
+                            },
+                            {
+                                text: "Charge them directly (Athletics)",
+                                skill: "STR",
+                                dc: 12,
+                            },
+                        ],
+                    },
+                ],
             },
             {
-                id: 'merchant_escort',
-                title: 'Merchant Caravan Escort',
-                description: 'A nervous merchant needs protection while traveling through dangerous territory.',
-                difficulty: 'Easy',
+                id: "merchant_escort",
+                title: "Merchant Caravan Escort",
+                description:
+                    "A nervous merchant needs protection while traveling through dangerous territory.",
+                difficulty: "Easy",
                 minLevel: 1,
-                rewards: { xp: 40, coins: 30, items: ['Travel Rations', 'Merchant\'s Ring'] },
+                rewards: {
+                    xp: 40,
+                    coins: 30,
+                    items: ["Travel Rations", "Merchant's Ring"],
+                },
                 scenes: [
                     {
-                        id: 'journey',
-                        text: 'Halfway through the journey, wolves emerge from the treeline, hungry and aggressive.',
+                        id: "journey",
+                        text: "Halfway through the journey, wolves emerge from the treeline, hungry and aggressive.",
                         combat: true,
-                        enemy: { name: 'Pack of Wolves', hp: 20, ac: 12, damage: '1d4+1' }
-                    }
-                ]
+                        enemy: {
+                            name: "Pack of Wolves",
+                            hp: 20,
+                            ac: 12,
+                            damage: "1d4+1",
+                        },
+                    },
+                ],
             },
             {
-                id: 'haunted_library',
-                title: 'The Haunted Library',
-                description: 'Ancient spirits guard forbidden knowledge in an abandoned library.',
-                difficulty: 'Medium',
+                id: "haunted_library",
+                title: "The Haunted Library",
+                description:
+                    "Ancient spirits guard forbidden knowledge in an abandoned library.",
+                difficulty: "Medium",
                 minLevel: 2,
-                rewards: { xp: 75, coins: 40, items: ['Scroll of Wisdom', 'Spectral Cloak'] },
+                rewards: {
+                    xp: 75,
+                    coins: 40,
+                    items: ["Scroll of Wisdom", "Spectral Cloak"],
+                },
                 scenes: [
                     {
-                        id: 'entrance',
-                        text: 'The library doors creak open. Ghostly whispers echo through dusty halls.',
+                        id: "entrance",
+                        text: "The library doors creak open. Ghostly whispers echo through dusty halls.",
                         options: [
-                            { text: 'Call out respectfully (Persuasion)', skill: 'CHA', dc: 13 },
-                            { text: 'Search for clues (Investigation)', skill: 'INT', dc: 11 },
-                            { text: 'Move quietly (Stealth)', skill: 'DEX', dc: 15 }
-                        ]
-                    }
-                ]
+                            {
+                                text: "Call out respectfully (Persuasion)",
+                                skill: "CHA",
+                                dc: 13,
+                            },
+                            {
+                                text: "Search for clues (Investigation)",
+                                skill: "INT",
+                                dc: 11,
+                            },
+                            {
+                                text: "Move quietly (Stealth)",
+                                skill: "DEX",
+                                dc: 15,
+                            },
+                        ],
+                    },
+                ],
             },
             {
-                id: 'cursed_temple',
-                title: 'The Cursed Temple',
-                description: 'An ancient temple has awakened with dark magic. Cleanse it before the curse spreads.',
-                difficulty: 'Medium',
+                id: "cursed_temple",
+                title: "The Cursed Temple",
+                description:
+                    "An ancient temple has awakened with dark magic. Cleanse it before the curse spreads.",
+                difficulty: "Medium",
                 minLevel: 2,
-                rewards: { xp: 80, coins: 45, items: ['Holy Symbol', 'Blessed Water'] },
+                rewards: {
+                    xp: 80,
+                    coins: 45,
+                    items: ["Holy Symbol", "Blessed Water"],
+                },
                 scenes: [
                     {
-                        id: 'altar',
-                        text: 'Dark energy swirls around a corrupted altar. Shadowy figures begin to materialize.',
+                        id: "altar",
+                        text: "Dark energy swirls around a corrupted altar. Shadowy figures begin to materialize.",
                         combat: true,
-                        enemy: { name: 'Shadow Wraith', hp: 35, ac: 15, damage: '1d8+3' }
-                    }
-                ]
+                        enemy: {
+                            name: "Shadow Wraith",
+                            hp: 35,
+                            ac: 15,
+                            damage: "1d8+3",
+                        },
+                    },
+                ],
             },
             {
-                id: 'missing_villagers',
-                title: 'The Missing Villagers',
-                description: 'Several villagers have disappeared. Strange tracks lead to an old mine shaft.',
-                difficulty: 'Medium',
+                id: "missing_villagers",
+                title: "The Missing Villagers",
+                description:
+                    "Several villagers have disappeared. Strange tracks lead to an old mine shaft.",
+                difficulty: "Medium",
                 minLevel: 2,
-                rewards: { xp: 70, coins: 35, items: ['Mining Pick', 'Rescue Medal'] },
+                rewards: {
+                    xp: 70,
+                    coins: 35,
+                    items: ["Mining Pick", "Rescue Medal"],
+                },
                 scenes: [
                     {
-                        id: 'mine_entrance',
-                        text: 'The mine is dark and filled with unnatural sounds. You hear muffled cries from deep within.',
+                        id: "mine_entrance",
+                        text: "The mine is dark and filled with unnatural sounds. You hear muffled cries from deep within.",
                         options: [
-                            { text: 'Light a torch and proceed carefully (Survival)', skill: 'WIS', dc: 12 },
-                            { text: 'Use magic to illuminate the way (Arcana)', skill: 'INT', dc: 14 },
-                            { text: 'Feel your way in darkness (Stealth)', skill: 'DEX', dc: 16 }
-                        ]
+                            {
+                                text: "Light a torch and proceed carefully (Survival)",
+                                skill: "WIS",
+                                dc: 12,
+                            },
+                            {
+                                text: "Use magic to illuminate the way (Arcana)",
+                                skill: "INT",
+                                dc: 14,
+                            },
+                            {
+                                text: "Feel your way in darkness (Stealth)",
+                                skill: "DEX",
+                                dc: 16,
+                            },
+                        ],
                     },
                     {
-                        id: 'rescue',
-                        text: 'You find the villagers trapped by a cave troll!',
+                        id: "rescue",
+                        text: "You find the villagers trapped by a cave troll!",
                         combat: true,
-                        enemy: { name: 'Cave Troll', hp: 40, ac: 16, damage: '2d6+4' }
-                    }
-                ]
+                        enemy: {
+                            name: "Cave Troll",
+                            hp: 40,
+                            ac: 16,
+                            damage: "2d6+4",
+                        },
+                    },
+                ],
             },
             {
-                id: 'dragons_riddle',
-                title: 'The Dragon\'s Riddle',
-                description: 'An ancient dragon offers treasure to those who can solve its riddle.',
-                difficulty: 'Hard',
+                id: "dragons_riddle",
+                title: "The Dragon's Riddle",
+                description:
+                    "An ancient dragon offers treasure to those who can solve its riddle.",
+                difficulty: "Hard",
                 minLevel: 3,
-                rewards: { xp: 100, coins: 75, items: ['Dragon Scale Armor', 'Ring of Fire Resistance'] },
+                rewards: {
+                    xp: 100,
+                    coins: 75,
+                    items: ["Dragon Scale Armor", "Ring of Fire Resistance"],
+                },
                 scenes: [
                     {
-                        id: 'riddle',
+                        id: "riddle",
                         text: 'The dragon speaks: "I am not seen, but I am felt. I have no form, yet I can transform. What am I?"',
                         options: [
-                            { text: 'Answer: Time', skill: 'INT', dc: 16 },
-                            { text: 'Answer: Magic', skill: 'INT', dc: 14 },
-                            { text: 'Try to bargain instead', skill: 'CHA', dc: 18 }
-                        ]
-                    }
-                ]
+                            { text: "Answer: Time", skill: "INT", dc: 16 },
+                            { text: "Answer: Magic", skill: "INT", dc: 14 },
+                            {
+                                text: "Try to bargain instead",
+                                skill: "CHA",
+                                dc: 18,
+                            },
+                        ],
+                    },
+                ],
             },
             {
-                id: 'lich_tower',
-                title: 'The Lich\'s Tower',
-                description: 'A powerful lich has risen and threatens the realm. Only the bravest dare face such evil.',
-                difficulty: 'Hard',
+                id: "lich_tower",
+                title: "The Lich's Tower",
+                description:
+                    "A powerful lich has risen and threatens the realm. Only the bravest dare face such evil.",
+                difficulty: "Hard",
                 minLevel: 4,
-                rewards: { xp: 150, coins: 100, items: ['Lich Bane Sword', 'Crown of Protection'] },
+                rewards: {
+                    xp: 150,
+                    coins: 100,
+                    items: ["Lich Bane Sword", "Crown of Protection"],
+                },
                 scenes: [
                     {
-                        id: 'tower_ascent',
-                        text: 'The tower pulses with necrotic energy. Undead guardians block your path to the top.',
+                        id: "tower_ascent",
+                        text: "The tower pulses with necrotic energy. Undead guardians block your path to the top.",
                         combat: true,
-                        enemy: { name: 'Ancient Lich', hp: 60, ac: 18, damage: '2d8+5' }
-                    }
-                ]
+                        enemy: {
+                            name: "Ancient Lich",
+                            hp: 60,
+                            ac: 18,
+                            damage: "2d8+5",
+                        },
+                    },
+                ],
             },
             {
-                id: 'elemental_chaos',
-                title: 'Elemental Chaos',
-                description: 'The elemental planes are merging with reality. Restore the balance before chaos consumes all.',
-                difficulty: 'Hard',
+                id: "elemental_chaos",
+                title: "Elemental Chaos",
+                description:
+                    "The elemental planes are merging with reality. Restore the balance before chaos consumes all.",
+                difficulty: "Hard",
                 minLevel: 3,
-                rewards: { xp: 120, coins: 80, items: ['Elemental Orb', 'Cloak of Elements'] },
+                rewards: {
+                    xp: 120,
+                    coins: 80,
+                    items: ["Elemental Orb", "Cloak of Elements"],
+                },
                 scenes: [
                     {
-                        id: 'convergence',
-                        text: 'Fire, ice, earth, and air swirl chaotically around you. An elemental lord emerges from the maelstrom.',
+                        id: "convergence",
+                        text: "Fire, ice, earth, and air swirl chaotically around you. An elemental lord emerges from the maelstrom.",
                         combat: true,
-                        enemy: { name: 'Elemental Lord', hp: 50, ac: 17, damage: '2d6+4' }
-                    }
-                ]
-            }
+                        enemy: {
+                            name: "Elemental Lord",
+                            hp: 50,
+                            ac: 17,
+                            damage: "2d6+4",
+                        },
+                    },
+                ],
+            },
         ];
 
         // Add daily quest if needed
         this.checkDailyQuest(questTemplates);
 
         // Filter quests based on character level and completion status
-        return questTemplates.filter(quest => {
+        return questTemplates.filter((quest) => {
             const userLevel = window.user?.level || 1;
             const isCompleted = this.completedQuests.includes(quest.id);
             return quest.minLevel <= userLevel && !isCompleted;
@@ -205,82 +334,130 @@ class QuestEngine {
 
     checkDailyQuest(questTemplates) {
         const today = new Date().toDateString();
-        const lastDailyQuest = localStorage.getItem('lastDailyQuest');
+        const lastDailyQuest = localStorage.getItem("lastDailyQuest");
 
         if (lastDailyQuest !== today) {
             // Generate a new daily quest
             const dailyQuests = [
                 {
                     id: `daily_patrol_${Date.now()}`,
-                    title: 'Daily Patrol',
-                    description: 'Patrol the local area and report any suspicious activity.',
-                    difficulty: 'Easy',
+                    title: "Daily Patrol",
+                    description:
+                        "Patrol the local area and report any suspicious activity.",
+                    difficulty: "Easy",
                     minLevel: 1,
-                    rewards: { xp: 25, coins: 15, items: ['Scout\'s Report'] },
+                    rewards: { xp: 25, coins: 15, items: ["Scout's Report"] },
                     isDaily: true,
                     scenes: [
                         {
-                            id: 'patrol',
-                            text: 'During your patrol, you notice something unusual in the distance.',
+                            id: "patrol",
+                            text: "During your patrol, you notice something unusual in the distance.",
                             options: [
-                                { text: 'Investigate carefully (Perception)', skill: 'WIS', dc: 10 },
-                                { text: 'Approach boldly (Athletics)', skill: 'STR', dc: 12 },
-                                { text: 'Observe from hiding (Stealth)', skill: 'DEX', dc: 11 }
-                            ]
-                        }
-                    ]
+                                {
+                                    text: "Investigate carefully (Perception)",
+                                    skill: "WIS",
+                                    dc: 10,
+                                },
+                                {
+                                    text: "Approach boldly (Athletics)",
+                                    skill: "STR",
+                                    dc: 12,
+                                },
+                                {
+                                    text: "Observe from hiding (Stealth)",
+                                    skill: "DEX",
+                                    dc: 11,
+                                },
+                            ],
+                        },
+                    ],
                 },
                 {
                     id: `daily_gathering_${Date.now()}`,
-                    title: 'Resource Gathering',
-                    description: 'Collect herbs and materials for the local healer.',
-                    difficulty: 'Easy',
+                    title: "Resource Gathering",
+                    description:
+                        "Collect herbs and materials for the local healer.",
+                    difficulty: "Easy",
                     minLevel: 1,
-                    rewards: { xp: 20, coins: 10, items: ['Healing Herbs', 'Crafting Materials'] },
+                    rewards: {
+                        xp: 20,
+                        coins: 10,
+                        items: ["Healing Herbs", "Crafting Materials"],
+                    },
                     isDaily: true,
                     scenes: [
                         {
-                            id: 'gathering',
-                            text: 'You venture into the wilderness to gather resources. Wild creatures guard the best spots.',
+                            id: "gathering",
+                            text: "You venture into the wilderness to gather resources. Wild creatures guard the best spots.",
                             options: [
-                                { text: 'Use nature knowledge (Survival)', skill: 'WIS', dc: 11 },
-                                { text: 'Search systematically (Investigation)', skill: 'INT', dc: 13 },
-                                { text: 'Take risks for better resources (Athletics)', skill: 'STR', dc: 14 }
-                            ]
-                        }
-                    ]
+                                {
+                                    text: "Use nature knowledge (Survival)",
+                                    skill: "WIS",
+                                    dc: 11,
+                                },
+                                {
+                                    text: "Search systematically (Investigation)",
+                                    skill: "INT",
+                                    dc: 13,
+                                },
+                                {
+                                    text: "Take risks for better resources (Athletics)",
+                                    skill: "STR",
+                                    dc: 14,
+                                },
+                            ],
+                        },
+                    ],
                 },
                 {
                     id: `daily_training_${Date.now()}`,
-                    title: 'Combat Training',
-                    description: 'Practice your combat skills at the training grounds.',
-                    difficulty: 'Easy',
+                    title: "Combat Training",
+                    description:
+                        "Practice your combat skills at the training grounds.",
+                    difficulty: "Easy",
                     minLevel: 1,
-                    rewards: { xp: 30, coins: 5, items: ['Training Dummy Remains'] },
+                    rewards: {
+                        xp: 30,
+                        coins: 5,
+                        items: ["Training Dummy Remains"],
+                    },
                     isDaily: true,
                     scenes: [
                         {
-                            id: 'training',
-                            text: 'The training master sets up increasingly difficult challenges.',
+                            id: "training",
+                            text: "The training master sets up increasingly difficult challenges.",
                             options: [
-                                { text: 'Focus on strength training (Athletics)', skill: 'STR', dc: 12 },
-                                { text: 'Practice agility drills (Acrobatics)', skill: 'DEX', dc: 12 },
-                                { text: 'Study combat theory (Investigation)', skill: 'INT', dc: 10 }
-                            ]
-                        }
-                    ]
-                }
+                                {
+                                    text: "Focus on strength training (Athletics)",
+                                    skill: "STR",
+                                    dc: 12,
+                                },
+                                {
+                                    text: "Practice agility drills (Acrobatics)",
+                                    skill: "DEX",
+                                    dc: 12,
+                                },
+                                {
+                                    text: "Study combat theory (Investigation)",
+                                    skill: "INT",
+                                    dc: 10,
+                                },
+                            ],
+                        },
+                    ],
+                },
             ];
 
             // Pick a random daily quest
-            const randomDaily = dailyQuests[Math.floor(Math.random() * dailyQuests.length)];
+            const randomDaily =
+                dailyQuests[Math.floor(Math.random() * dailyQuests.length)];
             questTemplates.push(randomDaily);
-            localStorage.setItem('lastDailyQuest', today);
+            localStorage.setItem("lastDailyQuest", today);
         }
     }
 
     startQuest(questId) {
-        const quest = this.availableQuests.find(q => q.id === questId);
+        const quest = this.availableQuests.find((q) => q.id === questId);
         if (!quest) return false;
 
         this.activeQuest = { ...quest };
@@ -300,11 +477,11 @@ class QuestEngine {
         if (!choice) return;
 
         // Disable choice buttons to prevent multiple clicks
-        const buttons = document.querySelectorAll('.quest-option');
-        buttons.forEach(btn => btn.disabled = true);
+        const buttons = document.querySelectorAll(".quest-option");
+        buttons.forEach((btn) => (btn.disabled = true));
 
         // Use 3D dice for skill check if available
-        if (typeof window.rollSkillCheck === 'function') {
+        if (typeof window.rollSkillCheck === "function") {
             window.rollSkillCheck(choice.skill, choice.dc, (roll) => {
                 this.processSkillCheck(choice, roll);
             });
@@ -324,8 +501,8 @@ class QuestEngine {
 
         // Re-enable choice buttons
         setTimeout(() => {
-            const buttons = document.querySelectorAll('.quest-option');
-            buttons.forEach(btn => btn.disabled = false);
+            const buttons = document.querySelectorAll(".quest-option");
+            buttons.forEach((btn) => (btn.disabled = false));
         }, 1000);
 
         // Handle success/failure
@@ -341,134 +518,392 @@ class QuestEngine {
     }
 
     getAbilityModifier(ability) {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
         const score = profile.scores?.[ability] || 10;
         return Math.floor((score - 10) / 2);
     }
 
     getCharacterWeapons() {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
         const cls = profile.class;
-        
+
         const classWeapons = {
-            'Fighter': {
-                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
-                ranged: { name: 'Shortbow', damage: '1d6', ability: 'DEX', type: 'piercing', range: '80/320' }
+            Fighter: {
+                melee: {
+                    name: "Longsword",
+                    damage: "1d8",
+                    ability: "STR",
+                    type: "slashing",
+                },
+                ranged: {
+                    name: "Shortbow",
+                    damage: "1d6",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "80/320",
+                },
             },
-            'Rogue': {
-                melee: { name: 'Shortsword', damage: '1d6', ability: 'DEX', type: 'piercing' },
-                ranged: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            Rogue: {
+                melee: {
+                    name: "Shortsword",
+                    damage: "1d6",
+                    ability: "DEX",
+                    type: "piercing",
+                },
+                ranged: {
+                    name: "Dagger",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "20/60",
+                },
             },
-            'Wizard': {
-                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
-                ranged: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            Wizard: {
+                melee: {
+                    name: "Dagger",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                },
+                ranged: {
+                    name: "Dagger",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "20/60",
+                },
             },
-            'Sorcerer': {
-                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
-                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+            Sorcerer: {
+                melee: {
+                    name: "Dagger",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                },
+                ranged: {
+                    name: "Light Crossbow",
+                    damage: "1d8",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "80/320",
+                },
             },
-            'Cleric': {
-                melee: { name: 'Mace', damage: '1d6', ability: 'STR', type: 'bludgeoning' },
-                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
+            Cleric: {
+                melee: {
+                    name: "Mace",
+                    damage: "1d6",
+                    ability: "STR",
+                    type: "bludgeoning",
+                },
+                ranged: {
+                    name: "Light Crossbow",
+                    damage: "1d8",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "80/320",
+                },
             },
-            'Barbarian': {
-                melee: { name: 'Greataxe', damage: '1d12', ability: 'STR', type: 'slashing' },
-                ranged: { name: 'Handaxe', damage: '1d6', ability: 'STR', type: 'slashing', range: '20/60' }
+            Barbarian: {
+                melee: {
+                    name: "Greataxe",
+                    damage: "1d12",
+                    ability: "STR",
+                    type: "slashing",
+                },
+                ranged: {
+                    name: "Handaxe",
+                    damage: "1d6",
+                    ability: "STR",
+                    type: "slashing",
+                    range: "20/60",
+                },
             },
-            'Ranger': {
-                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
-                ranged: { name: 'Longbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '150/600' }
+            Ranger: {
+                melee: {
+                    name: "Longsword",
+                    damage: "1d8",
+                    ability: "STR",
+                    type: "slashing",
+                },
+                ranged: {
+                    name: "Longbow",
+                    damage: "1d8",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "150/600",
+                },
             },
-            'Paladin': {
-                melee: { name: 'Longsword', damage: '1d8', ability: 'STR', type: 'slashing' },
-                ranged: { name: 'Javelin', damage: '1d6', ability: 'STR', type: 'piercing', range: '30/120' }
+            Paladin: {
+                melee: {
+                    name: "Longsword",
+                    damage: "1d8",
+                    ability: "STR",
+                    type: "slashing",
+                },
+                ranged: {
+                    name: "Javelin",
+                    damage: "1d6",
+                    ability: "STR",
+                    type: "piercing",
+                    range: "30/120",
+                },
             },
-            'Monk': {
-                melee: { name: 'Unarmed Strike', damage: '1d4', ability: 'DEX', type: 'bludgeoning' },
-                ranged: { name: 'Dart', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            Monk: {
+                melee: {
+                    name: "Unarmed Strike",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "bludgeoning",
+                },
+                ranged: {
+                    name: "Dart",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "20/60",
+                },
             },
-            'Bard': {
-                melee: { name: 'Rapier', damage: '1d8', ability: 'DEX', type: 'piercing' },
-                ranged: { name: 'Shortbow', damage: '1d6', ability: 'DEX', type: 'piercing', range: '80/320' }
+            Bard: {
+                melee: {
+                    name: "Rapier",
+                    damage: "1d8",
+                    ability: "DEX",
+                    type: "piercing",
+                },
+                ranged: {
+                    name: "Shortbow",
+                    damage: "1d6",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "80/320",
+                },
             },
-            'Druid': {
-                melee: { name: 'Scimitar', damage: '1d6', ability: 'DEX', type: 'slashing' },
-                ranged: { name: 'Dart', damage: '1d4', ability: 'DEX', type: 'piercing', range: '20/60' }
+            Druid: {
+                melee: {
+                    name: "Scimitar",
+                    damage: "1d6",
+                    ability: "DEX",
+                    type: "slashing",
+                },
+                ranged: {
+                    name: "Dart",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "20/60",
+                },
             },
-            'Warlock': {
-                melee: { name: 'Dagger', damage: '1d4', ability: 'DEX', type: 'piercing' },
-                ranged: { name: 'Light Crossbow', damage: '1d8', ability: 'DEX', type: 'piercing', range: '80/320' }
-            }
+            Warlock: {
+                melee: {
+                    name: "Dagger",
+                    damage: "1d4",
+                    ability: "DEX",
+                    type: "piercing",
+                },
+                ranged: {
+                    name: "Light Crossbow",
+                    damage: "1d8",
+                    ability: "DEX",
+                    type: "piercing",
+                    range: "80/320",
+                },
+            },
         };
 
-        return classWeapons[cls] || {
-            melee: { name: 'Unarmed Strike', damage: '1', ability: 'STR', type: 'bludgeoning' },
-            ranged: { name: 'Improvised Weapon', damage: '1d4', ability: 'STR', type: 'bludgeoning', range: '20/60' }
-        };
+        return (
+            classWeapons[cls] || {
+                melee: {
+                    name: "Unarmed Strike",
+                    damage: "1",
+                    ability: "STR",
+                    type: "bludgeoning",
+                },
+                ranged: {
+                    name: "Improvised Weapon",
+                    damage: "1d4",
+                    ability: "STR",
+                    type: "bludgeoning",
+                    range: "20/60",
+                },
+            }
+        );
     }
 
     getCharacterSpells() {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
         const cls = profile.class;
         const level = window.user?.level || 1;
-        
+
         const classSpells = {
-            'Wizard': {
-                cantrip_attack: { name: 'Fire Bolt', damage: '1d10', ability: 'INT', type: 'fire', range: '120' },
-                level1_attack: level >= 1 ? { name: 'Magic Missile', damage: '1d4+1', ability: 'INT', type: 'force', auto_hit: true } : null,
-                bonus_spell: null
+            Wizard: {
+                cantrip_attack: {
+                    name: "Fire Bolt",
+                    damage: "1d10",
+                    ability: "INT",
+                    type: "fire",
+                    range: "120",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Magic Missile",
+                              damage: "1d4+1",
+                              ability: "INT",
+                              type: "force",
+                              auto_hit: true,
+                          }
+                        : null,
+                bonus_spell: null,
             },
-            'Sorcerer': {
-                cantrip_attack: { name: 'Fire Bolt', damage: '1d10', ability: 'CHA', type: 'fire', range: '120' },
-                level1_attack: level >= 1 ? { name: 'Chromatic Orb', damage: '3d8', ability: 'CHA', type: 'elemental', range: '90' } : null,
-                bonus_spell: level >= 3 ? { name: 'Quickened Spell', damage: '1d10', ability: 'CHA', type: 'fire' } : null
+            Sorcerer: {
+                cantrip_attack: {
+                    name: "Fire Bolt",
+                    damage: "1d10",
+                    ability: "CHA",
+                    type: "fire",
+                    range: "120",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Chromatic Orb",
+                              damage: "3d8",
+                              ability: "CHA",
+                              type: "elemental",
+                              range: "90",
+                          }
+                        : null,
+                bonus_spell:
+                    level >= 3
+                        ? {
+                              name: "Quickened Spell",
+                              damage: "1d10",
+                              ability: "CHA",
+                              type: "fire",
+                          }
+                        : null,
             },
-            'Warlock': {
-                cantrip_attack: { name: 'Eldritch Blast', damage: '1d10', ability: 'CHA', type: 'force', range: '120' },
-                level1_attack: level >= 1 ? { name: 'Hex', damage: '1d6', ability: 'CHA', type: 'necrotic', bonus: true } : null,
-                bonus_spell: null
+            Warlock: {
+                cantrip_attack: {
+                    name: "Eldritch Blast",
+                    damage: "1d10",
+                    ability: "CHA",
+                    type: "force",
+                    range: "120",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Hex",
+                              damage: "1d6",
+                              ability: "CHA",
+                              type: "necrotic",
+                              bonus: true,
+                          }
+                        : null,
+                bonus_spell: null,
             },
-            'Cleric': {
-                cantrip_attack: { name: 'Sacred Flame', damage: '1d8', ability: 'WIS', type: 'radiant', save: 'DEX' },
-                level1_attack: level >= 1 ? { name: 'Guiding Bolt', damage: '4d6', ability: 'WIS', type: 'radiant', range: '120' } : null,
-                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'WIS' } : null
+            Cleric: {
+                cantrip_attack: {
+                    name: "Sacred Flame",
+                    damage: "1d8",
+                    ability: "WIS",
+                    type: "radiant",
+                    save: "DEX",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Guiding Bolt",
+                              damage: "4d6",
+                              ability: "WIS",
+                              type: "radiant",
+                              range: "120",
+                          }
+                        : null,
+                bonus_spell:
+                    level >= 1
+                        ? { name: "Healing Word", heal: "1d4", ability: "WIS" }
+                        : null,
             },
-            'Druid': {
-                cantrip_attack: { name: 'Produce Flame', damage: '1d8', ability: 'WIS', type: 'fire', range: '30' },
-                level1_attack: level >= 1 ? { name: 'Faerie Fire', damage: 'advantage', ability: 'WIS', type: 'utility', save: 'DEX' } : null,
-                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'WIS' } : null
+            Druid: {
+                cantrip_attack: {
+                    name: "Produce Flame",
+                    damage: "1d8",
+                    ability: "WIS",
+                    type: "fire",
+                    range: "30",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Faerie Fire",
+                              damage: "advantage",
+                              ability: "WIS",
+                              type: "utility",
+                              save: "DEX",
+                          }
+                        : null,
+                bonus_spell:
+                    level >= 1
+                        ? { name: "Healing Word", heal: "1d4", ability: "WIS" }
+                        : null,
             },
-            'Bard': {
-                cantrip_attack: { name: 'Vicious Mockery', damage: '1d4', ability: 'CHA', type: 'psychic', save: 'WIS' },
-                level1_attack: level >= 1 ? { name: 'Dissonant Whispers', damage: '3d6', ability: 'CHA', type: 'psychic', save: 'WIS' } : null,
-                bonus_spell: level >= 1 ? { name: 'Healing Word', heal: '1d4', ability: 'CHA' } : null
-            }
+            Bard: {
+                cantrip_attack: {
+                    name: "Vicious Mockery",
+                    damage: "1d4",
+                    ability: "CHA",
+                    type: "psychic",
+                    save: "WIS",
+                },
+                level1_attack:
+                    level >= 1
+                        ? {
+                              name: "Dissonant Whispers",
+                              damage: "3d6",
+                              ability: "CHA",
+                              type: "psychic",
+                              save: "WIS",
+                          }
+                        : null,
+                bonus_spell:
+                    level >= 1
+                        ? { name: "Healing Word", heal: "1d4", ability: "CHA" }
+                        : null,
+            },
         };
 
-        return classSpells[cls] || { cantrip_attack: null, level1_attack: null, bonus_spell: null };
+        return (
+            classSpells[cls] || {
+                cantrip_attack: null,
+                level1_attack: null,
+                bonus_spell: null,
+            }
+        );
     }
 
     hasClassFeature(feature) {
-        const profile = JSON.parse(localStorage.getItem('tv_profile') || '{}');
+        const profile = JSON.parse(localStorage.getItem("tv_profile") || "{}");
         const cls = profile.class;
         const level = window.user?.level || 1;
 
         const classFeatures = {
-            'cunning_action': cls === 'Rogue' && level >= 2,
-            'second_wind': cls === 'Fighter' && level >= 1,
-            'rage': cls === 'Barbarian' && level >= 1,
-            'sneak_attack': cls === 'Rogue' && level >= 1,
-            'channel_divinity': cls === 'Cleric' && level >= 2
+            cunning_action: cls === "Rogue" && level >= 2,
+            second_wind: cls === "Fighter" && level >= 1,
+            rage: cls === "Barbarian" && level >= 1,
+            sneak_attack: cls === "Rogue" && level >= 1,
+            channel_divinity: cls === "Cleric" && level >= 2,
         };
 
         return classFeatures[feature] || false;
     }
 
     displayRollResult(choice, roll, modifier, total, success) {
-        const resultDiv = document.getElementById('quest-results');
+        const resultDiv = document.getElementById("quest-results");
         const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
-        const resultText = success ? 'SUCCESS!' : 'FAILURE!';
-        const resultClass = success ? 'success' : 'failure';
+        const resultText = success ? "SUCCESS!" : "FAILURE!";
+        const resultClass = success ? "success" : "failure";
 
         resultDiv.innerHTML = `
             <div class="roll-result ${resultClass}">
@@ -485,15 +920,15 @@ class QuestEngine {
             window.user.xp = (window.user.xp || 0) + 5;
 
             // Update UI elements directly
-            const xpElement = document.getElementById('user-xp');
+            const xpElement = document.getElementById("user-xp");
             if (xpElement) xpElement.textContent = window.user.xp;
 
-            if (typeof window.updateUI === 'function') {
+            if (typeof window.updateUI === "function") {
                 window.updateUI();
             }
 
             // Save progress
-            localStorage.setItem('tv_user', JSON.stringify(window.user));
+            localStorage.setItem("tv_user", JSON.stringify(window.user));
         }
 
         // Track successful action
@@ -501,7 +936,10 @@ class QuestEngine {
 
         // Show next options after success
         setTimeout(() => {
-            if (this.successfulActions < this.maxSuccessfulActions && this.activeQuest.scenes.length > 1) {
+            if (
+                this.successfulActions < this.maxSuccessfulActions &&
+                this.activeQuest.scenes.length > 1
+            ) {
                 this.showNextChoices();
             } else {
                 // Either max successes reached or no more scenes
@@ -523,7 +961,9 @@ class QuestEngine {
                 this.renderQuestInterface();
             } else {
                 // Allow retry if no combat scene
-                const retryDiv = document.getElementById('quest-content') || document.querySelector('.scene-content');
+                const retryDiv =
+                    document.getElementById("quest-content") ||
+                    document.querySelector(".scene-content");
                 if (retryDiv) {
                     retryDiv.innerHTML += `
                         <div class="retry-options">
@@ -538,31 +978,32 @@ class QuestEngine {
     }
 
     showNextChoices() {
-        const questContainer = document.getElementById('quest-container');
-        
-        const advantageText = this.successfulActions === 1 ? 
-            "Your success gives you a slight advantage. What's your next move?" :
-            this.successfulActions === 2 ? 
-            "Your continued success puts you in a strong position. Choose wisely:" :
-            "You've achieved maximum advantage! One final decision before the confrontation:";
+        const questContainer = document.getElementById("quest-container");
+
+        const advantageText =
+            this.successfulActions === 1
+                ? "Your success gives you a slight advantage. What's your next move?"
+                : this.successfulActions === 2
+                  ? "Your continued success puts you in a strong position. Choose wisely:"
+                  : "You've achieved maximum advantage! One final decision before the confrontation:";
 
         const nextOptions = [
             {
                 text: `Continue with stealth approach (${this.successfulActions + 1}/3 advantages)`,
-                action: 'stealth'
+                action: "stealth",
             },
             {
                 text: `Gather more intelligence (${this.successfulActions + 1}/3 advantages)`,
-                action: 'intel'
+                action: "intel",
             },
             {
                 text: `Set up tactical position (${this.successfulActions + 1}/3 advantages)`,
-                action: 'tactics'
+                action: "tactics",
             },
             {
                 text: `Proceed to confrontation (${this.successfulActions}/3 advantages)`,
-                action: 'combat'
-            }
+                action: "combat",
+            },
         ];
 
         questContainer.innerHTML = `
@@ -571,11 +1012,15 @@ class QuestEngine {
                 <div class="scene-content">
                     <p class="scene-text">${advantageText}</p>
                     <div class="quest-options">
-                        ${nextOptions.map((option, index) => `
+                        ${nextOptions
+                            .map(
+                                (option, index) => `
                             <button class="quest-option" onclick="questEngine.handleNextChoice('${option.action}')">
                                 ${option.text}
                             </button>
-                        `).join('')}
+                        `,
+                            )
+                            .join("")}
                     </div>
                 </div>
                 <div id="quest-results"></div>
@@ -585,7 +1030,7 @@ class QuestEngine {
     }
 
     handleNextChoice(action) {
-        if (action === 'combat') {
+        if (action === "combat") {
             // Proceed to combat with current advantages
             if (this.activeQuest.scenes.length > 1) {
                 this.currentScene = this.activeQuest.scenes[1];
@@ -596,16 +1041,24 @@ class QuestEngine {
         } else {
             // Generate a skill check for the chosen action
             const skillChecks = {
-                stealth: { skill: 'DEX', dc: 12, text: 'Continue stealth approach' },
-                intel: { skill: 'INT', dc: 11, text: 'Gather intelligence' },
-                tactics: { skill: 'WIS', dc: 13, text: 'Set up tactical advantage' }
+                stealth: {
+                    skill: "DEX",
+                    dc: 12,
+                    text: "Continue stealth approach",
+                },
+                intel: { skill: "INT", dc: 11, text: "Gather intelligence" },
+                tactics: {
+                    skill: "WIS",
+                    dc: 13,
+                    text: "Set up tactical advantage",
+                },
             };
 
             const choice = skillChecks[action];
             if (choice) {
                 // Disable choice buttons
-                const buttons = document.querySelectorAll('.quest-option');
-                buttons.forEach(btn => btn.disabled = true);
+                const buttons = document.querySelectorAll(".quest-option");
+                buttons.forEach((btn) => (btn.disabled = true));
 
                 // Roll for the action
                 const roll = this.rollD20();
@@ -619,15 +1072,18 @@ class QuestEngine {
 
         // Mark quest as completed
         this.completedQuests.push(this.activeQuest.id);
-        localStorage.setItem('completedQuests', JSON.stringify(this.completedQuests));
+        localStorage.setItem(
+            "completedQuests",
+            JSON.stringify(this.completedQuests),
+        );
 
         // Award rewards
         const rewards = this.activeQuest.rewards;
-        
+
         // Ensure user object exists and load from main app data
         if (!window.user) {
             // Try to load existing user data from main app
-            const savedData = localStorage.getItem('taskventureData');
+            const savedData = localStorage.getItem("taskventureData");
             if (savedData) {
                 window.user = JSON.parse(savedData);
             } else {
@@ -645,8 +1101,8 @@ class QuestEngine {
                     avatar: {
                         armor: "",
                         weapon: "",
-                        cape: ""
-                    }
+                        cape: "",
+                    },
                 };
             }
         }
@@ -664,10 +1120,10 @@ class QuestEngine {
         if (!window.user.inventory) window.user.inventory = [];
 
         // Add items to quest inventory and collection
-        rewards.items.forEach(item => {
+        rewards.items.forEach((item) => {
             // Add to quest items inventory
             window.user.questItems.push(item);
-            
+
             // Add to main inventory as well
             window.user.inventory.push(item);
 
@@ -675,17 +1131,17 @@ class QuestEngine {
             const itemCard = {
                 id: `quest_item_${Date.now()}_${Math.random()}`,
                 name: item,
-                rarity: 'Uncommon',
-                type: 'Quest Item',
+                rarity: "Uncommon",
+                type: "Quest Item",
                 effect: `Earned from completing: ${this.activeQuest.title}`,
-                image: 'images/cards/cloak_clarity_common.png' // Default image for quest items
+                image: "images/cards/cloak_clarity_common.png", // Default image for quest items
             };
             window.user.cards.push(itemCard);
         });
 
         // Check for level up using D&D-style progression
         const oldLevel = window.user.level || 1;
-        if (typeof calculateLevel === 'function') {
+        if (typeof calculateLevel === "function") {
             const newLevel = calculateLevel(window.user.xp);
             if (newLevel > oldLevel) {
                 window.user.level = newLevel;
@@ -694,16 +1150,16 @@ class QuestEngine {
         }
 
         // Save to main app storage system (taskventureData is the primary one)
-        localStorage.setItem('taskventureData', JSON.stringify(window.user));
+        localStorage.setItem("taskventureData", JSON.stringify(window.user));
 
-        console.log('Quest completed! Rewards added:', {
+        console.log("Quest completed! Rewards added:", {
             xp: rewards.xp,
             coins: rewards.coins,
             items: rewards.items,
             totalXP: window.user.xp,
             totalCoins: window.user.coins,
             level: window.user.level,
-            totalCards: window.user.cards.length
+            totalCards: window.user.cards.length,
         });
 
         // Show floating message with rewards
@@ -722,59 +1178,66 @@ class QuestEngine {
         if (!window.user) return;
 
         // Ensure main app has the updated user data
-        if (typeof window.loadUserData === 'function') {
+        if (typeof window.loadUserData === "function") {
             window.loadUserData();
         }
 
-        const xpElement = document.getElementById('user-xp');
-        const levelElement = document.getElementById('user-level');
-        const cardCountElement = document.getElementById('card-count');
-        
+        const xpElement = document.getElementById("user-xp");
+        const levelElement = document.getElementById("user-level");
+        const cardCountElement = document.getElementById("card-count");
+
         // Update currency display - convert total coins to different denominations
         const totalCoins = window.user.coins || 0;
         const platinum = Math.floor(totalCoins / 1000);
         const gold = Math.floor((totalCoins % 1000) / 100);
         const silver = Math.floor((totalCoins % 100) / 10);
         const copper = totalCoins % 10;
-        
-        const platinumElement = document.getElementById('platinum-coins');
-        const goldElement = document.getElementById('gold-coins');
-        const silverElement = document.getElementById('silver-coins');
-        const copperElement = document.getElementById('copper-coins');
+
+        const platinumElement = document.getElementById("platinum-coins");
+        const goldElement = document.getElementById("gold-coins");
+        const silverElement = document.getElementById("silver-coins");
+        const copperElement = document.getElementById("copper-coins");
 
         if (xpElement) xpElement.textContent = window.user.xp;
         if (levelElement) levelElement.textContent = window.user.level || 1;
-        if (cardCountElement) cardCountElement.textContent = window.user.cards ? window.user.cards.length : 0;
-        
+        if (cardCountElement)
+            cardCountElement.textContent = window.user.cards
+                ? window.user.cards.length
+                : 0;
+
         if (platinumElement) platinumElement.textContent = platinum;
         if (goldElement) goldElement.textContent = gold;
         if (silverElement) silverElement.textContent = silver;
         if (copperElement) copperElement.textContent = copper;
 
         // Update XP bar using same formula as main app
-        const xpForCurrentLevel = this.getXPForLevel ? this.getXPForLevel(window.user.level) : Math.pow(window.user.level, 2) * 100;
-        const xpForNextLevel = this.getXPForLevel ? this.getXPForLevel(window.user.level + 1) : Math.pow(window.user.level + 1, 2) * 100;
+        const xpForCurrentLevel = this.getXPForLevel
+            ? this.getXPForLevel(window.user.level)
+            : Math.pow(window.user.level, 2) * 100;
+        const xpForNextLevel = this.getXPForLevel
+            ? this.getXPForLevel(window.user.level + 1)
+            : Math.pow(window.user.level + 1, 2) * 100;
         const xpProgress = (window.user.xp / xpForNextLevel) * 100;
-        const xpFill = document.getElementById('xp-fill');
-        const xpNextLevel = document.getElementById('xp-next-level');
-        
+        const xpFill = document.getElementById("xp-fill");
+        const xpNextLevel = document.getElementById("xp-next-level");
+
         if (xpFill) xpFill.style.width = `${Math.min(xpProgress, 100)}%`;
         if (xpNextLevel) xpNextLevel.textContent = xpForNextLevel;
 
         // Force complete UI refresh
-        if (typeof window.updateUI === 'function') {
+        if (typeof window.updateUI === "function") {
             window.updateUI();
         }
-        if (typeof window.renderCollection === 'function') {
+        if (typeof window.renderCollection === "function") {
             window.renderCollection();
         }
-        if (typeof window.renderTasks === 'function') {
+        if (typeof window.renderTasks === "function") {
             window.renderTasks();
         }
     }
 
     showRewardMessage(rewards) {
-        const messageDiv = document.createElement('div');
+        const messageDiv = document.createElement("div");
         messageDiv.innerHTML = `
             <div style="font-weight: bold; margin-bottom: 0.5rem;">Quest Rewards Earned!</div>
             <div>+${rewards.xp} XP</div>
@@ -801,7 +1264,7 @@ class QuestEngine {
         // Remove message after 4 seconds
         setTimeout(() => {
             if (messageDiv.parentNode) {
-                messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
+                messageDiv.style.animation = "slideIn 0.3s ease-out reverse";
                 setTimeout(() => {
                     if (messageDiv.parentNode) {
                         messageDiv.parentNode.removeChild(messageDiv);
@@ -814,23 +1277,25 @@ class QuestEngine {
     // Debug function to check current user stats
     checkStats() {
         if (window.user) {
-            console.log('Current User Stats:', {
+            console.log("Current User Stats:", {
                 xp: window.user.xp,
                 coins: window.user.coins,
                 level: window.user.level,
-                questItems: window.user.questItems ? window.user.questItems.length : 0,
+                questItems: window.user.questItems
+                    ? window.user.questItems.length
+                    : 0,
                 cards: window.user.cards ? window.user.cards.length : 0,
-                completedQuests: this.completedQuests.length
+                completedQuests: this.completedQuests.length,
             });
             return window.user;
         } else {
-            console.log('No user data found');
+            console.log("No user data found");
             return null;
         }
     }
 
     showQuestCompletion() {
-        const questContainer = document.getElementById('quest-container');
+        const questContainer = document.getElementById("quest-container");
         const rewards = this.activeQuest.rewards;
 
         questContainer.innerHTML = `
@@ -842,7 +1307,7 @@ class QuestEngine {
                     <ul>
                         <li><span class="reward-xp">+${rewards.xp} XP</span> (Added to your total)</li>
                         <li><span class="reward-coins">+${rewards.coins} Coins</span> (Added to your purse)</li>
-                        ${rewards.items.map(item => `<li><span class="reward-item">${item}</span> (Added to inventory & collection)</li>`).join('')}
+                        ${rewards.items.map((item) => `<li><span class="reward-item">${item}</span> (Added to inventory & collection)</li>`).join("")}
                     </ul>
                 </div>
                 <div class="current-stats">
@@ -869,7 +1334,7 @@ class QuestEngine {
     renderQuestInterface() {
         if (!this.activeQuest || !this.currentScene) return;
 
-        const questContainer = document.getElementById('quest-container');
+        const questContainer = document.getElementById("quest-container");
 
         if (this.currentScene.combat) {
             this.renderCombat();
@@ -882,12 +1347,16 @@ class QuestEngine {
                 <div class="scene-content">
                     <p class="scene-text">${this.currentScene.text}</p>
                     <div class="quest-options">
-                        ${this.currentScene.options.map((option, index) => `
+                        ${this.currentScene.options
+                            .map(
+                                (option, index) => `
                             <button class="quest-option" onclick="questEngine.makeChoice(${index})">
                                 ${option.text}
                                 <span class="skill-info">(${option.skill} DC ${option.dc})</span>
                             </button>
-                        `).join('')}
+                        `,
+                            )
+                            .join("")}
                     </div>
                 </div>
                 <div id="quest-results"></div>
@@ -897,7 +1366,7 @@ class QuestEngine {
     }
 
     renderCombat() {
-        const questContainer = document.getElementById('quest-container');
+        const questContainer = document.getElementById("quest-container");
         const enemy = this.currentScene.enemy;
 
         // Initialize enemy HP if not already set
@@ -950,15 +1419,13 @@ class QuestEngine {
                 </div>
 
                 <!-- Integrated Dice Section -->
-                <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
-                    <div class="outer-container">
-                        <div class="integrated-dice-container">
-                            <div id="combat-dice-display" class="combat-dice-display">
-                                <img src="/images/nav/d20.png" alt="D20 Dice" style="display: none;">
-                            </div>
-                            <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
-                            <div id="combat-dice-result" class="combat-dice-result"></div>
-                        </div>
+<div class="dice-card">
+  <div id="combat-dice-display" class="dice-stage"></div>
+  <div class="dice-actions">
+    <button id="combat-roll-btn" class="combat-roll-button">Roll D20</button>
+  </div>
+  <div id="combat-dice-result" class="combat-dice-result"></div>
+</div>
                         <div id="combat-log"></div>
                     </div>
                 </div>
@@ -966,12 +1433,14 @@ class QuestEngine {
 
         // Initialize dice after combat interface is rendered
         setTimeout(() => {
-            if (typeof window.ensureDiceInitialized === 'function') {
+            if (typeof window.ensureDiceInitialized === "function") {
                 const result = window.ensureDiceInitialized();
                 if (result) {
-                    console.log('✅ Combat dice initialized successfully');
+                    console.log("✅ Combat dice initialized successfully");
                 } else {
-                    console.log('❌ Combat dice initialization failed, using fallback');
+                    console.log(
+                        "❌ Combat dice initialization failed, using fallback",
+                    );
                 }
             }
         }, 200);
@@ -981,9 +1450,9 @@ class QuestEngine {
         this.pendingRoll = { type: actionType };
 
         // Show the integrated dice section
-        const diceSection = document.getElementById('combat-dice-section');
+        const diceSection = document.getElementById("combat-dice-section");
         if (diceSection) {
-            diceSection.style.display = 'block';
+            diceSection.style.display = "block";
 
             // Initialize the 3D dice in the combat dice display
             setTimeout(() => {
@@ -992,26 +1461,31 @@ class QuestEngine {
         }
 
         // Disable combat buttons temporarily
-        const buttons = document.querySelectorAll('.combat-options button');
-        buttons.forEach(btn => btn.disabled = true);
+        const buttons = document.querySelectorAll(".combat-options button");
+        buttons.forEach((btn) => (btn.disabled = true));
     }
 
     initializeCombatDice() {
         // Initialize dice specifically for combat using the combat dice display
         setTimeout(() => {
-            if (typeof window.ensureDiceInitialized === 'function') {
+            if (typeof window.ensureDiceInitialized === "function") {
                 const result = window.ensureDiceInitialized();
                 if (result) {
-                    console.log('✅ Combat dice ready for rolling');
+                    console.log("✅ Combat dice ready for rolling");
                 } else {
-                    console.warn('Combat dice failed to initialize, will use fallback rolls');
+                    console.warn(
+                        "Combat dice failed to initialize, will use fallback rolls",
+                    );
                     // Show fallback message in dice display
-                    const diceDisplay = document.getElementById('combat-dice-display');
-                    if (diceDisplay && !diceDisplay.querySelector('canvas')) {
-                        diceDisplay.innerHTML = '<div style="color: #d4af37;">🎲 Dice Ready (2D Mode)</div>';
+                    const diceDisplay = document.getElementById(
+                        "combat-dice-display",
+                    );
+                    if (diceDisplay && !diceDisplay.querySelector("canvas")) {
+                        diceDisplay.innerHTML =
+                            '<div style="color: #d4af37;">🎲 Dice Ready (2D Mode)</div>';
                     }
                 }
-            } else if (typeof window.initCombatDice === 'function') {
+            } else if (typeof window.initCombatDice === "function") {
                 window.initCombatDice();
             }
         }, 300);
@@ -1026,43 +1500,43 @@ class QuestEngine {
         if (!this.pendingRoll) return;
 
         const { type } = this.pendingRoll;
-        const logDiv = document.getElementById('combat-log');
+        const logDiv = document.getElementById("combat-log");
 
         switch (type) {
-            case 'melee_attack':
+            case "melee_attack":
                 this.resolveMeleeAttack(diceResult);
                 break;
-            case 'ranged_attack':
+            case "ranged_attack":
                 this.resolveRangedAttack(diceResult);
                 break;
-            case 'spell_attack':
+            case "spell_attack":
                 this.resolveSpellAttack(diceResult);
                 break;
-            case 'dash':
+            case "dash":
                 this.resolveDash(diceResult);
                 break;
-            case 'disengage':
+            case "disengage":
                 this.resolveDisengage(diceResult);
                 break;
-            case 'dodge':
+            case "dodge":
                 this.resolveDodge(diceResult);
                 break;
-            case 'hide':
+            case "hide":
                 this.resolveHide(diceResult);
                 break;
-            case 'grapple':
+            case "grapple":
                 this.resolveGrapple(diceResult);
                 break;
-            case 'help':
+            case "help":
                 this.resolveHelp(diceResult);
                 break;
-            case 'bonus_spell':
+            case "bonus_spell":
                 this.resolveBonusSpell(diceResult);
                 break;
-            case 'cunning_action':
+            case "cunning_action":
                 this.resolveCunningAction(diceResult);
                 break;
-            case 'second_wind':
+            case "second_wind":
                 this.resolveSecondWind(diceResult);
                 break;
         }
@@ -1070,9 +1544,9 @@ class QuestEngine {
         this.pendingRoll = null;
 
         // Hide the integrated dice section
-        const diceSection = document.getElementById('combat-dice-section');
+        const diceSection = document.getElementById("combat-dice-section");
         if (diceSection) {
-            diceSection.style.display = 'none';
+            diceSection.style.display = "none";
         }
 
         // Check if combat ends before re-enabling buttons
@@ -1082,8 +1556,8 @@ class QuestEngine {
 
         // Re-enable combat buttons only if combat continues
         setTimeout(() => {
-            const buttons = document.querySelectorAll('.combat-options button');
-            buttons.forEach(btn => btn.disabled = false);
+            const buttons = document.querySelectorAll(".combat-options button");
+            buttons.forEach((btn) => (btn.disabled = false));
         }, 500);
 
         // Enemy attacks after a delay (unless player used disengage)
@@ -1096,7 +1570,7 @@ class QuestEngine {
     }
 
     retreatFromCombat() {
-        const questContainer = document.getElementById('quest-container');
+        const questContainer = document.getElementById("quest-container");
         questContainer.innerHTML = `
             <div class="quest-completion" style="background: var(--surface-glass); border-color: #6c757d;">
                 <h2>⚡ Tactical Retreat!</h2>
@@ -1118,22 +1592,26 @@ class QuestEngine {
         const weapon = weapons.melee;
         const abilityModifier = this.getAbilityModifier(weapon.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-        
+
         let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
 
         // Apply quest advantages and other bonuses
         const questBonus = this.successfulActions * 2;
         total += questBonus;
 
         // Apply advantage/disadvantage
-        let advantageText = '';
+        let advantageText = "";
         if (this.playerAdvantage || this.hiddenAdvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
             if (secondRoll > diceRoll) {
-                total = secondRoll + abilityModifier + proficiencyBonus + questBonus;
+                total =
+                    secondRoll +
+                    abilityModifier +
+                    proficiencyBonus +
+                    questBonus;
                 advantageText = ` (advantage: ${secondRoll})`;
             }
             this.playerAdvantage = false;
@@ -1144,14 +1622,17 @@ class QuestEngine {
 
         if (total >= enemy.ac) {
             let damage = this.rollWeaponDamage(weapon.damage) + abilityModifier;
-            
+
             // Add sneak attack damage for rogues
-            if (this.hasClassFeature('sneak_attack') && (this.playerAdvantage || this.hiddenAdvantage)) {
-                const sneakDamage = this.rollDice('1d6'); // Simplified sneak attack
+            if (
+                this.hasClassFeature("sneak_attack") &&
+                (this.playerAdvantage || this.hiddenAdvantage)
+            ) {
+                const sneakDamage = this.rollDice("1d6"); // Simplified sneak attack
                 damage += sneakDamage;
                 logDiv.innerHTML += `<p class="success">Sneak Attack! Additional ${sneakDamage} damage!</p>`;
             }
-            
+
             damage += this.successfulActions; // Quest bonus damage
             this.enemyHP = Math.max(0, this.enemyHP - damage);
             logDiv.innerHTML += `<p class="success">Hit! Dealt ${damage} ${weapon.type} damage with ${weapon.name}.</p>`;
@@ -1173,21 +1654,25 @@ class QuestEngine {
         const weapon = weapons.ranged;
         const abilityModifier = this.getAbilityModifier(weapon.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
-        
+
         let total = diceRoll + abilityModifier + proficiencyBonus;
         const enemy = this.currentScene.enemy;
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
 
         const questBonus = this.successfulActions * 2;
         total += questBonus;
 
         // Apply advantage from height/position
-        let advantageText = '';
+        let advantageText = "";
         if (this.playerAdvantage || this.hiddenAdvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
             if (secondRoll > diceRoll) {
-                total = secondRoll + abilityModifier + proficiencyBonus + questBonus;
+                total =
+                    secondRoll +
+                    abilityModifier +
+                    proficiencyBonus +
+                    questBonus;
                 advantageText = ` (advantage: ${secondRoll})`;
             }
             this.playerAdvantage = false;
@@ -1217,10 +1702,10 @@ class QuestEngine {
     resolveSpellAttack(diceRoll) {
         const spells = this.getCharacterSpells();
         const spell = spells.cantrip_attack || spells.level1_attack;
-        
+
         if (!spell) {
-            const logDiv = document.getElementById('combat-log');
-            logDiv.classList.add('visible');
+            const logDiv = document.getElementById("combat-log");
+            logDiv.classList.add("visible");
             logDiv.innerHTML += `<p class="failure">No attack spells available!</p>`;
             return;
         }
@@ -1228,8 +1713,8 @@ class QuestEngine {
         const abilityModifier = this.getAbilityModifier(spell.ability);
         const proficiencyBonus = Math.ceil((window.user?.level || 1) / 4) + 1;
         const enemy = this.currentScene.enemy;
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
 
         if (spell.auto_hit) {
             // Magic Missile auto-hits
@@ -1241,7 +1726,7 @@ class QuestEngine {
             const saveDC = 8 + proficiencyBonus + abilityModifier;
             const enemySave = Math.floor(Math.random() * 20) + 1 + 2; // Enemy gets +2 to saves
             logDiv.innerHTML += `<p><strong>${spell.name}:</strong> Enemy ${spell.save} save: ${enemySave} vs DC ${saveDC}</p>`;
-            
+
             if (enemySave < saveDC) {
                 const damage = this.rollWeaponDamage(spell.damage);
                 this.enemyHP = Math.max(0, this.enemyHP - damage);
@@ -1255,7 +1740,8 @@ class QuestEngine {
             logDiv.innerHTML += `<p><strong>${spell.name} Spell Attack:</strong> ${diceRoll} + ${abilityModifier} (${spell.ability}) + ${proficiencyBonus} = ${total} vs AC ${enemy.ac}</p>`;
 
             if (total >= enemy.ac) {
-                const damage = this.rollWeaponDamage(spell.damage) + abilityModifier;
+                const damage =
+                    this.rollWeaponDamage(spell.damage) + abilityModifier;
                 this.enemyHP = Math.max(0, this.enemyHP - damage);
                 logDiv.innerHTML += `<p class="success">${spell.name} hits! Dealt ${damage} ${spell.type} damage.</p>`;
             } else {
@@ -1273,21 +1759,21 @@ class QuestEngine {
     }
 
     resolveDash(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
         this.playerAdvantage = true;
         logDiv.innerHTML += `<p class="success">You dash around the battlefield! Gain advantage on your next attack and enemy has disadvantage on their next attack against you!</p>`;
         this.enemyDisadvantage = true;
     }
 
     resolveDisengage(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        const dexModifier = this.getAbilityModifier('DEX');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        const dexModifier = this.getAbilityModifier("DEX");
         const total = diceRoll + dexModifier;
-        
+
         if (total >= 12) {
             this.playerDisengaged = true;
             this.playerAdvantage = true;
@@ -1298,24 +1784,24 @@ class QuestEngine {
     }
 
     resolveDodge(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        const dexModifier = this.getAbilityModifier('DEX');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        const dexModifier = this.getAbilityModifier("DEX");
         const dodgeBonus = Math.floor((diceRoll + dexModifier) / 3) + 2;
-        
+
         this.tempACBonus = dodgeBonus;
         this.enemyDisadvantage = true;
         logDiv.innerHTML += `<p class="success">You focus entirely on defense! Gain +${dodgeBonus} AC and enemy has disadvantage on attacks against you!</p>`;
     }
 
     resolveHide(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        const dexModifier = this.getAbilityModifier('DEX');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        const dexModifier = this.getAbilityModifier("DEX");
         const total = diceRoll + dexModifier;
-        
+
         if (total >= 15) {
             this.hiddenAdvantage = true;
             this.playerAdvantage = true;
@@ -1327,17 +1813,17 @@ class QuestEngine {
     }
 
     resolveGrapple(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        const strModifier = this.getAbilityModifier('STR');
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        const strModifier = this.getAbilityModifier("STR");
         const total = diceRoll + strModifier;
         const enemy = this.currentScene.enemy;
-        
+
         logDiv.innerHTML += `<p><strong>Grapple Attempt:</strong> ${diceRoll} + ${strModifier} = ${total} vs enemy Athletics/Acrobatics</p>`;
-        
+
         const enemyDefense = Math.floor(Math.random() * 20) + 1 + 3; // Enemy gets +3 to contest
-        
+
         if (total > enemyDefense) {
             this.enemyGrappled = true;
             this.playerAdvantage = true;
@@ -1349,13 +1835,13 @@ class QuestEngine {
     }
 
     resolveHelp(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
         this.playerAdvantage = true;
         const healAmount = Math.floor(diceRoll / 5) + 1;
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
-        
+
         logDiv.innerHTML += `<p class="success">You take a moment to steady yourself! Recover ${healAmount} HP and gain advantage on your next action!</p>`;
         this.updateHealthBars();
     }
@@ -1363,17 +1849,22 @@ class QuestEngine {
     resolveBonusSpell(diceRoll) {
         const spells = this.getCharacterSpells();
         const spell = spells.bonus_spell;
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
         if (!spell) {
             logDiv.innerHTML += `<p class="failure">No bonus action spells available!</p>`;
             return;
         }
-        
+
         if (spell.heal) {
-            const healAmount = this.rollWeaponDamage(spell.heal) + this.getAbilityModifier(spell.ability);
-            this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
+            const healAmount =
+                this.rollWeaponDamage(spell.heal) +
+                this.getAbilityModifier(spell.ability);
+            this.playerHP = Math.min(
+                this.maxPlayerHP,
+                this.playerHP + healAmount,
+            );
             logDiv.innerHTML += `<p class="success">Cast ${spell.name}! Healed ${healAmount} HP.</p>`;
             this.updateHealthBars();
         } else {
@@ -1386,14 +1877,14 @@ class QuestEngine {
     }
 
     resolveCunningAction(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        if (!this.hasClassFeature('cunning_action')) {
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        if (!this.hasClassFeature("cunning_action")) {
             logDiv.innerHTML += `<p class="failure">Cunning Action not available!</p>`;
             return;
         }
-        
+
         // Rogue can use cunning action to disengage, dash, or hide as bonus action
         this.playerAdvantage = true;
         this.playerDisengaged = true;
@@ -1401,14 +1892,14 @@ class QuestEngine {
     }
 
     resolveSecondWind(diceRoll) {
-        const logDiv = document.getElementById('combat-log');
-        logDiv.classList.add('visible');
-        
-        if (!this.hasClassFeature('second_wind')) {
+        const logDiv = document.getElementById("combat-log");
+        logDiv.classList.add("visible");
+
+        if (!this.hasClassFeature("second_wind")) {
             logDiv.innerHTML += `<p class="failure">Second Wind not available!</p>`;
             return;
         }
-        
+
         const healAmount = diceRoll + (window.user?.level || 1);
         this.playerHP = Math.min(this.maxPlayerHP, this.playerHP + healAmount);
         logDiv.innerHTML += `<p class="success">Second Wind! Regained ${healAmount} hit points!</p>`;
@@ -1421,16 +1912,16 @@ class QuestEngine {
         if (!match) {
             return parseInt(damageString) || 1;
         }
-        
+
         const numDice = parseInt(match[1]);
         const dieSize = parseInt(match[2]);
         const bonus = match[3] ? parseInt(match[3]) : 0;
-        
+
         let total = bonus;
         for (let i = 0; i < numDice; i++) {
             total += Math.floor(Math.random() * dieSize) + 1;
         }
-        
+
         return total;
     }
 
@@ -1439,17 +1930,19 @@ class QuestEngine {
     }
 
     enemyAttack() {
-        const logDiv = document.getElementById('combat-log');
+        const logDiv = document.getElementById("combat-log");
         const enemy = this.currentScene.enemy;
-        
+
         // Check if enemy cannot target player (due to hiding)
         if (this.enemyCannotTarget) {
             logDiv.innerHTML += `<p class="success">${enemy.name} cannot find you to attack!</p>`;
             this.enemyCannotTarget = false;
             // Re-enable combat buttons
             setTimeout(() => {
-                const buttons = document.querySelectorAll('.combat-options button');
-                buttons.forEach(btn => btn.disabled = false);
+                const buttons = document.querySelectorAll(
+                    ".combat-options button",
+                );
+                buttons.forEach((btn) => (btn.disabled = false));
             }, 500);
             return;
         }
@@ -1457,25 +1950,27 @@ class QuestEngine {
         // Check if enemy is grappled and tries to break free
         if (this.enemyGrappled) {
             const breakFreeRoll = Math.floor(Math.random() * 20) + 1 + 3; // Enemy +3 bonus
-            const playerAC = 10 + this.getAbilityModifier('DEX'); // Player's grapple DC
-            
+            const playerAC = 10 + this.getAbilityModifier("DEX"); // Player's grapple DC
+
             logDiv.innerHTML += `<p><strong>${enemy.name} attempts to break free:</strong> ${breakFreeRoll} vs DC ${playerAC}</p>`;
-            
+
             if (breakFreeRoll >= playerAC) {
                 this.enemyGrappled = false;
                 this.playerAdvantage = false;
                 this.enemyCannotAttack = false;
                 logDiv.innerHTML += `<p class="failure">${enemy.name} breaks free from the grapple!</p>`;
-                
+
                 // Now the enemy can attack normally this turn
                 setTimeout(() => this.performEnemyAttack(), 1000);
             } else {
                 logDiv.innerHTML += `<p class="success">${enemy.name} fails to break free and remains grappled! Cannot attack this turn.</p>`;
-                
+
                 // Re-enable combat buttons since enemy can't attack
                 setTimeout(() => {
-                    const buttons = document.querySelectorAll('.combat-options button');
-                    buttons.forEach(btn => btn.disabled = false);
+                    const buttons = document.querySelectorAll(
+                        ".combat-options button",
+                    );
+                    buttons.forEach((btn) => (btn.disabled = false));
                 }, 500);
             }
             return;
@@ -1485,12 +1980,12 @@ class QuestEngine {
     }
 
     performEnemyAttack() {
-        const logDiv = document.getElementById('combat-log');
+        const logDiv = document.getElementById("combat-log");
         const enemy = this.currentScene.enemy;
-        
+
         let attackRoll = Math.floor(Math.random() * 20) + 1;
         const enemyAttackBonus = 4;
-        
+
         // Apply disadvantage if enemy has it
         if (this.enemyDisadvantage) {
             const secondRoll = Math.floor(Math.random() * 20) + 1;
@@ -1498,19 +1993,19 @@ class QuestEngine {
             logDiv.innerHTML += `<p>${enemy.name} attacks with disadvantage: ${Math.max(attackRoll, secondRoll)}, ${Math.min(attackRoll, secondRoll)} (taking ${attackRoll})</p>`;
             this.enemyDisadvantage = false;
         }
-        
+
         const total = attackRoll + enemyAttackBonus;
 
         // Calculate player AC with bonuses
-        let playerAC = 10 + this.getAbilityModifier('DEX');
-        
+        let playerAC = 10 + this.getAbilityModifier("DEX");
+
         // Add armor bonus if equipped
         if (window.user?.avatar?.armor) {
-            if (window.user.avatar.armor.includes('leather')) playerAC += 1;
-            else if (window.user.avatar.armor.includes('chain')) playerAC += 3;
-            else if (window.user.avatar.armor.includes('plate')) playerAC += 6;
+            if (window.user.avatar.armor.includes("leather")) playerAC += 1;
+            else if (window.user.avatar.armor.includes("chain")) playerAC += 3;
+            else if (window.user.avatar.armor.includes("plate")) playerAC += 6;
         }
-        
+
         if (this.tempACBonus) {
             playerAC += this.tempACBonus;
             logDiv.innerHTML += `<p>Your defensive stance grants +${this.tempACBonus} AC this turn.</p>`;
@@ -1521,14 +2016,16 @@ class QuestEngine {
 
         if (total >= playerAC) {
             let damage = Math.floor(Math.random() * 6) + 3; // 1d6+3
-            
+
             this.playerHP = Math.max(0, this.playerHP - damage);
             logDiv.innerHTML += `<p class="failure">${enemy.name} hits for ${damage} damage!</p>`;
 
             if (this.playerHP <= 0) {
                 logDiv.innerHTML += `<p class="failure"><strong>You have been defeated!</strong></p>`;
-                const buttons = document.querySelectorAll('.combat-options button');
-                buttons.forEach(btn => btn.disabled = true);
+                const buttons = document.querySelectorAll(
+                    ".combat-options button",
+                );
+                buttons.forEach((btn) => (btn.disabled = true));
                 setTimeout(() => this.handleCombatDefeat(), 2000);
                 return;
             }
@@ -1541,17 +2038,27 @@ class QuestEngine {
         // Re-enable combat buttons after enemy attack if combat continues
         setTimeout(() => {
             if (this.playerHP > 0 && this.enemyHP > 0) {
-                const buttons = document.querySelectorAll('.combat-options button');
-                buttons.forEach(btn => btn.disabled = false);
+                const buttons = document.querySelectorAll(
+                    ".combat-options button",
+                );
+                buttons.forEach((btn) => (btn.disabled = false));
             }
         }, 500);
     }
 
     updateHealthBars() {
-        const playerFill = document.querySelector('.health-bar-container:first-child .health-fill');
-        const playerText = document.querySelector('.health-bar-container:first-child .health-text');
-        const enemyFill = document.querySelector('.health-bar-container:last-child .health-fill');
-        const enemyText = document.querySelector('.health-bar-container:last-child .health-text');
+        const playerFill = document.querySelector(
+            ".health-bar-container:first-child .health-fill",
+        );
+        const playerText = document.querySelector(
+            ".health-bar-container:first-child .health-text",
+        );
+        const enemyFill = document.querySelector(
+            ".health-bar-container:last-child .health-fill",
+        );
+        const enemyText = document.querySelector(
+            ".health-bar-container:last-child .health-text",
+        );
 
         if (playerFill && playerText) {
             const playerPercent = (this.playerHP / this.maxPlayerHP) * 100;
@@ -1567,7 +2074,7 @@ class QuestEngine {
     }
 
     handleCombatDefeat() {
-        const questContainer = document.getElementById('quest-container');
+        const questContainer = document.getElementById("quest-container");
         questContainer.innerHTML = `
             <div class="quest-completion" style="background: linear-gradient(135deg, #4a1a1a 0%, #2a1a1a 100%); border-color: #dc3545;">
                 <h2>💀 Defeated!</h2>
@@ -1591,17 +2098,20 @@ class QuestEngine {
     // Reset all completed quests (for testing purposes)
     resetAllQuests() {
         this.completedQuests = [];
-        localStorage.setItem('completedQuests', JSON.stringify(this.completedQuests));
+        localStorage.setItem(
+            "completedQuests",
+            JSON.stringify(this.completedQuests),
+        );
         this.availableQuests = this.generateAvailableQuests();
         this.renderQuestList();
-        console.log('All quests reset - available for completion again');
+        console.log("All quests reset - available for completion again");
     }
 
     renderQuestList() {
-        const questContainer = document.getElementById('quest-container');
-        
+        const questContainer = document.getElementById("quest-container");
+
         if (!questContainer) {
-            console.error('Quest container not found!');
+            console.error("Quest container not found!");
             return;
         }
 
@@ -1612,7 +2122,9 @@ class QuestEngine {
                     <button onclick="questEngine.resetAllQuests()" class="reset-quests-btn">🔄</button>
                 </div>
                 <div class="available-quests">
-                    ${this.availableQuests.map(quest => `
+                    ${this.availableQuests
+                        .map(
+                            (quest) => `
                         <div class="quest-card ${quest.difficulty.toLowerCase()}">
                             <h3>${quest.title}</h3>
                             <p class="quest-description">${quest.description}</p>
@@ -1622,18 +2134,25 @@ class QuestEngine {
                             </div>
                             <button onclick="questEngine.startQuest('${quest.id}')">Begin Quest</button>
                         </div>
-                    `).join('')}
+                    `,
+                        )
+                        .join("")}
                 </div>
 
                 <h3>Completed Quests (${this.completedQuests.length})</h3>
                 <div class="completed-quests">
-                    ${this.completedQuests.length > 0 ? 
-                        this.completedQuests.map(questId => `
+                    ${
+                        this.completedQuests.length > 0
+                            ? this.completedQuests
+                                  .map(
+                                      (questId) => `
                             <div class="completed-quest">
-                                <span>✅ ${questId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                                <span>✅ ${questId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}</span>
                             </div>
-                        `).join('') : 
-                        '<p>No quests completed yet.</p>'
+                        `,
+                                  )
+                                  .join("")
+                            : "<p>No quests completed yet.</p>"
                     }
                 </div>
             </div>
@@ -1647,23 +2166,23 @@ if (!window.questEngine) {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
     // Wait for the quest container to be available
     setTimeout(() => {
-        if (window.questEngine && document.getElementById('quest-container')) {
+        if (window.questEngine && document.getElementById("quest-container")) {
             window.questEngine.renderQuestList();
         }
     }, 500);
 });
 
 // Also initialize when showing the quests page
-window.initializeQuestsPage = function() {
+window.initializeQuestsPage = function () {
     // Ensure quest engine exists
     if (!window.questEngine) {
         window.questEngine = new QuestEngine();
     }
-    
-    if (window.questEngine && document.getElementById('quest-container')) {
+
+    if (window.questEngine && document.getElementById("quest-container")) {
         window.questEngine.renderQuestList();
     }
 };

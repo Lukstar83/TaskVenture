@@ -1,21 +1,24 @@
-// Enhanced 3D Dice rolling functionality using Three.js
+// =======================
+// Enhanced 3D Dice (Three.js)
+// =======================
+
 let scene, camera, renderer, world, dice, isRolling = false;
 let currentDiceType = 'd20';
 
-// ===== Config =====
+// ---- Config ----
 const DICE_CONFIGS = {
-  d4:  { sides: 4,  geometry: 'tetra',       scale: 0.9 },
-  d6:  { sides: 6,  geometry: 'box',         scale: 0.8 },
-  d8:  { sides: 8,  geometry: 'octa',        scale: 0.9 },
-  d10: { sides: 10, geometry: 'bipyramid',   scale: 0.9 },
-  d12: { sides: 12, geometry: 'dodeca',      scale: 0.85 },
-  d20: { sides: 20, geometry: 'icosa',       scale: 0.75 }
+  d4:  { sides: 4,  geometry: 'tetra',     scale: 0.90 },
+  d6:  { sides: 6,  geometry: 'box',       scale: 0.80 },
+  d8:  { sides: 8,  geometry: 'octa',      scale: 0.90 },
+  d10: { sides: 10, geometry: 'bipyramid', scale: 0.90 },
+  d12: { sides: 12, geometry: 'dodeca',    scale: 0.85 },
+  d20: { sides: 20, geometry: 'icosa',     scale: 0.75 }
 };
 
-const TRAY_SIZE = { width: 12.0, height: 6.8, cornerR: 0.6, wall: 0.35, depth: 0.6 }; // <— make wider/taller here
-const CAMERA_OPTS = { fov: 45, pos: {x:0, y:7, z:7} };
+const TRAY_SIZE   = { width: 12.0, height: 6.8, cornerR: 0.6, wall: 0.35, depth: 0.6 };
+const CAMERA_OPTS = { fov: 45, pos: { x: 0, y: 7, z: 7 } };
 
-// ===== Helpers: tray geometry =====
+// ---- Tray helpers ----
 function addRoundedRectPath(shape, x, y, w, h, r) {
   shape.moveTo(x + r, y);
   shape.lineTo(x + w - r, y);
@@ -30,73 +33,83 @@ function addRoundedRectPath(shape, x, y, w, h, r) {
 
 function buildDiceTray(opts = {}) {
   const { width, height, cornerR, wall, depth } = { ...TRAY_SIZE, ...opts };
+
   const tray = new THREE.Group();
 
+  // Frame with inner hole
   const shape = new THREE.Shape();
   addRoundedRectPath(shape, -width/2, -height/2, width, height, cornerR);
 
   const hole = new THREE.Path();
-  addRoundedRectPath(hole, -width/2 + wall, -height/2 + wall,
-                     width - wall*2, height - wall*2, Math.max(0.1, cornerR - 0.25));
+  addRoundedRectPath(
+    hole,
+    -width/2 + wall, -height/2 + wall,
+    width - wall*2, height - wall*2,
+    Math.max(0.1, cornerR - 0.25)
+  );
   shape.holes.push(hole);
 
   const frameGeo = new THREE.ExtrudeGeometry(shape, {
-    depth, bevelEnabled: true, bevelSize: 0.08, bevelThickness: 0.08, bevelSegments: 2, curveSegments: 32
+    depth,
+    bevelEnabled: true, bevelSize: 0.08, bevelThickness: 0.08, bevelSegments: 2,
+    curveSegments: 32
   });
 
-  const wood = new THREE.MeshStandardMaterial({ color: 0x7b2a2a, roughness: 0.8, metalness: 0.1 });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x6e2b2b, roughness: 0.8, metalness: 0.05 });
   const frame = new THREE.Mesh(frameGeo, wood);
   frame.rotation.x = -Math.PI / 2;
   frame.position.y = -1.0;
   frame.castShadow = frame.receiveShadow = true;
   tray.add(frame);
 
+  // Felt
   const feltGeo = new THREE.PlaneGeometry(width - wall*2 - 0.08, height - wall*2 - 0.08);
-  const feltMat = new THREE.MeshStandardMaterial({ color: 0x2a1a1a, roughness: 1, metalness: 0 });
+  const feltMat = new THREE.MeshStandardMaterial({ color: 0x1f2229, roughness: 1, metalness: 0 });
   const felt = new THREE.Mesh(feltGeo, feltMat);
   felt.rotation.x = -Math.PI / 2;
   felt.position.set(0, frame.position.y + 0.01, 0);
   felt.receiveShadow = true;
   tray.add(felt);
 
+  // Physics helpers
   tray.userData.groundY = felt.position.y + 0.01;
-  tray.userData.bounds = { x: (width - wall*2)/2 - 0.25, z: (height - wall*2)/2 - 0.25 };
+  tray.userData.bounds = {
+    x: (width  - wall*2) / 2 - 0.25,
+    z: (height - wall*2) / 2 - 0.25
+  };
   tray.name = 'diceTray';
   return tray;
 }
 
-// ===== Font loader =====
-async function loadDiceFont() {
+// ---- Font loader (no await in non-async flows) ----
+function loadDiceFont() {
   if (!document.getElementById('cinzel-font-link')) {
     const link = document.createElement('link');
-    link.id = 'cinzel-font-link';
+    link.id  = 'cinzel-font-link';
     link.rel = 'stylesheet';
     link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@900&display=swap';
     document.head.appendChild(link);
   }
-  try {
-    await document.fonts.load('900 100px Cinzel');
-  } catch (e) { /* ignore */ }
+  // Best-effort warmup; ignore errors
+  return document.fonts && document.fonts.load ? document.fonts.load('900 100px Cinzel').catch(()=>{}) : Promise.resolve();
 }
 
-// ===== Dice builders =====
+// ---- Dice builders ----
 function createGeometry(type) {
   const cfg = DICE_CONFIGS[type] || DICE_CONFIGS.d20;
   let geo;
   switch (cfg.geometry) {
     case 'tetra':   geo = new THREE.TetrahedronGeometry(1.2, 0); break;
-    case 'box':     geo = new THREE.BoxGeometry(1.2, 1.2, 1.2); break;
-    case 'octa':    geo = new THREE.OctahedronGeometry(1.2, 0); break;
+    case 'box':     geo = new THREE.BoxGeometry(1.2, 1.2, 1.2);  break;
+    case 'octa':    geo = new THREE.OctahedronGeometry(1.2, 0);  break;
     case 'bipyramid': {
-      // cheap D10: two cones base-to-base with 10 segments
-      const cone = new THREE.ConeGeometry(1.0, 1.2, 10, 1);
-      const cone2 = cone.clone(); cone2.rotateX(Math.PI); cone2.translate(0, -1.2, 0);
-      geo = THREE.BufferGeometryUtils ? THREE.BufferGeometryUtils.mergeBufferGeometries([cone, cone2]) : cone;
+      // single-geometry d10 “drum” (no BufferGeometryUtils needed)
+      geo = new THREE.CylinderGeometry(0.95, 0.95, 1.6, 10, 1, false);
       break;
     }
     case 'dodeca':  geo = new THREE.DodecahedronGeometry(1.2, 0); break;
     case 'icosa':
-    default:        geo = new THREE.IcosahedronGeometry(1.2, 0); break;
+    default:        geo = new THREE.IcosahedronGeometry(1.2, 0);  break;
   }
   return geo.toNonIndexed();
 }
@@ -104,7 +117,8 @@ function createGeometry(type) {
 function makeFaceMaterials(faceCount, sides) {
   const mats = [];
   const size = 256;
-  const UV_CX = 1/3, UV_CY = 1/3 + 0.30; // centroid-ish for our right-triangle UVs
+  const UV_CX = 1/3, UV_CY = 1/3 + 0.30;
+
   for (let i = 0; i < faceCount; i++) {
     const num = (i % sides) + 1;
 
@@ -112,17 +126,14 @@ function makeFaceMaterials(faceCount, sides) {
     c.width = c.height = size;
     const ctx = c.getContext('2d');
 
-    // dark plate
     const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
     g.addColorStop(0, '#3a3a3a'); g.addColorStop(0.3, '#2a2a2a');
     g.addColorStop(0.7, '#1a1a1a'); g.addColorStop(1, '#0a0a0a');
     ctx.fillStyle = g; ctx.fillRect(0,0,size,size);
 
-    // gold frame
     ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 4; ctx.strokeRect(4,4,size-8,size-8);
     ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2; ctx.strokeRect(8,8,size-16,size-16);
 
-    // number (bold Cinzel)
     ctx.fillStyle = '#d4af37';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.shadowColor = '#000'; ctx.shadowBlur = 3; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
@@ -130,8 +141,11 @@ function makeFaceMaterials(faceCount, sides) {
     ctx.fillText(String(num), size * UV_CX, size * UV_CY);
 
     const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.minFilter = THREE.LinearMipmapLinearFilter; tex.magFilter = THREE.LinearFilter;
+    // Support both modern & older Three.js
+    if ('colorSpace' in tex) tex.colorSpace = THREE.SRGBColorSpace;
+    else tex.encoding = THREE.sRGBEncoding;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
 
     mats.push(new THREE.MeshStandardMaterial({
       map: tex, roughness: 0.35, metalness: 0.1, envMapIntensity: 0.3, side: THREE.DoubleSide
@@ -151,7 +165,7 @@ function createDice(type = 'd20') {
   geo.clearGroups();
   for (let f = 0; f < faceCount; f++) geo.addGroup(f * 3, 3, f);
 
-  // per-face UVs (right triangle mapping per face)
+  // simple per-triangle UVs
   const uvs = new Float32Array(faceCount * 3 * 2);
   for (let f = 0; f < faceCount; f++) {
     const o = f * 6;
@@ -163,7 +177,11 @@ function createDice(type = 'd20') {
 
   const materials = makeFaceMaterials(faceCount, cfg.sides);
 
-  if (dice) { scene.remove(dice); dice.geometry.dispose(); }
+  if (dice) {
+    if (Array.isArray(dice.material)) dice.material.forEach(m => { m.map?.dispose?.(); m.dispose?.(); });
+    dice.geometry.dispose?.();
+    scene.remove(dice);
+  }
 
   geo.computeBoundingSphere();
   dice = new THREE.Mesh(geo, materials);
@@ -171,11 +189,11 @@ function createDice(type = 'd20') {
   dice.position.set(0, 1, 0);
   dice.scale.set(cfg.scale, cfg.scale, cfg.scale);
   dice.userData.radius = (geo.boundingSphere?.radius || 1.2) * cfg.scale;
-  dice.userData.sides = cfg.sides;
+  dice.userData.sides  = cfg.sides;
   scene.add(dice);
 }
 
-// ===== Scene init =====
+// ---- Scene init ----
 function initDice() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1a1a2e);
@@ -191,62 +209,87 @@ function initDice() {
     if (!diceContainer) return false;
   }
 
-  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false, logarithmicDepthBuffer:true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, logarithmicDepthBuffer: true });
+
+  // size & aspect
   const cw = diceContainer.clientWidth || 360;
-  const ch = Math.max(220, Math.round(cw * 0.55)); // keep a nice aspect so tray fits
-  renderer.setSize(cw, ch);
+  const ch = Math.max(220, Math.round(cw * 0.55));
+  renderer.setSize(cw, ch, false);
+  camera.aspect = cw / ch;
+  camera.updateProjectionMatrix();
+
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x1a1a2e, 1.0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+  else renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
   diceContainer.innerHTML = '';
   diceContainer.appendChild(renderer.domElement);
 
   world = { gravity: -20, objects: [] };
 
+  // Lights
   scene.add(new THREE.AmbientLight(0x404040, 0.5));
+
   const spot = new THREE.SpotLight(0xffffff, 2.4);
-  spot.position.set(-3, 6, 3); spot.target.position.set(0,0,0);
+  spot.position.set(-3,6,3); spot.target.position.set(0,0,0);
   spot.distance=15; spot.angle=Math.PI/4; spot.penumbra=0.1; spot.decay=2;
   spot.castShadow=true; spot.shadow.mapSize.width=2048; spot.shadow.mapSize.height=2048;
   spot.shadow.camera.near=0.5; spot.shadow.camera.far=15; spot.shadow.bias=-0.0001;
   scene.add(spot);
 
   const combat = new THREE.DirectionalLight(0xff6666, 0.55); combat.position.set(5,3,-2); scene.add(combat);
-  const rim = new THREE.DirectionalLight(0xd4af37, 0.4); rim.position.set(-2,1,-3); scene.add(rim);
+  const rim    = new THREE.DirectionalLight(0xd4af37, 0.4);  rim.position.set(-2,1,-3);  scene.add(rim);
 
-  const tray = buildDiceTray({ width: TRAY_SIZE.width, height: TRAY_SIZE.height });
+  // Tray
+  let tray = buildDiceTray({ width: TRAY_SIZE.width, height: TRAY_SIZE.height });
   scene.add(tray);
 
-  loadDiceFont().then(() => createDice(currentDiceType)).catch(() => createDice(currentDiceType));
+  // Font + dice
+  loadDiceFont().finally(() => createDice(currentDiceType));
 
+  // Start loop
   animate();
 
+  // Button
   const btn = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
   if (btn) btn.addEventListener('click', () => roll3DDice(currentDiceType));
 
-  // handle resize so edges don't get clipped
-  new ResizeObserver(() => {
-    const w = diceContainer.clientWidth || cw;
-    const h = Math.max(220, Math.round(w * 0.55));
+  // Responsive layout
+  const updateLayout = () => {
+    const w = diceContainer.clientWidth || 360;
+    const h = diceContainer.clientHeight || Math.max(220, Math.round(w * 0.55));
     renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-  }).observe(diceContainer);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+
+    const scale = w / 360;
+    const trayW = 10.8 * scale;
+    const trayH = 6.6  * scale;
+
+    const old = scene.getObjectByName('diceTray');
+    if (old) scene.remove(old);
+    tray = buildDiceTray({ width: trayW, height: trayH, wall: 0.45, cornerR: 0.7, depth: 0.6 });
+    scene.add(tray);
+  };
+
+  updateLayout();
+  if (window.ResizeObserver) new ResizeObserver(updateLayout).observe(diceContainer);
+  window.addEventListener('resize', updateLayout);
 
   return true;
 }
 
-// ===== Rolling / physics =====
+// ---- Rolling / physics ----
 function roll3DDice(type = currentDiceType) {
   if (isRolling) return;
   if (!ensureDiceInitialized()) return;
 
-  if (type !== currentDiceType || !dice) {
-    createDice(type);
-  }
+  if (type !== currentDiceType || !dice) createDice(type);
 
   const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
   const resultDiv  = document.getElementById('combat-dice-result') || document.getElementById('dice-result');
@@ -256,7 +299,6 @@ function roll3DDice(type = currentDiceType) {
 
   dice.userData.velocity = { x:(Math.random()-0.5)*12, y:Math.random()*6+6, z:(Math.random()-0.5)*12 };
   dice.userData.angularVelocity = { x:(Math.random()-0.5)*25, y:(Math.random()-0.5)*25, z:(Math.random()-0.5)*25 };
-
   dice.position.set((Math.random()-0.5)*2, 4, (Math.random()-0.5)*2);
 
   setTimeout(stopDiceAndShowResult, 3200);
@@ -269,7 +311,7 @@ function stopDiceAndShowResult() {
   }
 
   const finalRoll = calculateDiceResult();
-  const combatResultDiv = document.getElementById('combat-dice-result');
+  const combatResultDiv  = document.getElementById('combat-dice-result');
   const regularResultDiv = document.getElementById('dice-result');
 
   const resultText = getDiceResultText(finalRoll, currentDiceType);
@@ -278,10 +320,10 @@ function stopDiceAndShowResult() {
   const targetDiv = combatResultDiv || regularResultDiv;
   if (targetDiv) targetDiv.innerHTML = html;
 
-  // Always notify quest engine if present — it will ignore if not expecting a roll.
-  if (window.questEngine && typeof window.questEngine.processDiceRoll === 'function') {
+  // notify hosts
+  if (window.questEngine?.processDiceRoll) {
     window.questEngine.processDiceRoll(finalRoll);
-  } else if (window.skillCheckContext && typeof window.skillCheckContext.callback === 'function') {
+  } else if (window.skillCheckContext?.callback) {
     const ctx = window.skillCheckContext;
     ctx.callback(finalRoll);
     window.skillCheckContext = null;
@@ -304,6 +346,7 @@ function animate() {
 
   if (dice && isRolling && dice.userData) {
     const dt = 0.016;
+
     dice.userData.velocity.y += world.gravity * dt;
 
     dice.position.x += dice.userData.velocity.x * dt;
@@ -315,7 +358,7 @@ function animate() {
     dice.rotation.z += dice.userData.angularVelocity.z * dt;
 
     const tray = scene.getObjectByName('diceTray');
-    const bounds = tray?.userData?.bounds || { x: 3, z: 2 };
+    const bounds  = tray?.userData?.bounds  || { x: 3, z: 2 };
     const groundY = tray?.userData?.groundY ?? -0.95;
     const r = dice.userData?.radius || 0.84;
 
@@ -344,7 +387,7 @@ function animate() {
   if (renderer && scene && camera) renderer.render(scene, camera);
 }
 
-// ===== UI helpers =====
+// ---- UI helpers ----
 function getDiceResultText(roll, diceType='d20') {
   const max = DICE_CONFIGS[diceType]?.sides || 20;
   if (diceType === 'd20') {
@@ -399,7 +442,7 @@ function showFloatingMessage(message, type) {
                      setTimeout(() => msg.remove(), 300); }, 3000);
 }
 
-// ===== Bootstrapping =====
+// ---- Bootstrapping ----
 function ensureDiceInitialized() {
   const diceContainer = document.getElementById('combat-dice-display') ||
                         document.getElementById('dice-display') ||
@@ -428,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (qp) observer.observe(qp, { attributes: true });
 });
 
-// Expose a couple helpers
+// Expose helpers
 window.ensureDiceInitialized = ensureDiceInitialized;
 window.roll3DDice = roll3DDice;
 window.createDice = createDice;
