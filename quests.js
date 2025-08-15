@@ -1003,7 +1003,12 @@ class QuestEngine {
 
         // Show next options after success
         setTimeout(() => {
-            if (this.activeQuest.scenes.length > 1) {
+            // Check if this is the initial approach scene and we haven't reached 3 successes yet
+            if (this.currentScene.id === 'approach' && this.questTasksCompleted < 3) {
+                // Continue with approach phase, allowing more skill checks
+                this.showNextChoices();
+            } else if (this.activeQuest.scenes.length > 1) {
+                // Move to combat or next scene
                 this.currentScene = this.activeQuest.scenes[1];
                 this.renderQuestInterface();
             } else {
@@ -1200,11 +1205,19 @@ class QuestEngine {
 
         // Check for level up using D&D-style progression
         const oldLevel = window.user.level || 1;
-        if (typeof calculateLevel === "function") {
+        if (typeof window.calculateLevel === "function") {
+            const newLevel = window.calculateLevel(window.user.xp);
+            if (newLevel > oldLevel) {
+                window.user.level = newLevel;
+                console.log(`Level up! You are now level ${newLevel}`);
+                showFloatingMessage(`Level Up! You are now level ${newLevel}!`, 'success');
+            }
+        } else if (typeof calculateLevel === "function") {
             const newLevel = calculateLevel(window.user.xp);
             if (newLevel > oldLevel) {
                 window.user.level = newLevel;
                 console.log(`Level up! You are now level ${newLevel}`);
+                showFloatingMessage(`Level Up! You are now level ${newLevel}!`, 'success');
             }
         }
 
@@ -1228,6 +1241,17 @@ class QuestEngine {
         this.updateAllUIElements();
         setTimeout(() => this.updateAllUIElements(), 100);
         setTimeout(() => this.updateAllUIElements(), 500);
+        
+        // Also trigger main app UI updates
+        if (typeof window.loadUserData === "function") {
+            window.loadUserData();
+        }
+        if (typeof window.updateCurrency === "function") {
+            window.updateCurrency();
+        }
+        if (typeof window.saveUserData === "function") {
+            window.saveUserData();
+        }
 
         // Show completion screen
         this.showQuestCompletion();
@@ -1570,9 +1594,14 @@ class QuestEngine {
         const rollBtn = document.getElementById("combat-roll-btn");
         if (rollBtn) {
             rollBtn.disabled = false;
+            rollBtn.textContent = "ROLL D20";
             rollBtn.onclick = () => {
-                if (typeof window.roll3DDice === "function") {
-                    window.roll3DDice('d20');
+                if (typeof window.roll3DDice === "function" && typeof window.createDice === "function") {
+                    // Ensure we're using d20 for hit rolls
+                    window.createDice('d20');
+                    setTimeout(() => {
+                        window.roll3DDice('d20');
+                    }, 200);
                 } else {
                     // Fallback
                     const roll = Math.floor(Math.random() * 20) + 1;
@@ -1713,9 +1742,15 @@ class QuestEngine {
         const rollBtn = document.getElementById("combat-roll-btn");
         if (rollBtn) {
             rollBtn.disabled = false;
+            rollBtn.textContent = `ROLL ${damageDie.toUpperCase()}`;
             rollBtn.onclick = () => {
-                if (typeof window.roll3DDice === "function") {
-                    window.roll3DDice(damageDie);
+                if (typeof window.roll3DDice === "function" && typeof window.createDice === "function") {
+                    // Change the dice type to match the damage die
+                    window.createDice(damageDie);
+                    // Wait a moment for dice to be created, then roll
+                    setTimeout(() => {
+                        window.roll3DDice(damageDie);
+                    }, 200);
                 } else {
                     // Fallback damage roll
                     const damageRoll = this.rollWeaponDamage(this.getDamageStringForAction(action));
@@ -1738,9 +1773,14 @@ class QuestEngine {
             if (spell) damageString = spell.damage;
         }
 
-        // Extract the die part (e.g., '1d8' from '1d8+2')
-        const dieMatch = damageString.match(/(\d+d\d+)/);
-        return dieMatch ? dieMatch[0] : '1d6'; // Default to d6 if no die found
+        // Extract the die part (e.g., '1d8' from '1d8+2') and convert to dice notation
+        const dieMatch = damageString.match(/(\d+)d(\d+)/);
+        if (dieMatch) {
+            const dieSize = dieMatch[2];
+            return `d${dieSize}`; // Return in format 'd8', 'd6', etc.
+        }
+        
+        return 'd6'; // Default to d6 if no die found
     }
 
     // Helper to get the full damage string for an action
