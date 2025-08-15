@@ -257,23 +257,9 @@
       </section>
 
       <!-- Quests Page -->
-      <section id="quests-page" class="page">
+      <section id="dice-page" class="page">
         <div class="quests-section">
-          <h2>Epic Quests</h2>
           <div id="quest-container" class="quest-container"></div>
-          
-          <!-- Combat Dice Integration -->
-          <div id="combat-dice-section" class="combat-dice-section" style="display: none;">
-            <div class="outer-container">
-              <div class="integrated-dice-container">
-                <div id="combat-dice-display" class="combat-dice-display">
-                  <img src="/images/nav/d20.png" alt="D20 Dice" style="display: none;">
-                </div>
-                <button id="combat-roll-btn" onclick="if(typeof roll3DDice === 'function') { roll3DDice(); } else { window.questEngine.processDiceRoll(Math.floor(Math.random() * 20) + 1); }" class="combat-roll-button">Roll D20</button>
-                <div id="combat-dice-result" class="combat-dice-result"></div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -492,7 +478,7 @@
       </a>
 
       <!-- 5. Quests -->
-      <a href="#" class="nav-item" onclick="showPage('quests-page', this)">
+      <a href="#" class="nav-item" onclick="showPage('dice-page', this)">
         <div class="nav-icon"><img src="images/nav/d20.png" alt="Quests"></div>
         <span class="nav-label">Quests</span>
       </a>

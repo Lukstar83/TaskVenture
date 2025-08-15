@@ -1,16 +1,6 @@
+
 // Enhanced 3D Dice rolling functionality using Three.js
 let scene, camera, renderer, world, dice, isRolling = false;
-let currentDiceType = 'd20'; // Track current dice type
-
-// Dice configurations
-const DICE_CONFIGS = {
-  'd4': { sides: 4, geometry: 'tetrahedron', scale: 0.8 },
-  'd6': { sides: 6, geometry: 'box', scale: 0.7 },
-  'd8': { sides: 8, geometry: 'octahedron', scale: 0.8 },
-  'd10': { sides: 10, geometry: 'bipyramid', scale: 0.8 },
-  'd12': { sides: 12, geometry: 'dodecahedron', scale: 0.8 },
-  'd20': { sides: 20, geometry: 'icosahedron', scale: 0.7 }
-};
 
 // ---------- Helpers: tray geometry ----------
 function addRoundedRectPath(shape, x, y, w, h, r) {
@@ -26,8 +16,8 @@ function addRoundedRectPath(shape, x, y, w, h, r) {
 }
 
 function buildDiceTray({
-  width = 6.0,  // Reduced from 8.0
-  height = 4.0, // Reduced from 5.0
+  width = 8.0,
+  height = 5.0,
   cornerR = 0.6,
   wall = 0.35,
   depth = 0.6
@@ -97,55 +87,13 @@ async function loadDiceFont() {
   }
 }
 
-// ---------- Dice geometry creation ----------
-function createDiceGeometry(type) {
-  const config = DICE_CONFIGS[type];
-  let geometry;
-
-  switch (config.geometry) {
-    case 'tetrahedron':
-      geometry = new THREE.TetrahedronGeometry(1.2, 0);
-      break;
-    case 'box':
-      geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-      break;
-    case 'octahedron':
-      geometry = new THREE.OctahedronGeometry(1.2, 0);
-      break;
-    case 'bipyramid':
-      // Create a custom D10 geometry
-      geometry = new THREE.ConeGeometry(1.0, 2.4, 10, 1);
-      break;
-    case 'dodecahedron':
-      geometry = new THREE.DodecahedronGeometry(1.2, 0);
-      break;
-    case 'icosahedron':
-    default:
-      geometry = new THREE.IcosahedronGeometry(1.2, 0);
-      break;
-  }
-
-  return geometry.toNonIndexed();
-}
-
 // ---------- Dice creation ----------
-function createDice(diceType = 'd20') {
-  // Remove existing dice
-  if (dice) {
-    scene.remove(dice);
-    if (dice.geometry) dice.geometry.dispose();
-    if (Array.isArray(dice.material)) {
-      dice.material.forEach(mat => mat.dispose());
-    } else if (dice.material) {
-      dice.material.dispose();
-    }
-  }
-
-  const geo = createDiceGeometry(diceType);
-  const config = DICE_CONFIGS[diceType];
+function createDice() {
+  // Create icosahedron geometry for D20
+  const geo = new THREE.IcosahedronGeometry(1.2, 0).toNonIndexed();
   geo.computeVertexNormals();
 
-  // One material per face
+  // One material per triangle
   const faceCount = geo.attributes.position.count / 3;
   geo.clearGroups();
   for (let f = 0; f < faceCount; f++) geo.addGroup(f * 3, 3, f);
@@ -163,8 +111,7 @@ function createDice(diceType = 'd20') {
   // Materials with centered numbers
   const materials = [];
   const size = 256;
-  const maxSides = config.sides;
-  const nums = Array.from({length: maxSides}, (_, i) => i + 1);
+  const nums = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
   const UV_CX = 1/3, UV_CY = 1/3 + 0.3;
 
   for (let i = 0; i < faceCount; i++) {
@@ -198,10 +145,7 @@ function createDice(diceType = 'd20') {
     ctx.shadowOffsetX = 1; 
     ctx.shadowOffsetY = 1;
     ctx.font = `900 ${size * 0.46}px Cinzel, serif`;
-
-    // Cycle through available numbers for this dice type
-    const numberIndex = i % maxSides;
-    ctx.fillText(String(nums[numberIndex]), size * UV_CX, size * UV_CY);
+    ctx.fillText(String(nums[i] ?? (i+1)), size * UV_CX, size * UV_CY);
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -222,20 +166,17 @@ function createDice(diceType = 'd20') {
   dice = new THREE.Mesh(geo, materials);
   dice.castShadow = dice.receiveShadow = true;
   dice.position.set(0, 1, 0);
-  dice.scale.set(config.scale, config.scale, config.scale);
+  dice.scale.set(0.7, 0.7, 0.7);
 
   const r = (geo.boundingSphere?.radius || 1.2) * dice.scale.y;
   dice.userData = {
     radius: r,
     velocity: { x: 0, y: 0, z: 0 },
-    angularVelocity: { x: 0, y: 0, z: 0 },
-    type: diceType,
-    sides: config.sides
+    angularVelocity: { x: 0, y: 0, z: 0 }
   };
-
+  
   scene.add(dice);
-  currentDiceType = diceType;
-  console.log(`✅ ${diceType.toUpperCase()} created with enhanced combat styling`);
+  console.log('✅ D20 created with enhanced combat styling');
 }
 
 // ---------- Scene init ----------
@@ -244,9 +185,9 @@ function initDice() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1a1a2e);
 
-  // Camera - pulled back and up slightly for better view
+  // Camera
   camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-  camera.position.set(0, 7, 7); // Moved up from (0, 6, 5.8)
+  camera.position.set(0, 6, 5.8);
   camera.lookAt(0, 0, 0);
 
   // Find container - prioritize combat dice display
@@ -266,12 +207,12 @@ function initDice() {
     alpha: false, 
     logarithmicDepthBuffer: true 
   });
-
+  
   // Set size based on container
   const containerWidth = diceContainer.offsetWidth || 300;
   const containerHeight = diceContainer.offsetHeight || 200;
   renderer.setSize(containerWidth, containerHeight);
-
+  
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x1a1a2e, 1.0);
@@ -279,7 +220,7 @@ function initDice() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
+  
   diceContainer.innerHTML = '';
   diceContainer.appendChild(renderer.domElement);
 
@@ -314,12 +255,12 @@ function initDice() {
   rim.position.set(-2, 1, -3);
   scene.add(rim);
 
-  // Tray with adjusted dimensions
-  const tray = buildDiceTray({ width: 6.0, height: 4.0 });
+  // Tray
+  const tray = buildDiceTray({ width: 8.0, height: 5.0 });
   scene.add(tray);
 
   // Load font and create dice
-  loadDiceFont().then(() => createDice('d20')).catch(() => createDice('d20'));
+  loadDiceFont().then(createDice).catch(createDice);
 
   // Start render loop
   animate();
@@ -334,18 +275,13 @@ function initDice() {
 }
 
 // ---------- Rolling / physics ----------
-function roll3DDice(diceType = currentDiceType) {
+function roll3DDice() {
   if (isRolling) return;
   if (!ensureDiceInitialized()) return;
 
-  // Switch dice type if different
-  if (diceType !== currentDiceType) {
-    createDice(diceType);
-  }
-
   const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
   const resultDiv = document.getElementById('dice-result') || document.getElementById('combat-dice-result');
-
+  
   if (rollButton) rollButton.disabled = true;
   isRolling = true;
   if (resultDiv) resultDiv.innerHTML = '';
@@ -363,7 +299,7 @@ function roll3DDice(diceType = currentDiceType) {
   };
 
   // Random starting position
-  dice.position.set((Math.random() - 0.5) * 2, 4, (Math.random() - 0.5) * 2);
+  dice.position.set((Math.random() - 0.5) * 3, 4, (Math.random() - 0.5) * 3);
 
   setTimeout(stopDiceAndShowResult, 3500);
 }
@@ -378,9 +314,9 @@ function stopDiceAndShowResult() {
   const combatResultDiv = document.getElementById('combat-dice-result');
   const regularResultDiv = document.getElementById('dice-result');
 
-  const resultText = getDiceResultText(finalRoll, currentDiceType);
+  const resultText = getDiceResultText(finalRoll);
   const resultHTML = `
-    <div>You rolled: <strong>${finalRoll}</strong> on ${currentDiceType.toUpperCase()}</div>
+    <div>You rolled: <strong>${finalRoll}</strong></div>
     <div style="font-size: 0.9rem; margin-top: 0.5rem;">${resultText}</div>
   `;
 
@@ -407,8 +343,8 @@ function stopDiceAndShowResult() {
 }
 
 function calculateDiceResult() {
-  const sides = dice?.userData?.sides || 20;
-  return Math.floor(Math.random() * sides) + 1;
+  // More realistic random distribution
+  return Math.floor(Math.random() * 20) + 1;
 }
 
 function animate() {
@@ -432,7 +368,7 @@ function animate() {
 
     // Collision detection
     const trayObj = scene.getObjectByName('diceTray');
-    const bounds = trayObj?.userData?.bounds || { x: 2.5, z: 1.5 }; // Adjusted for smaller tray
+    const bounds = trayObj?.userData?.bounds || { x: 3, z: 2 };
     const groundY = trayObj?.userData?.groundY ?? -0.95;
     const r = dice.userData?.radius || 0.84;
 
@@ -465,65 +401,24 @@ function animate() {
   }
 }
 
-// ---------- Combat system helpers ----------
-function rollAttack() {
-  return new Promise((resolve) => {
-    window.combatRollCallback = resolve;
-    roll3DDice('d20');
-  });
-}
-
-function rollDamage(weaponType = 'sword') {
-  const weaponDice = {
-    'dagger': 'd4',
-    'shortsword': 'd6',
-    'sword': 'd8',
-    'longsword': 'd8',
-    'greatsword': 'd12',
-    'battleaxe': 'd8',
-    'greataxe': 'd12',
-    'mace': 'd6',
-    'warhammer': 'd8',
-    'crossbow': 'd8',
-    'longbow': 'd8'
-  };
-
-  const diceType = weaponDice[weaponType] || 'd6';
-
-  return new Promise((resolve) => {
-    window.combatRollCallback = resolve;
-    roll3DDice(diceType);
-  });
-}
-
 // ---------- UI helpers ----------
-function getDiceResultText(roll, diceType = 'd20') {
-  const maxRoll = DICE_CONFIGS[diceType]?.sides || 20;
-
-  if (diceType === 'd20') {
-    if (roll === 20) return "🔥 Critical Hit! Maximum damage!";
-    if (roll === 1) return "💀 Critical Miss! Your attack goes awry!";
-    if (roll >= 17) return "⭐ Excellent roll! You strike true!";
-    if (roll >= 13) return "👍 Good hit! Your attack connects!";
-    if (roll >= 8) return "😐 Decent attempt, but not your best.";
-    return "😬 Poor roll. You struggle to connect.";
-  } else {
-    // Damage dice
-    if (roll === maxRoll) return `🔥 Maximum ${diceType} damage!`;
-    if (roll === 1) return `😬 Minimal ${diceType} damage.`;
-    if (roll >= Math.ceil(maxRoll * 0.75)) return `⭐ High ${diceType} damage!`;
-    if (roll >= Math.ceil(maxRoll * 0.5)) return `👍 Solid ${diceType} damage.`;
-    return `😐 Low ${diceType} damage.`;
-  }
+function getDiceResultText(roll) {
+  if (roll === 20) return "🔥 Critical Success! Maximum damage!";
+  if (roll >= 17) return "⭐ Excellent roll! You strike true!";
+  if (roll >= 13) return "👍 Good hit! Your attack connects!";
+  if (roll >= 8) return "😐 Decent attempt, but not your best.";
+  if (roll >= 4) return "😬 Poor roll. You struggle to connect.";
+  if (roll === 1) return "💀 Critical Failure! Your attack goes awry!";
+  return "😅 Not your best roll, but the fight continues!";
 }
 
 function applyDiceEffect(roll) {
-  if (roll === 20 && currentDiceType === 'd20') {
+  if (roll === 20) {
     if (window.user) window.user.bonusXP = true;
     showFloatingMessage("Critical Hit! Bonus XP activated!", "success");
-  } else if (roll === 1 && currentDiceType === 'd20') {
+  } else if (roll === 1) {
     showFloatingMessage("Critical Miss! But you learn from failure!", "info");
-  } else if (roll >= 15 && currentDiceType === 'd20' && window.user) {
+  } else if (roll >= 15 && window.user) {
     window.user.xp = (window.user.xp || 0) + 3;
     showFloatingMessage("+3 XP from excellent combat!", "success");
     if (window.updateUI) window.updateUI();
@@ -539,7 +434,7 @@ function showFloatingMessage(message, type) {
     background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
     border: 2px solid ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
   `;
-
+  
   if (!document.querySelector('style[data-floating-messages]')) {
     const style = document.createElement('style');
     style.setAttribute('data-floating-messages', '');
@@ -551,7 +446,7 @@ function showFloatingMessage(message, type) {
     `;
     document.head.appendChild(style);
   }
-
+  
   document.body.appendChild(messageDiv);
   setTimeout(() => {
     messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
@@ -591,217 +486,20 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => { ensureDiceInitialized(); }, 500);
     }
   });
-
+  
   const questsPage = document.getElementById('quests-page');
-  if (questsPage) {
-    observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });
-  }
+  if (questsPage) observer.observe(questsPage, { attributes: true });
 });
 
 // Global functions
 window.ensureDiceInitialized = ensureDiceInitialized;
-window.roll3DDice = roll3DDice;
-window.rollAttack = rollAttack;
-window.rollDamage = rollDamage;
-window.createDice = createDice;
-
 window.rollSkillCheck = function(skillName, dc, callback) {
   if (isRolling) return;
   window.skillCheckContext = { skill: skillName, dc, callback };
   if (ensureDiceInitialized()) {
-    roll3DDice('d20');
+    roll3DDice();
   } else {
     const result = Math.floor(Math.random() * 20) + 1;
     if (callback) callback(result);
   }
 };
-
-// The following is a placeholder for the combat engine logic, 
-// which would typically be in a separate file or class.
-// For this context, we'll define a minimal structure here to make the code runnable.
-if (typeof window.questEngine === 'undefined') {
-    window.questEngine = {
-        pendingRoll: null,
-        currentAction: null,
-        combatPhase: null,
-        logCombat: function(message) { console.log("Combat log:", message); },
-        processDiceRoll: function(roll) {
-            console.log("Processing dice roll:", roll);
-            if (this.pendingRoll) {
-                if (this.pendingRoll.phase === 'attack') {
-                    // Attack roll processed
-                    const attackRoll = roll;
-                    const action = this.pendingRoll.action;
-                    const attackMessage = `Attack Roll: ${attackRoll}`;
-                    this.logCombat(attackMessage);
-
-                    // Placeholder for comparing with enemy AC
-                    const enemyAC = 15; // Example AC
-                    if (attackRoll >= enemyAC) {
-                        this.logCombat("Hit!");
-                        this.pendingRoll.phase = 'damage';
-                        this.combatPhase = 'damage';
-
-                        // Initiate damage roll
-                        if (typeof window.rollDamage === 'function') {
-                            window.rollDamage(action.weapon || 'spell');
-                        } else {
-                            // Fallback damage roll
-                            const damageRoll = Math.floor(Math.random() * 8) + 1;
-                            this.processDiceRoll(damageRoll); // Recursively call to handle damage
-                        }
-                    } else {
-                        this.logCombat("Miss!");
-                        this.pendingRoll = null;
-                        this.combatPhase = null;
-                        const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                        if (rollButton) rollButton.disabled = false;
-                    }
-                } else if (this.pendingRoll.phase === 'damage') {
-                    // Damage roll processed
-                    const damageRoll = roll;
-                    const action = this.pendingRoll.action;
-                    const damageMessage = `Damage Roll: ${damageRoll}`;
-                    this.logCombat(damageMessage);
-                    this.logCombat(`Total damage dealt: ${damageRoll}`);
-
-                    // Placeholder for applying damage to enemy
-                    // enemy.takeDamage(damageRoll);
-
-                    this.pendingRoll = null;
-                    this.combatPhase = null;
-                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                    if (rollButton) rollButton.disabled = false;
-                } else if (this.pendingRoll.phase === 'single') {
-                     // Single utility roll processed
-                    this.logCombat(`Utility Roll: ${roll}`);
-                    this.pendingRoll = null;
-                    this.combatPhase = null;
-                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                    if (rollButton) rollButton.disabled = false;
-                }
-            } else {
-                // Handle cases where pendingRoll might not be set correctly (e.g., direct calls)
-                this.logCombat(`Received roll: ${roll}`);
-                const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                if (rollButton) rollButton.disabled = false;
-            }
-            const combatResultDiv = document.getElementById('combat-dice-result');
-            if (combatResultDiv) {
-                combatResultDiv.innerHTML = `<div>Processed roll: <strong>${roll}</strong></div>`;
-            }
-        },
-        handleCombatAction: async function(action) { // Made async
-            if (this.pendingRoll) return;
-
-            this.currentAction = action;
-            this.combatPhase = 'attack';
-
-            this.logCombat(`You attempt to ${action.name.toLowerCase()}...`);
-
-            // Show dice section
-            const diceSection = document.getElementById('combat-dice-section');
-            if (diceSection) {
-                diceSection.style.display = 'block';
-            }
-
-            try {
-                if (action.type === 'attack' || action.type === 'spell') {
-                    // Phase 1: Attack roll with D20
-                    this.pendingRoll = { action: action, type: 'combat', phase: 'attack' };
-
-                    if (typeof window.rollAttack === 'function') {
-                        await window.rollAttack();
-                    } else {
-                        // Fallback
-                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
-                    }
-                } else {
-                    // Utility actions use single D20 roll
-                    this.pendingRoll = { action: action, type: 'combat', phase: 'single' };
-
-                    if (typeof window.roll3DDice === 'function') {
-                        window.roll3DDice('d20');
-                    } else {
-                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
-                    }
-                }
-            } catch (error) {
-                console.error('Combat action failed:', error);
-                this.logCombat("Your action fails due to confusion!");
-                this.pendingRoll = null;
-            }
-        }
-    };
-}
-
-// Mock combat engine if it doesn't exist to avoid errors
-if (typeof window.questEngine === 'undefined') {
-    window.questEngine = {
-        pendingRoll: null,
-        currentAction: null,
-        combatPhase: null,
-        logCombat: (msg) => console.log(`Combat Log: ${msg}`),
-        processDiceRoll: (roll) => {
-            console.log(`Mock processDiceRoll called with: ${roll}`);
-            if (window.questEngine.pendingRoll && window.questEngine.pendingRoll.action) {
-                const action = window.questEngine.pendingRoll.action;
-                if (window.questEngine.pendingRoll.phase === 'attack') {
-                    const enemyAC = 15; // Example AC
-                    if (roll >= enemyAC) {
-                        window.questEngine.logCombat(`Hit! (Rolled ${roll})`);
-                        window.questEngine.pendingRoll.phase = 'damage';
-                        window.questEngine.combatPhase = 'damage';
-                        if (typeof window.rollDamage === 'function') {
-                            window.rollDamage(action.weapon || 'spell');
-                        } else {
-                            window.questEngine.processDiceRoll(Math.floor(Math.random() * 8) + 1);
-                        }
-                    } else {
-                        window.questEngine.logCombat(`Miss! (Rolled ${roll})`);
-                        window.questEngine.pendingRoll = null;
-                        window.questEngine.combatPhase = null;
-                        const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                        if (rollButton) rollButton.disabled = false;
-                    }
-                } else if (window.questEngine.pendingRoll.phase === 'damage') {
-                    window.questEngine.logCombat(`Damage dealt: ${roll}`);
-                    window.questEngine.pendingRoll = null;
-                    window.questEngine.combatPhase = null;
-                    const rollButton = document.getElementById('roll-dice-btn') || document.getElementById('combat-roll-btn');
-                    if (rollButton) rollButton.disabled = false;
-                }
-            }
-        },
-        handleCombatAction: async function(action) { // Made async
-            if (this.pendingRoll) return;
-            this.currentAction = action;
-            this.combatPhase = 'attack';
-            this.logCombat(`Attempting action: ${action.name}`);
-            const diceSection = document.getElementById('combat-dice-section');
-            if (diceSection) diceSection.style.display = 'block';
-
-            try {
-                if (action.type === 'attack' || action.type === 'spell') {
-                    this.pendingRoll = { action: action, type: 'combat', phase: 'attack' };
-                    if (typeof window.rollAttack === 'function') {
-                        await window.rollAttack();
-                    } else {
-                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
-                    }
-                } else {
-                    this.pendingRoll = { action: action, type: 'combat', phase: 'single' };
-                    if (typeof window.roll3DDice === 'function') {
-                        window.roll3DDice('d20');
-                    } else {
-                        this.processDiceRoll(Math.floor(Math.random() * 20) + 1);
-                    }
-                }
-            } catch (error) {
-                console.error('Combat action failed:', error);
-                this.logCombat("Action failed!");
-                this.pendingRoll = null;
-            }
-        }
-    };
-}

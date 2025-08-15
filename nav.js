@@ -22,11 +22,4 @@ window.showPage = function(pageId, linkEl) {
 
   const statsEl = document.querySelector('.stats-container');
   if (statsEl) statsEl.style.display = showStatsOnly ? '' : 'none';
-
-  // 4) Initialize quest engine when navigating to quests page
-  if (pageId === 'quests-page' && typeof window.initializeQuestsPage === 'function') {
-    setTimeout(() => {
-      window.initializeQuestsPage();
-    }, 100);
-  }
 };
