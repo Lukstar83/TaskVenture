@@ -1465,3 +1465,25 @@ window.initializeQuestsPage = function() {
         window.questEngine.renderQuestList();
     }
 };
+
+// Initialize when the quests page becomes active
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new MutationObserver(() => {
+        const questsPage = document.getElementById('quests-page');
+        if (questsPage && questsPage.classList.contains('active')) {
+            setTimeout(() => {
+                if (!window.questEngine) {
+                    window.questEngine = new QuestEngine();
+                }
+                if (window.questEngine && document.getElementById('quest-container')) {
+                    window.questEngine.renderQuestList();
+                }
+            }, 200);
+        }
+    });
+    
+    const questsPage = document.getElementById('quests-page');
+    if (questsPage) {
+        observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });
+    }
+});

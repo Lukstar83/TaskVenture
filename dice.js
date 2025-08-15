@@ -594,7 +594,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   const questsPage = document.getElementById('quests-page');
-  if (questsPage) observer.observe(questsPage, { attributes: true });
+  if (questsPage) {
+    observer.observe(questsPage, { attributes: true, attributeFilter: ['class'] });
+  }
 });
 
 // Global functions
