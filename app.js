@@ -1,31 +1,24 @@
 // app.js
 
-// Wait for DOM to be ready before initializing
-document.addEventListener('DOMContentLoaded', function() {
-    // Ensure initial visibility is set immediately to prevent flash
-    if (document.documentElement) {
-        document.documentElement.style.setProperty("--initial-load", "true");
-    }
-});
+// Ensure initial visibility is set immediately to prevent flash
+if (document.documentElement) {
+    document.documentElement.style.setProperty("--initial-load", "true");
+}
 
-// Initialize DOM elements after DOM is ready
-let splashEl, wizardEl, gameEl;
+// Initialize DOM elements
+let splashEl = document.getElementById("splash-screen");
+let wizardEl = document.getElementById("wizard");
+let gameEl   = document.getElementById("game-interface");
 
-document.addEventListener('DOMContentLoaded', function() {
-    splashEl = document.getElementById("splash-screen");
-    wizardEl = document.getElementById("wizard");
-    gameEl = document.getElementById("game-interface");
+// Immediately hide game interface to prevent flash
+if (gameEl) gameEl.style.display = "none";
+if (wizardEl) wizardEl.style.display = "none";
 
-    // Immediately hide game interface to prevent flash
-    if (gameEl) gameEl.style.display = "none";
-    if (wizardEl) wizardEl.style.display = "none";
+// Initialize the app
+initializeApp();
 
-    // Initialize the app after DOM is ready
-    initializeApp();
-
-    // Setup wellness notification listeners
-    setupWellnessNotificationListeners();
-});
+// Setup wellness notification listeners
+setupWellnessNotificationListeners();
 
 // Setup wellness notification event listeners
 function setupWellnessNotificationListeners() {
@@ -2664,10 +2657,8 @@ function setupHeaderAvatarLayout() {
 }
 
 // Call it when the app shows the game UI
-document.addEventListener("DOMContentLoaded", () => {
-    // If you already call enterApp(), also call this after you show the game interface:
-    setupHeaderAvatarLayout();
-});
+// If you already call enterApp(), also call this after you show the game interface:
+setupHeaderAvatarLayout();
 
 // Also call after page switches (so it picks the active panel’s top)
 // If you have a showPage function, add:
@@ -2686,10 +2677,8 @@ window.updateUI = function () {
 };
 
 // Allow Enter key to add tasks and set up button handler
-document.addEventListener("DOMContentLoaded", function () {
-    // Initialize avatar customization when DOM is loaded
-    setTimeout(initializeAvatarCustomization, 100);
-});
+// Initialize avatar customization
+setTimeout(initializeAvatarCustomization, 100);
 
 // Set up task input handlers when the game interface becomes visible
 function setupTaskInputHandlers() {

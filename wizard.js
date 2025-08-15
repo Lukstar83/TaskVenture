@@ -1,5 +1,5 @@
 // wizard.js
-document.addEventListener("DOMContentLoaded", () => {
+(() => {
   // 1) Cache DOM
   const splashEl   = document.getElementById("splash-screen");
   const wizardEl   = document.getElementById("wizard");
@@ -181,4 +181,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 11) kick off at step 0
   showStep(0);
-});
+})();
