@@ -11,9 +11,7 @@ function playClickSound() {
     clickSound.play().catch(e => console.warn('Click sound blocked:', e));
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeSettings();
-});
+initializeSettings();
 
 function initializeSettings() {
     // Load saved settings

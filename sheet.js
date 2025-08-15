@@ -778,5 +778,5 @@
 
   // 3) Expose for app.js and auto‐render on load
   window.renderSheet = renderSheet;
-  document.addEventListener('DOMContentLoaded', renderSheet);
+  renderSheet();
 })();

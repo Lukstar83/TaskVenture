@@ -490,18 +490,16 @@ function ensureDiceInitialized() {
   return !!renderer;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => { ensureDiceInitialized(); }, 600);
+setTimeout(() => { ensureDiceInitialized(); }, 600);
 
-  // if your app toggles views (quests/combat), try again when it becomes active
-  const target = document.getElementById('quests-page') || document.getElementById('dice-page');
-  if (target) {
-    const observer = new MutationObserver(() => {
-      if (target.classList.contains('active')) setTimeout(() => ensureDiceInitialized(), 400);
-    });
-    observer.observe(target, { attributes: true });
-  }
-});
+// if your app toggles views (quests/combat), try again when it becomes active
+const target = document.getElementById('quests-page') || document.getElementById('dice-page');
+if (target) {
+  const observer = new MutationObserver(() => {
+    if (target.classList.contains('active')) setTimeout(() => ensureDiceInitialized(), 400);
+  });
+  observer.observe(target, { attributes: true });
+}
 
 // Expose a couple helpers
 window.ensureDiceInitialized = ensureDiceInitialized;

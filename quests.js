@@ -2409,19 +2409,16 @@ function showFloatingMessage(message, type = 'info') {
 }
 
 
-// Initialize quest engine when DOM loads
-document.addEventListener("DOMContentLoaded", () => {
-    // Check if questEngine already exists to avoid reinitialization if this script is loaded multiple times
-    if (!window.questEngine) {
-        window.questEngine = new QuestEngine();
-        // Render the quest list initially if the container is present
-        setTimeout(() => {
-            if (document.getElementById("quest-container")) {
-                window.questEngine.renderQuestList();
-            }
-        }, 500); // Small delay to ensure DOM is ready
-    }
-});
+// Initialize quest engine
+if (!window.questEngine) {
+    window.questEngine = new QuestEngine();
+    // Render the quest list initially if the container is present
+    setTimeout(() => {
+        if (document.getElementById("quest-container")) {
+            window.questEngine.renderQuestList();
+        }
+    }, 500); // Small delay to ensure DOM is ready
+}
 
 // Also initialize when showing the quests page
 window.initializeQuestsPage = function () {
