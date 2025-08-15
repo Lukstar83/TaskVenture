@@ -1169,6 +1169,93 @@ body:has(#wellness-page.active) .header .header-bg {
   transform: translate(-50%, -50%) scale(0.15, 0.15) translateY(150%);
 }
 
+/* Header avatar cape overlay */
+#header-avatar-container #avatar-cape {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+}
+
+/* Race-specific scaling for header cape - Matching avatar customization */
+#header-avatar-container[data-race="dragonborn"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(-1.5%);
+}
+
+#header-avatar-container[data-race="half-orc"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(-0.5%);
+}
+
+#header-avatar-container[data-race="tiefling"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
+}
+
+#header-avatar-container[data-race="half-elf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
+}
+
+#header-avatar-container[data-race="human"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(-0.5%);
+}
+
+#header-avatar-container[data-race="elf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(-1%);
+}
+
+#header-avatar-container[data-race="dwarf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(8%);
+}
+
+#header-avatar-container[data-race="gnome"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(12%);
+}
+
+#header-avatar-container[data-race="halfling"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(143%);
+}
+
+/* Default header cape sizing */
+#header-avatar-container #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.50, 0.50);
+}
+
+/* Avatar page adjustments for header cape positioning */
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(20.5%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-orc"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.41, 0.47) translateY(21.5%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="tiefling"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="half-elf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="human"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.53, 0.53) translateY(21.5%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="elf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.50, 0.54) translateY(21%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="dwarf"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.59, 0.46) translateY(30%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="gnome"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.46, 0.44) translateY(34%);
+}
+
+body:has(#avatar-page.active) .header #header-avatar-container[data-race="halfling"] #avatar-cape {
+  transform: translate(-50%, -50%) scale(0.44, 0.46) translateY(95%);
+}
+
 /* Avatar page adjustments for header armor positioning */
 body:has(#avatar-page.active) .header #header-avatar-container[data-race="dragonborn"] #avatar-armor {
   transform: translate(-50%, -50%) scale(0.52, 0.5) translateY(20.5%);

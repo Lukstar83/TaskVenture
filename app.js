@@ -2584,6 +2584,17 @@ function updateAvatarDisplay() {
         }
     }
 
+    // Update header cape overlay
+    const headerCapeImg = document.querySelector("#header-avatar-container #avatar-cape");
+    if (headerCapeImg) {
+        if (user.avatar.cape) {
+            headerCapeImg.src = `images/capes/${user.avatar.cape}`;
+            headerCapeImg.style.display = "block";
+        } else {
+            headerCapeImg.style.display = "none";
+        }
+    }
+
     if (weaponImg) {
         if (user.avatar.weapon) {
             weaponImg.src = user.avatar.weapon;
@@ -2600,7 +2611,17 @@ function updateAvatarDisplay() {
             capeImg.style.display = "none";
         }
     }
-    // Update boots display
+
+    // Update header boots overlay
+    const headerBootsImg = document.querySelector("#header-avatar-container #avatar-boots");
+    if (headerBootsImg) {
+        if (user.avatar.boots) {
+            headerBootsImg.src = user.avatar.boots;
+            headerBootsImg.style.display = "block";
+        } else {
+            headerBootsImg.style.display = "none";
+        }
+    }pdate boots display
     if (bootsImg) {
         if (user.avatar.boots) {
             bootsImg.src = user.avatar.boots; // Use the direct path from user.avatar.boots
